@@ -1,5 +1,5 @@
 _ReSharper.*/
-/build/*
+/build/*/*
 /src/*/bin/
 /src/*/obj/
 *.user
