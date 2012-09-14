@@ -1,6 +1,7 @@
-_ReSharper.*/
+/_ReSharper.*/
 /build/*/*
 /src/*/bin/
 /src/*/obj/
+/packages/*
 *.user
 *.suo
