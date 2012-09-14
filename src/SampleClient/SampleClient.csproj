@@ -50,7 +50,7 @@
     <DebugSymbols>true</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\build\all\Samples\Debug\</OutputPath>
+    <OutputPath>..\..\build\all\SampleClient\Debug\</OutputPath>
     <RegisterForComInterop>False</RegisterForComInterop>
     <RemoveIntegerChecks>False</RemoveIntegerChecks>
     <WarningLevel>4</WarningLevel>
@@ -65,7 +65,7 @@
     </DocumentationFile>
     <FileAlignment>4096</FileAlignment>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\build\all\Samples\Release\</OutputPath>
+    <OutputPath>..\..\build\all\SampleClient\Release\</OutputPath>
     <RegisterForComInterop>False</RegisterForComInterop>
     <RemoveIntegerChecks>False</RemoveIntegerChecks>
     <WarningLevel>4</WarningLevel>
@@ -73,7 +73,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Stats|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\build\all\Samples\Stats\</OutputPath>
+    <OutputPath>..\..\build\all\SampleClient\Stats\</OutputPath>
     <DefineConstants>TRACE;DEBUG;STATS</DefineConstants>
     <BaseAddress>285212672</BaseAddress>
     <DebugType>full</DebugType>
