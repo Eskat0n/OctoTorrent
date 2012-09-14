@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>MonoTorrent.Dht</id>
+    <version>$version$</version>
+    <title>MonoTorrent.Dht</title>
+    <authors>Eskat0n</authors>
+    <owners>Eskat0n</owners>
+    <licenseUrl>http://www.opensource.org/licenses/mit-license.php</licenseUrl>
+    <projectUrl>https://github.com/Eskat0n/monotorrent</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>MonoTorrent is a cross platform and open source implementation of the BitTorrent protocol. This package contains DHT (Distributed Hash Table) implementation for MonoTorrent</description>
+    <tags>torrent</tags>    
+  </metadata>
+</package>
