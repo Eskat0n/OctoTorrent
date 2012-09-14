@@ -17,8 +17,8 @@ task DoNotRunItDirectly {
 task CommonBuild -depends EnsureParams, Build
 
 task EnsureParams {
-	Assert ($buildNumber -ne $null) 'Property `$buildNumber should be specified'`
-	Assert ($configuration -ne $null) 'Property `$configuration should be specified'`
+	Assert ($buildNumber -ne $null) 'Property $buildNumber should be specified'
+	Assert ($configuration -ne $null) 'Property $configuration should be specified'
 }
 
 task Build {
