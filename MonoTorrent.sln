@@ -12,6 +12,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackerApp", "src\TrackerApp\TrackerApp.csproj", "{7A647552-B5F0-419F-9395-4DC24990ED20}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{FDA8EC92-A28F-4AD4-ADAC-04BA8351E5D0}"
+	ProjectSection(SolutionItems) = preProject
+		build\default.ps1 = build\default.ps1
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{F4AACEDF-5F0C-43AC-B91A-5DD5A869A5E2}"
 EndProject
