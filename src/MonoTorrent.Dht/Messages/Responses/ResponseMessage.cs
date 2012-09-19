@@ -47,7 +47,7 @@ namespace MonoTorrent.Dht.Messages
         }
         public BEncodedDictionary Parameters
         {
-            get { return (BEncodedDictionary)properties[ReturnValuesKey]; }
+            get { return (BEncodedDictionary)Properties[ReturnValuesKey]; }
         }
 
         public QueryMessage Query
@@ -58,7 +58,7 @@ namespace MonoTorrent.Dht.Messages
         protected ResponseMessage(NodeId id, BEncodedValue transactionId)
             : base(ResponseType)
         {
-            properties.Add(ReturnValuesKey, new BEncodedDictionary());
+            Properties.Add(ReturnValuesKey, new BEncodedDictionary());
             Parameters.Add(IdKey, id.BencodedString());
             TransactionId = transactionId;
         }

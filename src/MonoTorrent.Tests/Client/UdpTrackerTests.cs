@@ -144,13 +144,13 @@ namespace MonoTorrent.Client
             var id = new TrackerConnectionID(udpTracker, false, TorrentEvent.Started, new ManualResetEvent(false));
 
             ScrapeResponseEventArgs p = null;
-            udpTracker.ScrapeComplete += delegate(object o, ScrapeResponseEventArgs e)
-                                    {
-                                        if (e.Successful)
-                                            Console.ReadLine();
-                                        p = e;
-                                        id.WaitHandle.Set();
-                                    };
+            udpTracker.ScrapeComplete += (o, e) =>
+                                             {
+                                                 if (e.Successful)
+                                                     Console.ReadLine();
+                                                 p = e;
+                                                 id.WaitHandle.Set();
+                                             };
             var pars = new ScrapeParameters(new InfoHash(new byte[20]));
 
             udpTracker.Scrape(pars, id);
@@ -175,10 +175,12 @@ namespace MonoTorrent.Client
         [Test]
         public void AnnounceResponseTest()
         {
-            var peers = new List<Peer>();
-            peers.Add(new Peer(new string('1', 20), new Uri("tcp://127.0.0.1:1")));
-            peers.Add(new Peer(new string('2', 20), new Uri("tcp://127.0.0.1:2")));
-            peers.Add(new Peer(new string('3', 20), new Uri("tcp://127.0.0.1:3")));
+            var peers = new List<Peer>
+                            {
+                                new Peer(new string('1', 20), new Uri("tcp://127.0.0.1:1")),
+                                new Peer(new string('2', 20), new Uri("tcp://127.0.0.1:2")),
+                                new Peer(new string('3', 20), new Uri("tcp://127.0.0.1:3"))
+                            };
 
             var m = new AnnounceResponseMessage(12345, TimeSpan.FromSeconds(10), 43, 65, peers);
             var d =

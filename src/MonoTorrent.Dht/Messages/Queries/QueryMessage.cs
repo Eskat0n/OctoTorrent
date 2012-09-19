@@ -27,12 +27,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-using System;
-using System.Collections.Generic;
-
 using MonoTorrent.BEncoding;
-using System.Net;
 
 namespace MonoTorrent.Dht.Messages
 {
@@ -41,22 +36,17 @@ namespace MonoTorrent.Dht.Messages
         private static readonly BEncodedString QueryArgumentsKey = "a";
         private static readonly BEncodedString QueryNameKey = "q";
         internal static readonly BEncodedString QueryType = "q";
-        private ResponseCreator responseCreator;
 
         internal override NodeId Id
         {
             get { return new NodeId((BEncodedString)Parameters[IdKey]); }
         }
 
-        internal ResponseCreator ResponseCreator
-        {
-            get { return responseCreator; }
-            private set { responseCreator = value; }
-        }
+        internal ResponseCreator ResponseCreator { get; private set; }
 
         protected BEncodedDictionary Parameters
         {
-            get { return (BEncodedDictionary)properties[QueryArgumentsKey]; }
+            get { return (BEncodedDictionary)Properties[QueryArgumentsKey]; }
         }
 
         protected QueryMessage(NodeId id, BEncodedString queryName, ResponseCreator responseCreator)
@@ -68,8 +58,8 @@ namespace MonoTorrent.Dht.Messages
         protected QueryMessage(NodeId id, BEncodedString queryName, BEncodedDictionary queryArguments, ResponseCreator responseCreator)
             : base(QueryType)
         {
-            properties.Add(QueryNameKey, queryName);
-            properties.Add(QueryArgumentsKey, queryArguments);
+            Properties.Add(QueryNameKey, queryName);
+            Properties.Add(QueryArgumentsKey, queryArguments);
 
             Parameters.Add(IdKey, id.BencodedString());
             ResponseCreator = responseCreator;

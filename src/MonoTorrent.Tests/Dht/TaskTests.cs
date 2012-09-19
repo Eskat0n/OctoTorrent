@@ -26,6 +26,7 @@ namespace MonoTorrent.Dht
         private readonly BEncodedString _transactionId = "aa";
         private ManualResetEvent _handle;
         private int _counter;
+        private int _nodeCount;
 
         [SetUp]
         public void Setup()
@@ -84,17 +85,18 @@ namespace MonoTorrent.Dht
             Assert.IsTrue(n.LastSeen > DateTime.UtcNow.AddSeconds(-2));
         }
 
-        int nodeCount = 0;
         [Test]
         public void NodeReplaceTest()
         {
             _engine.TimeOut = TimeSpan.FromMilliseconds(25);
-            ManualResetEvent handle = new ManualResetEvent(false);
-            Bucket b = new Bucket();
-            for (int i = 0; i < Bucket.MaxCapacity; i++)
+            var handle = new ManualResetEvent(false);
+            var b = new Bucket();
+            for (var i = 0; i < Bucket.MaxCapacity; i++)
             {
-                Node n = new Node(NodeId.Create(), new IPEndPoint(IPAddress.Any, i));
-                n.LastSeen = DateTime.UtcNow;
+                var n = new Node(NodeId.Create(), new IPEndPoint(IPAddress.Any, i))
+                            {
+                                LastSeen = DateTime.UtcNow
+                            };
                 b.Add(n);
             }
 
@@ -108,27 +110,27 @@ namespace MonoTorrent.Dht
                     return;
 
                 b.Nodes.Sort();
-                if ((e.EndPoint.Port == 3 && nodeCount == 0) ||
-                     (e.EndPoint.Port == 1 && nodeCount == 1) ||
-                     (e.EndPoint.Port == 5 && nodeCount == 2))
+                if ((e.EndPoint.Port == 3 && _nodeCount == 0) ||
+                     (e.EndPoint.Port == 1 && _nodeCount == 1) ||
+                     (e.EndPoint.Port == 5 && _nodeCount == 2))
                 {
-                    Node n = b.Nodes.Find(delegate(Node no) { return no.EndPoint.Port == e.EndPoint.Port; });
+                    var n = b.Nodes.Find(delegate(Node no) { return no.EndPoint.Port == e.EndPoint.Port; });
                     n.Seen();
-                    PingResponse response = new PingResponse(n.Id, e.Query.TransactionId);
+                    var response = new PingResponse(n.Id, e.Query.TransactionId);
                     DhtEngine.MainLoop.Queue(delegate
                     {
                         //System.Threading.Thread.Sleep(100);
                         Console.WriteLine("Faking the receive");
                         _listener.RaiseMessageReceived(response, _node.EndPoint);
                     });
-                    nodeCount++;
+                    _nodeCount++;
                 }
 
             };
 
-            ReplaceNodeTask task = new ReplaceNodeTask(_engine, b, null);
+            var task = new ReplaceNodeTask(_engine, b, null);
             // FIXME: Need to assert that node 0.0.0.0:0 is the one which failed - i.e. it should be replaced
-            task.Completed += delegate(object o, TaskCompleteEventArgs e) { handle.Set(); };
+            task.Completed += (o, e) => handle.Set();
             task.Execute();
 
             Assert.IsTrue(handle.WaitOne(4000, false), "#10");

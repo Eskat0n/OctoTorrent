@@ -27,83 +27,75 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-using System;
-using System.Collections.Generic;
-
-using MonoTorrent.BEncoding;
-using System.Net;
-using MonoTorrent.Common;
-
 namespace MonoTorrent.Dht.Messages
 {
+    using BEncoding;
+    using Common;
+
     internal abstract class Message : MonoTorrent.Client.Messages.Message
     {
         internal static bool UseVersionKey = true;
 
-        private static BEncodedString EmptyString = "";
+        private static readonly BEncodedString EmptyString = "";
         protected static readonly BEncodedString IdKey = "id";
-        private static BEncodedString TransactionIdKey = "t";
-        private static BEncodedString VersionKey = "v";
-        private static BEncodedString MessageTypeKey = "y";
-        private static BEncodedString DhtVersion = VersionInfo.DhtClientVersion;
+        private static readonly BEncodedString TransactionIdKey = "t";
+        private static readonly BEncodedString VersionKey = "v";
+        private static readonly BEncodedString MessageTypeKey = "y";
+        private static readonly BEncodedString DhtVersion = VersionInfo.DhtClientVersion;
 
-        protected BEncodedDictionary properties = new BEncodedDictionary();
+        protected BEncodedDictionary Properties = new BEncodedDictionary();
+
+        protected Message(BEncodedValue messageType)
+        {
+            Properties.Add(TransactionIdKey, null);
+            Properties.Add(MessageTypeKey, messageType);
+            if (UseVersionKey)
+                Properties.Add(VersionKey, DhtVersion);
+        }
+
+        protected Message(BEncodedDictionary dictionary)
+        {
+            Properties = dictionary;
+        }
 
         public BEncodedString ClientVersion
         {
             get
             {
                 BEncodedValue val;
-                if (properties.TryGetValue(VersionKey, out val))
-                    return (BEncodedString)val;
+                if (Properties.TryGetValue(VersionKey, out val))
+                    return (BEncodedString) val;
                 return EmptyString;
             }
         }
 
-        internal abstract NodeId Id
-        {
-            get;
-        }
+        internal abstract NodeId Id { get; }
 
         public BEncodedString MessageType
         {
-            get { return (BEncodedString)properties[MessageTypeKey]; }
+            get { return (BEncodedString) Properties[MessageTypeKey]; }
         }
 
         public BEncodedValue TransactionId
         {
-            get { return properties[TransactionIdKey]; }
-            set { properties[TransactionIdKey] = value; }
+            get { return Properties[TransactionIdKey]; }
+            set { Properties[TransactionIdKey] = value; }
         }
 
-
-        protected Message(BEncodedString messageType)
-        {
-            properties.Add(TransactionIdKey, null);
-            properties.Add(MessageTypeKey, messageType);
-            if (UseVersionKey)
-                properties.Add(VersionKey, DhtVersion);
-        }
-
-        protected Message(BEncodedDictionary dictionary)
-        {
-            properties = dictionary;
-        }
 
         public override int ByteLength
         {
-            get { return properties.LengthInBytes(); }
+            get { return Properties.LengthInBytes(); }
         }
 
         public override void Decode(byte[] buffer, int offset, int length)
         {
-            properties = BEncodedValue.Decode<BEncodedDictionary>(buffer, offset, length, false);
+            Properties = BEncodedValue.Decode<BEncodedDictionary>(buffer, offset, length, false);
         }
 
         public override int Encode(byte[] buffer, int offset)
         {
-            return properties.Encode(buffer, offset);
+            return Properties.Encode(buffer, offset);
         }
 
         public virtual void Handle(DhtEngine engine, Node node)
@@ -112,4 +104,5 @@ namespace MonoTorrent.Dht.Messages
         }
     }
 }
+
 #endif

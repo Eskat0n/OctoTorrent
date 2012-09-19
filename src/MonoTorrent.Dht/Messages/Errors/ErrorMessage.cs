@@ -50,7 +50,7 @@ namespace MonoTorrent.Dht.Messages
         }
         private BEncodedList ErrorList
         {
-            get { return (BEncodedList)properties[ErrorListKey]; }
+            get { return (BEncodedList)Properties[ErrorListKey]; }
         }
 		
 		private ErrorCode ErrorCode
@@ -69,7 +69,7 @@ namespace MonoTorrent.Dht.Messages
 		    BEncodedList l = new BEncodedList();
 		    l.Add(new BEncodedNumber((int)error));
 			l.Add(new BEncodedString(message));
-            properties.Add(ErrorListKey, l);
+            Properties.Add(ErrorListKey, l);
         }
 
         public ErrorMessage(BEncodedDictionary d)
