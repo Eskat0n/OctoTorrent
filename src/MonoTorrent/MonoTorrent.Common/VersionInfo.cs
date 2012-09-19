@@ -38,14 +38,17 @@ namespace MonoTorrent.Common
         /// </summary>
         public static readonly string ProtocolStringV100 = "BitTorrent protocol";
 
-        /// <summary>
-        ///   The current version of the client
-        /// </summary>
-        public static readonly string ClientVersion = CreateClientVersion();
-
         public static readonly string DhtClientVersion = "MO06";
 
         internal static Version Version;
+
+        /// <summary>
+        ///   The current version of the client
+        /// </summary>
+        public static string ClientVersion
+        {
+            get { return CreateClientVersion(); }
+        }
 
         private static string CreateClientVersion()
         {

@@ -106,7 +106,6 @@ namespace MonoTorrent.Common {
             CreatedBy = string.Format ("MonoTorrent {0}", VersionInfo.Version);
         }
 
-
         public void AbortCreation ()
         {
             TorrentCreatorAsyncResult r = asyncResult;
