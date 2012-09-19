@@ -29,6 +29,7 @@
 namespace MonoTorrent.Common
 {
     using System;
+    using System.Linq;
     using System.Reflection;
 
     public static class VersionInfo
@@ -52,21 +53,29 @@ namespace MonoTorrent.Common
 
         private static string CreateClientVersion()
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var versionAttr = (AssemblyInformationalVersionAttribute)
-                              assembly.GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false)[0];
-            Version = new Version(versionAttr.InformationalVersion);
+            var monotorrentAssembly = Assembly.GetExecutingAssembly();
+            var versionAttribute = GetAssemblyAttribute<AssemblyInformationalVersionAttribute>(monotorrentAssembly);
+
+            var version = new Version(versionAttribute.InformationalVersion);
 
             // 'MO' for MonoTorrent then four digit version number
-            var version = string.Format("{0}{1}{2}{3}", Math.Max(Version.Major, 0),
-                                        Math.Max(Version.Minor, 0),
-                                        Math.Max(Version.Build, 0),
-                                        Math.Max(Version.Revision, 0));
-            version = version.Length > 4
-                          ? version.Substring(0, 4)
-                          : version.PadRight(4, '0');
+            var versionString = string.Format("{0}{1}{2}{3}",
+                                              Math.Max(version.Major, 0),
+                                              Math.Max(version.Minor, 0),
+                                              Math.Max(version.Build, 0),
+                                              Math.Max(version.Revision, 0));
+            versionString = versionString.Length > 4
+                          ? versionString.Substring(0, 4)
+                          : versionString.PadRight(4, '0');
 
-            return string.Format("-MO{0}-", version);
+            return string.Format("-MO{0}-", versionString);
+        }
+
+        private static TAttribute GetAssemblyAttribute<TAttribute>(Assembly assembly) 
+            where TAttribute : Attribute
+        {
+            return assembly.GetCustomAttributes(typeof (TAttribute), false)
+                       .FirstOrDefault() as TAttribute;
         }
     }
 }
