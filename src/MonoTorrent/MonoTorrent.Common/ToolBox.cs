@@ -40,11 +40,6 @@ namespace MonoTorrent.Common
     {
         private static readonly Random Random = new Random();
 
-        public static int Count<T>(IEnumerable<T> enumerable, Predicate<T> predicate)
-        {
-            return enumerable.Count(t => predicate(t));
-        }
-
         public static long Accumulate<T>(IEnumerable<T> enumerable, Operation<T> action)
         {
             return enumerable.Sum(t => action(t));
