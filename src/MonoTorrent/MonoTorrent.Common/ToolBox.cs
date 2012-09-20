@@ -30,7 +30,6 @@ namespace MonoTorrent.Common
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using MonoTorrent.Client.Encryption;
 
@@ -39,11 +38,6 @@ namespace MonoTorrent.Common
     public static class Toolbox
     {
         private static readonly Random Random = new Random();
-
-        public static long Accumulate<T>(IEnumerable<T> enumerable, Operation<T> action)
-        {
-            return enumerable.Sum(t => action(t));
-        }
 
         public static void RaiseAsyncEvent<T>(EventHandler<T> e, object o, T args)
             where T : EventArgs
