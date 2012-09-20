@@ -1,125 +1,121 @@
-using System;
-using System.Collections.Generic;
-using NUnit.Framework;
-using MonoTorrent.Client;
-using MonoTorrent.Client.PieceWriters;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.Common;
-using System.Threading;
-using System.IO;
-
 namespace MonoTorrent.Client
 {
-	public class MemoryWriterTests
-	{
-        byte[] buffer;
-        MemoryWriter level1;
-        MemoryWriter level2;
+    using System.Linq;
+    using Common;
+    using NUnit.Framework;
+    using PieceWriters;
 
-        TorrentFile singleFile;
-        TorrentFile[] multiFile;
+    public class MemoryWriterTests
+    {
+        private byte[] _buffer;
+        private MemoryWriter _level1;
+        private MemoryWriter _level2;
 
-        int pieceLength;
-        long torrentSize;
+        private TorrentFile[] _multiFile;
+
+        private int _pieceLength;
+        private TorrentFile _singleFile;
+        private long _torrentSize;
 
         [TestFixtureSetUp]
         public void FixtureSetup()
         {
-            pieceLength = Piece.BlockSize * 2;
-            singleFile = new TorrentFile("path", Piece.BlockSize * 5);
-            multiFile = new TorrentFile[] {
-                new TorrentFile ("first", Piece.BlockSize - 550),
-                new TorrentFile ("second", 100),
-                new TorrentFile ("third", Piece.BlockSize)
-            };
-            buffer = new byte[Piece.BlockSize];
-            torrentSize = Toolbox.Accumulate<TorrentFile>(multiFile, delegate(TorrentFile f) { return f.Length; });
+            _pieceLength = Piece.BlockSize*2;
+            _singleFile = new TorrentFile("path", Piece.BlockSize*5);
+            _multiFile = new[]
+                            {
+                                new TorrentFile("first", Piece.BlockSize - 550),
+                                new TorrentFile("second", 100),
+                                new TorrentFile("third", Piece.BlockSize)
+                            };
+            _buffer = new byte[Piece.BlockSize];
+            _torrentSize = _multiFile.Sum(x => x.Length);
         }
 
-		[SetUp]
-		public void Setup()
-		{
-            Initialise(buffer, 1);
-			level2 = new MemoryWriter(new NullWriter(), Piece.BlockSize * 3);
-            level1 = new MemoryWriter(level2, Piece.BlockSize * 3);
-		}
+        [SetUp]
+        public void Setup()
+        {
+            Initialize(_buffer, 1);
+            _level2 = new MemoryWriter(new NullWriter(), Piece.BlockSize*3);
+            _level1 = new MemoryWriter(_level2, Piece.BlockSize*3);
+        }
 
         [Test]
         public void FillFirstBuffer()
         {
             // Write 4 blocks to the stream and then verify they can all be read
-            for (int i = 0; i < 4; i++)
+            for (var i = 0; i < 4; i++)
             {
-                Initialise(buffer, (byte)(i + 1));
-                level1.Write(singleFile, Piece.BlockSize * i, buffer, 0, buffer.Length);
+                Initialize(_buffer, (byte) (i + 1));
+                _level1.Write(_singleFile, Piece.BlockSize*i, _buffer, 0, _buffer.Length);
             }
 
             // Read them all back out and verify them
-            for (int i = 0; i < 4; i++)
+            for (var i = 0; i < 4; i++)
             {
-                level1.Read(singleFile, Piece.BlockSize * i, buffer, 0, Piece.BlockSize);
-                Verify(buffer, (byte)(i + 1));
+                _level1.Read(_singleFile, Piece.BlockSize*i, _buffer, 0, Piece.BlockSize);
+                Verify(_buffer, (byte) (i + 1));
             }
         }
 
         [Test]
         public void ReadWriteBlock()
         {
-            level1.Write(singleFile, 0, buffer, 0, buffer.Length);
-            level1.Read(singleFile, 0, buffer, 0, buffer.Length);
-            Verify(buffer, 1);
+            _level1.Write(_singleFile, 0, _buffer, 0, _buffer.Length);
+            _level1.Read(_singleFile, 0, _buffer, 0, _buffer.Length);
+            Verify(_buffer, 1);
         }
 
         [Test]
         public void ReadWriteBlockChangeOriginal()
         {
-            level1.Write(singleFile, 0, buffer, 0, buffer.Length);
-            Initialise(buffer, 5);
-            level1.Read(singleFile, 0, buffer, 0, buffer.Length);
-            Verify(buffer, 1);
+            _level1.Write(_singleFile, 0, _buffer, 0, _buffer.Length);
+            Initialize(_buffer, 5);
+            _level1.Read(_singleFile, 0, _buffer, 0, _buffer.Length);
+            Verify(_buffer, 1);
         }
 
         [Test]
         public void ReadWriteSpanningBlock()
         {
             // Write one block of data to the memory stream. 
-            int file1 = (int)multiFile[0].Length;
-            int file2 = (int)multiFile[1].Length;
-            int file3 = Piece.BlockSize - file1 - file2;
+            var file1 = (int) _multiFile[0].Length;
+            var file2 = (int) _multiFile[1].Length;
+            var file3 = Piece.BlockSize - file1 - file2;
 
-            Initialise(buffer, 1);
-            level1.Write(multiFile[0], 0, buffer, 0, file1);
+            Initialize(_buffer, 1);
+            _level1.Write(_multiFile[0], 0, _buffer, 0, file1);
 
-            Initialise(buffer, 2);
-            level1.Write(multiFile[1], 0, buffer, 0, file2);
+            Initialize(_buffer, 2);
+            _level1.Write(_multiFile[1], 0, _buffer, 0, file2);
 
-            Initialise(buffer, 3);
-            level1.Write(multiFile[2], 0, buffer, 0, file3);
+            Initialize(_buffer, 3);
+            _level1.Write(_multiFile[2], 0, _buffer, 0, file3);
 
             // Read the block from the memory stream
-            level1.Read(multiFile, 0, buffer, 0, Piece.BlockSize, pieceLength, torrentSize);
+            _level1.Read(_multiFile, 0, _buffer, 0, Piece.BlockSize, _pieceLength, _torrentSize);
 
             // Ensure that the data is in the buffer exactly as expected.
-            Verify(buffer, 0, file1, 1);
-            Verify(buffer, file1, file2, 2);
-            Verify(buffer, file1 + file2, file3, 3);
+            Verify(_buffer, 0, file1, 1);
+            Verify(_buffer, file1, file2, 2);
+            Verify(_buffer, file1 + file2, file3, 3);
         }
-        
-        void Initialise(byte[] buffer, byte value)
-		{
-			for (int i = 0; i < buffer.Length; i++)
-				buffer[i] = value;
-		}
 
-        void Verify(byte[] buffer, byte expected)
+        private static void Initialize(byte[] buffer, byte value)
+        {
+            for (var i = 0; i < buffer.Length; i++)
+                buffer[i] = value;
+        }
+
+        private static void Verify(byte[] buffer, byte expected)
         {
             Verify(buffer, 0, buffer.Length, expected);
         }
 
-        void Verify(byte[] buffer, int startOffset, int count, byte expected)
+        private static void Verify(byte[] buffer, int startOffset, int count, byte expected)
         {
-            for (int i = startOffset; i < startOffset + count; i++)
+            for (var i = startOffset; i < startOffset + count; i++)
                 Assert.AreEqual(buffer[i], expected, "#" + i);
         }
-	}
+    }
 }
