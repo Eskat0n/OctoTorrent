@@ -151,7 +151,7 @@ namespace MonoTorrent.Common
 
             var shaHasher = HashAlgoFactory.Create<SHA1>();
             var torrentHashes = new List<byte>();
-            var overallTotal = Toolbox.Accumulate(files, m => m.Length);
+            var overallTotal = files.Sum(x => x.Length);
 
             var pieceLength = PieceLength;
             var buffer = new byte[pieceLength];
