@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.Common;
+using System.Linq;
 
 namespace MonoTorrent.Client
 {
@@ -19,7 +17,6 @@ namespace MonoTorrent.Client
 
         #endregion Member Variables
 
-
         #region Properties
 
         public int Available
@@ -33,12 +30,7 @@ namespace MonoTorrent.Client
         /// <returns></returns>
         public int Leechs
         {
-            get
-            {
-                return (int)ClientEngine.MainLoop.QueueWait((MainLoopJob)delegate {
-                    return Toolbox.Count<Peer>(ActivePeers, delegate(Peer p) { return !p.IsSeeder; });
-                });
-            }
+            get { return (int) ClientEngine.MainLoop.QueueWait(() => ActivePeers.Count(p => !p.IsSeeder)); }
         }
 
         /// <summary>
@@ -47,16 +39,10 @@ namespace MonoTorrent.Client
         /// <returns></returns>
         public int Seeds
         {
-            get
-            {
-                return (int)ClientEngine.MainLoop.QueueWait((MainLoopJob)delegate {
-                    return Toolbox.Count<Peer>(ActivePeers, delegate(Peer p) { return p.IsSeeder; });
-                });
-            }
+            get { return (int) ClientEngine.MainLoop.QueueWait(() => ActivePeers.Count(p => p.IsSeeder)); }
         }
 
         #endregion
-
 
         #region Constructors
 
