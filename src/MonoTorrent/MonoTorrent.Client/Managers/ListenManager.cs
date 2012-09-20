@@ -186,7 +186,7 @@ namespace MonoTorrent.Client
             id.ClientApp = new Software(message.PeerId);
 
             message = new HandshakeMessage(id.TorrentManager.InfoHash, engine.PeerId, VersionInfo.ProtocolStringV100);
-            var callback = engine.ConnectionManager.incomingConnectionAcceptedCallback;
+            var callback = engine.ConnectionManager.IncomingConnectionAcceptedCallback;
             PeerIO.EnqueueSendMessage (id.Connection, id.Encryptor, message, id.TorrentManager.UploadLimiter,
                                     id.Monitor, id.TorrentManager.Monitor, callback, id);
         }

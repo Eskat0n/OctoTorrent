@@ -566,7 +566,7 @@ namespace MonoTorrent.Client
 					id.ClientApp = new Software(id.PeerID);
                     manager.Peers.ConnectedPeers.Add(id);
 					manager.RaisePeerConnected(new PeerConnectionEventArgs(manager, id, Direction.Outgoing));
-                    PeerIO.EnqueueReceiveMessage (id.Connection, id.Decryptor, Manager.DownloadLimiter, id.Monitor, id.TorrentManager, id.ConnectionManager.messageReceivedCallback, id);
+                    PeerIO.EnqueueReceiveMessage (id.Connection, id.Decryptor, Manager.DownloadLimiter, id.Monitor, id.TorrentManager, id.ConnectionManager.MessageReceivedCallback, id);
                 }
 
                 // FIXME: In future, don't clear out this list. It may be useful to keep the list of HTTP seeds
