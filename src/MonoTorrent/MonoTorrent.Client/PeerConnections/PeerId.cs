@@ -26,21 +26,17 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-
-using System.Net.Sockets;
-using System;
-using MonoTorrent.Common;
-using System.Diagnostics;
-using MonoTorrent.Client.Connections;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Client.Encryption;
-using MonoTorrent.Client.Messages.Libtorrent;
-using System.Collections.Generic;
-using MonoTorrent.Client.Messages.Standard;
 namespace MonoTorrent.Client
 {
+    using System;
+    using Common;
+    using System.Diagnostics;
+    using Connections;
+    using Messages;
+    using Encryption;
+    using System.Collections.Generic;
+    using Messages.Standard;
+    
     public class PeerId //: IComparable<PeerIdInternal>
     {
         #region Choke/Unchoke
@@ -460,18 +456,18 @@ namespace MonoTorrent.Client
 
         public override bool Equals(object obj)
         {
-            PeerId id = obj as PeerId;
-            return id == null ? false : this.peer.Equals(id.peer);
+            var id = obj as PeerId;
+            return id != null && peer.Equals(id.peer);
         }
 
         public override int GetHashCode()
         {
-            return this.peer.ConnectionUri.GetHashCode();
+            return peer.ConnectionUri.GetHashCode();
         }
         
         internal int QueueLength
         {
-            get { return this.sendQueue.Count; }
+            get { return sendQueue.Count; }
         }
 
         public void SendMessage(PeerMessage message)
@@ -489,7 +485,7 @@ namespace MonoTorrent.Client
 
         public override string ToString()
         {
-            return this.peer.ConnectionUri.ToString();
+            return peer.ConnectionUri.ToString();
         }
 
         #endregion

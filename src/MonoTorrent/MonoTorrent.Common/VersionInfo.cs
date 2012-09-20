@@ -28,54 +28,38 @@
 
 namespace MonoTorrent.Common
 {
-    using System;
-    using System.Linq;
-    using System.Reflection;
-
     public static class VersionInfo
     {
         /// <summary>
         ///   Protocol string for version 1.0 of Bittorrent Protocol
         /// </summary>
-        public static readonly string ProtocolStringV100 = "BitTorrent protocol";
+        public const string ProtocolStringV100 = "BitTorrent protocol";
 
-        public static readonly string DhtClientVersion = "MO06";
+        private static readonly IIdentifierProvider DefaultIdentifierProvider = new MonoTorrentIdentifierProvider();
+        private static IIdentifierProvider _customIdentifierProvider;
 
-        internal static Version Version;
+        public static IIdentifierProvider IdentifierProvider
+        {
+            get { return _customIdentifierProvider ?? DefaultIdentifierProvider; }
+            set { _customIdentifierProvider = value; }
+        }
+
+        public static string DhtClientVersion
+        {
+            get { return IdentifierProvider.CreateDhtClientVersion(); }
+        }
 
         /// <summary>
         ///   The current version of the client
         /// </summary>
         public static string ClientVersion
         {
-            get { return CreateClientVersion(); }
+            get { return IdentifierProvider.CreatePeerId(); }
         }
 
-        private static string CreateClientVersion()
+        internal static string HumanReadableId
         {
-            var monotorrentAssembly = Assembly.GetExecutingAssembly();
-            var versionAttribute = GetAssemblyAttribute<AssemblyInformationalVersionAttribute>(monotorrentAssembly);
-
-            var version = new Version(versionAttribute.InformationalVersion);
-
-            // 'MO' for MonoTorrent then four digit version number
-            var versionString = string.Format("{0}{1}{2}{3}",
-                                              Math.Max(version.Major, 0),
-                                              Math.Max(version.Minor, 0),
-                                              Math.Max(version.Build, 0),
-                                              Math.Max(version.Revision, 0));
-            versionString = versionString.Length > 4
-                          ? versionString.Substring(0, 4)
-                          : versionString.PadRight(4, '0');
-
-            return string.Format("-MO{0}-", versionString);
-        }
-
-        private static TAttribute GetAssemblyAttribute<TAttribute>(Assembly assembly) 
-            where TAttribute : Attribute
-        {
-            return assembly.GetCustomAttributes(typeof (TAttribute), false)
-                       .FirstOrDefault() as TAttribute;
+            get { return IdentifierProvider.CreateHumanReadableId(); }
         }
     }
 }

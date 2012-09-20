@@ -50,7 +50,7 @@ namespace MonoTorrent.Common
         {
             _getrightHttpSeeds = new List<string>();
             CanEditSecureMetadata = true;
-            CreatedBy = string.Format("MonoTorrent {0}", VersionInfo.Version);
+            CreatedBy = string.Format(VersionInfo.HumanReadableId);
         }
 
         public IEnumerable<string> GetrightHttpSeeds

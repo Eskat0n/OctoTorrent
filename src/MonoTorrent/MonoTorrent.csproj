@@ -274,8 +274,10 @@
     <Compile Include="MonoTorrent.Common\Hashes.cs" />
     <Compile Include="MonoTorrent.Common\ICacheable.cs" />
     <Compile Include="MonoTorrent.Common\IFileSource.cs" />
+    <Compile Include="MonoTorrent.Common\IIdentifierProvider.cs" />
     <Compile Include="MonoTorrent.Common\InfoHash.cs" />
     <Compile Include="MonoTorrent.Common\MonoTorrentCollectionBase.cs" />
+    <Compile Include="MonoTorrent.Common\Identification\MonoTorrentIdentifierProvider.cs" />
     <Compile Include="MonoTorrent.Common\PeerID.cs" />
     <Compile Include="MonoTorrent.Common\SpeedMonitor.cs" />
     <Compile Include="MonoTorrent.Common\TimeoutDispatcher.cs" />
