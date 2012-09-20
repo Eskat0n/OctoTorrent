@@ -53,7 +53,7 @@ namespace MonoTorrent.Common
             CreatedBy = string.Format("MonoTorrent {0}", VersionInfo.Version);
         }
 
-        public List<string> GetrightHttpSeeds
+        public IEnumerable<string> GetrightHttpSeeds
         {
             get { return _getrightHttpSeeds; }
         }
@@ -97,9 +97,8 @@ namespace MonoTorrent.Common
 
         public void AbortCreation()
         {
-            var r = _asyncResult;
-            if (r != null)
-                r.Aborted = true;
+            if (_asyncResult != null)
+                _asyncResult.Aborted = true;
         }
 
         private void AddCommonStuff(BEncodedDictionary torrent)
@@ -281,8 +280,7 @@ namespace MonoTorrent.Common
             Check.Result(result);
 
             if (result != _asyncResult)
-                throw new ArgumentException(
-                    "The supplied async result does not correspond to currently active async result");
+                throw new ArgumentException("The supplied async result does not correspond to currently active async result");
 
             try
             {

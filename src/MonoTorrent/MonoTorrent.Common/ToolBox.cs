@@ -69,7 +69,10 @@ namespace MonoTorrent.Common
             if (e == null)
                 return;
 
-            ThreadPool.QueueUserWorkItem(delegate { e(o, args); });
+            ThreadPool.QueueUserWorkItem(delegate {
+                if (e != null)
+                    e(o, args);
+            });
         }
         /// <summary>
         /// Randomizes the contents of the array
