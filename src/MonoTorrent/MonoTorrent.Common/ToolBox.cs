@@ -33,8 +33,6 @@ namespace MonoTorrent.Common
     using System.Threading;
     using MonoTorrent.Client.Encryption;
 
-    public delegate long Operation<in T>(T target);
-
     public static class Toolbox
     {
         private static readonly Random Random = new Random();
@@ -93,10 +91,8 @@ namespace MonoTorrent.Common
             if (array2 == null)
                 throw new ArgumentNullException("array2");
 
-            if (array1.Length != array2.Length)
-                return false;
-
-            return ByteMatch(array1, 0, array2, 0, array1.Length);
+            return array1.Length == array2.Length &&
+                   ByteMatch(array1, 0, array2, 0, array1.Length);
         }
 
         /// <summary>
