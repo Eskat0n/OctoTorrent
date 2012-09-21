@@ -26,102 +26,104 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-
 namespace Mono.Ssdp.Internal
 {
-    internal delegate bool TimeoutHandler (object state, ref TimeSpan interval);
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+
+    internal delegate bool TimeoutHandler(object state, ref TimeSpan interval);
 
     internal class TimeoutDispatcher : IDisposable
     {
-        private static uint timeout_ids = 1;
+        private static uint _timeoutIds = 1;
 
-        private struct TimeoutItem : IComparable<TimeoutItem>
-        {
-            public uint Id;
-            public TimeSpan Timeout;
-            public DateTime Trigger;
-            public TimeoutHandler Handler;
-            public object State;
-
-            public int CompareTo (TimeoutItem item)
-            {
-                return Trigger.CompareTo (item.Trigger);
-            }
-
-            public override string ToString ()
-            {
-                return String.Format ("{0} ({1})", Id, Trigger);
-            }
-        }
-
-        private bool disposed;
-        private AutoResetEvent wait = new AutoResetEvent (false);
-
-        private List<TimeoutItem> timeouts = new List<TimeoutItem> ();
+        private readonly List<TimeoutItem> _timeouts = new List<TimeoutItem>();
+        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
+        private bool _disposed;
 
         public TimeoutDispatcher()
         {
-            Thread t = new Thread(TimerThread);
-            t.IsBackground = true;
-            t.Start();
+            var thread = new Thread(TimerThread) {IsBackground = true};
+            thread.Start();
         }
 
-        public uint Add (uint timeoutMs, TimeoutHandler handler)
+        #region IDisposable Members
+
+        public void Dispose()
         {
-            return Add (timeoutMs, handler, null);
+            if (_disposed)
+            {
+                return;
+            }
+            Clear();
+            _wait.Close();
+            _disposed = true;
         }
 
-        public uint Add (TimeSpan timeout, TimeoutHandler handler)
+        #endregion
+
+        public uint Add(uint timeoutMs, TimeoutHandler handler)
         {
-            return Add (timeout, handler, null);
+            return Add(timeoutMs, handler, null);
         }
 
-        public uint Add (uint timeoutMs, TimeoutHandler handler, object state)
+        public uint Add(TimeSpan timeout, TimeoutHandler handler)
         {
-            return Add (TimeSpan.FromMilliseconds (timeoutMs), handler, state);
+            return Add(timeout, handler, null);
         }
 
-        public uint Add (TimeSpan timeout, TimeoutHandler handler, object state)
+        public uint Add(uint timeoutMs, TimeoutHandler handler, object state)
         {
-            CheckDisposed ();
-            TimeoutItem item = new TimeoutItem ();
-            item.Id = timeout_ids++;
-            item.Timeout = timeout;
-            item.Trigger = DateTime.UtcNow + timeout;
-            item.Handler = handler;
-            item.State = state;
+            return Add(TimeSpan.FromMilliseconds(timeoutMs), handler, state);
+        }
 
-            Add (ref item);
+        public uint Add(TimeSpan timeout, TimeoutHandler handler, object state)
+        {
+            CheckDisposed();
+            var item = new TimeoutItem
+                           {
+                               Id = _timeoutIds++,
+                               Timeout = timeout,
+                               Trigger = DateTime.UtcNow + timeout,
+                               Handler = handler,
+                               State = state
+                           };
+
+            Add(ref item);
 
             return item.Id;
         }
 
-        private void Add (ref TimeoutItem item)
+        private void Add(ref TimeoutItem item)
         {
-            lock (timeouts) {
-                int index = timeouts.BinarySearch (item);
+            lock (_timeouts)
+            {
+                var index = _timeouts.BinarySearch(item);
                 index = index >= 0 ? index : ~index;
-                timeouts.Insert (index, item);
+                _timeouts.Insert(index, item);
 
-                if (index == 0) {
-                    wait.Set ();
+                if (index == 0)
+                {
+                    _wait.Set();
                 }
             }
         }
 
-        public void Remove (uint id)
+        public void Remove(uint id)
         {
-            lock (timeouts) {
-                CheckDisposed ();
+            lock (_timeouts)
+            {
+                CheckDisposed();
                 // FIXME: Comparer for BinarySearch
-                for (int i = 0; i < timeouts.Count; i++) {
-                    if (timeouts[i].Id == id) {
-                        timeouts.RemoveAt (i);
-                        if (i == 0) {
-                            wait.Set ();
+                for (var i = 0; i < _timeouts.Count; i++)
+                {
+                    if (_timeouts[i].Id == id)
+                    {
+                        _timeouts.RemoveAt(i);
+                        if (i == 0)
+                        {
+                            _wait.Set();
                         }
                         return;
                     }
@@ -129,38 +131,45 @@ namespace Mono.Ssdp.Internal
             }
         }
 
-        private void Start ()
+        private void Start()
         {
-            wait.Reset ();
+            _wait.Reset();
         }
 
-        private void TimerThread (object state)
+        private void TimerThread(object state)
         {
-            bool hasItem;
-            TimeoutItem item = default (TimeoutItem);
-            
-            while (true) {
-                if (disposed) {
-                    wait.Close();
+            var item = default (TimeoutItem);
+
+            while (true)
+            {
+                if (_disposed)
+                {
+                    _wait.Close();
                     return;
                 }
 
-                lock (timeouts) {
-                    hasItem = timeouts.Count > 0;
+                bool hasItem;
+                lock (_timeouts)
+                {
+                    hasItem = _timeouts.Count > 0;
                     if (hasItem)
-                        item = timeouts[0];
+                        item = _timeouts[0];
                 }
 
-                TimeSpan interval = hasItem ? item.Trigger - DateTime.UtcNow : TimeSpan.FromMilliseconds (-1);
-                if (hasItem && interval < TimeSpan.Zero) {
+                var interval = hasItem ? item.Trigger - DateTime.UtcNow : TimeSpan.FromMilliseconds(-1);
+                if (hasItem && interval < TimeSpan.Zero)
+                {
                     interval = TimeSpan.Zero;
                 }
 
-                if (!wait.WaitOne (interval, false) && hasItem) {
-                    bool requeue = item.Handler (item.State, ref item.Timeout);
-                    lock (timeouts) {
+                if (!_wait.WaitOne(interval, false) && hasItem)
+                {
+                    var requeue = item.Handler(item.State, ref item.Timeout);
+                    lock (_timeouts)
+                    {
                         Remove(item.Id);
-                        if (requeue) {
+                        if (requeue)
+                        {
                             item.Trigger += item.Timeout;
                             Add(ref item);
                         }
@@ -169,29 +178,48 @@ namespace Mono.Ssdp.Internal
             }
         }
 
-        public void Clear ()
+        public void Clear()
         {
-            lock (timeouts) {
-                timeouts.Clear ();
-                wait.Set ();
+            lock (_timeouts)
+            {
+                _timeouts.Clear();
+                _wait.Set();
             }
         }
 
-        private void CheckDisposed ()
+        private void CheckDisposed()
         {
-            if (disposed) {
-                throw new ObjectDisposedException (ToString ());
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(ToString());
             }
         }
 
-        public void Dispose ()
+        #region Nested type: TimeoutItem
+
+        private struct TimeoutItem : IComparable<TimeoutItem>
         {
-            if (disposed) {
-                return;
+            public TimeoutHandler Handler;
+            public uint Id;
+            public object State;
+            public TimeSpan Timeout;
+            public DateTime Trigger;
+
+            #region IComparable<TimeoutItem> Members
+
+            public int CompareTo(TimeoutItem item)
+            {
+                return Trigger.CompareTo(item.Trigger);
             }
-            Clear ();
-            wait.Close ();
-            disposed = true;
+
+            #endregion
+
+            public override string ToString()
+            {
+                return String.Format("{0} ({1})", Id, Trigger);
+            }
         }
+
+        #endregion
     }
 }
