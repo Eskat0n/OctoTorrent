@@ -6,11 +6,12 @@ namespace MonoTorrent
 
     public class MagnetLink
     {
+        private readonly ICollection<string> _webseeds = new List<string>();
+
         public MagnetLink(string url)
         {
             Check.Url(url);
             AnnounceUrls = new RawTrackerTier();
-            Webseeds = new List<string>();
 
             ParseMagnetLink(url);
         }
@@ -21,7 +22,7 @@ namespace MonoTorrent
 
         public string Name { get; private set; }
 
-        public List<string> Webseeds { get; private set; }
+        public IEnumerable<string> Webseeds { get { return _webseeds; }}
 
         private void ParseMagnetLink(string url)
         {
@@ -65,7 +66,7 @@ namespace MonoTorrent
                         AnnounceUrls.Add(keyValue.Value);
                         break;
                     case "as": //Acceptable Source
-                        Webseeds.Add(keyValue.Value);
+                        _webseeds.Add(keyValue.Value);
                         break;
                     case "dn": //display name
                         Name = keyValue.Value;
