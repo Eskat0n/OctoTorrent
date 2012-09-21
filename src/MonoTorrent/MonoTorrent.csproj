@@ -273,6 +273,7 @@
     <Compile Include="MonoTorrent.Common\HashAlgoFactory.cs" />
     <Compile Include="MonoTorrent.Common\Hashes.cs" />
     <Compile Include="MonoTorrent.Common\ICacheable.cs" />
+    <Compile Include="MonoTorrent.Common\Identification\AzureusStyleIdentifierProvider.cs" />
     <Compile Include="MonoTorrent.Common\IFileSource.cs" />
     <Compile Include="MonoTorrent.Common\IIdentifierProvider.cs" />
     <Compile Include="MonoTorrent.Common\InfoHash.cs" />
