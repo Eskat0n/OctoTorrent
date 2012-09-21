@@ -1,91 +1,82 @@
-
-using System;
-using System.Collections.Generic;
-
 namespace MonoTorrent
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public class MagnetLink
     {
-        public RawTrackerTier AnnounceUrls {
-            get; private set;
-        }
-
-        public InfoHash InfoHash {
-            get; private set;
-        }
-
-        public string Name {
-            get; private set;
-        }
-
-        public List<string> Webseeds {
-            get; private set;
-        }
-
-        public MagnetLink (string url)
+        public MagnetLink(string url)
         {
-            Check.Url (url);
-            AnnounceUrls = new RawTrackerTier ();
-            Webseeds  = new List<string> ();
+            Check.Url(url);
+            AnnounceUrls = new RawTrackerTier();
+            Webseeds = new List<string>();
 
-            ParseMagnetLink (url);
+            ParseMagnetLink(url);
         }
 
-        void ParseMagnetLink (string url)
+        public RawTrackerTier AnnounceUrls { get; private set; }
+
+        public InfoHash InfoHash { get; private set; }
+
+        public string Name { get; private set; }
+
+        public List<string> Webseeds { get; private set; }
+
+        private void ParseMagnetLink(string url)
         {
-            string[] splitStr = url.Split ('?');
+            var splitStr = url.Split('?');
             if (splitStr.Length == 0 || splitStr[0] != "magnet:")
-                throw new FormatException ("The magnet link must start with 'magnet:?'.");
+                throw new FormatException("The magnet link must start with 'magnet:?'.");
 
             if (splitStr.Length == 1)
-                return;//no parametter
+                return; //no parametter
 
-            string[] parameters = splitStr[1].Split ('&', ';');
+            var keyValuePairs = splitStr[1].Split('&', ';')
+                .Select(x => x.Split('='))
+                .Select(x => new {Key = x[0], Value = x[1], x.Length});
 
-            for (int i = 0; i < parameters.Length ; i++)
+            foreach (var keyValue in keyValuePairs)
             {
-                string[] keyval = parameters[i].Split ('=');
-                if (keyval.Length != 2)
-                    throw new FormatException ("A field-value pair of the magnet link contain more than one equal'.");
-                switch (keyval[0].Substring(0, 2))
+                if (keyValue.Length != 2)
+                    throw new FormatException("A field-value pair of the magnet link contain more than one equal'.");
+                switch (keyValue.Key.Substring(0, 2))
                 {
-                    case "xt"://exact topic
+                    case "xt": //exact topic
                         if (InfoHash != null)
-                            throw new FormatException ("More than one infohash in magnet link is not allowed.");
+                            throw new FormatException("More than one infohash in magnet link is not allowed.");
 
-                        if (keyval[1].Length != 49 && keyval[1].Length != 41)
-                            throw new FormatException ("Infohash must be base32 or hex encoded.");
+                        if (keyValue.Value.Length != 49 && keyValue.Value.Length != 41)
+                            throw new FormatException("Infohash must be base32 or hex encoded.");
 
-                        string val = keyval[1].Substring(9);
-                        switch (keyval[1].Substring(0, 9))
+                        var val = keyValue.Value.Substring(9);
+                        switch (keyValue.Value.Substring(0, 9))
                         {
-                            case "urn:sha1:"://base32 hash
+                            case "urn:sha1:": //base32 hash
                             case "urn:btih:":
-                            if (val.Length == 32)
-                                InfoHash = InfoHash.FromBase32 (val);
-                            else if (val.Length == 40)
-                                InfoHash = InfoHash.FromHex (val);
-                            break;
+                                if (val.Length == 32)
+                                    InfoHash = InfoHash.FromBase32(val);
+                                else if (val.Length == 40)
+                                    InfoHash = InfoHash.FromHex(val);
+                                break;
                         }
-                    break;
-                    case "tr" ://address tracker
-                        AnnounceUrls.Add (keyval[1]);
-                    break;
-                    case "as"://Acceptable Source
-                        Webseeds.Add (keyval[1]);
-                    break;
-                    case "dn"://display name
-                        Name = keyval[1];
-                    break;
-                    case "xl"://exact length
-                    case "xs":// eXact Source - P2P link.
-                    case "kt"://keyword topic
-                    case "mt"://manifest topic
+                        break;
+                    case "tr": //address tracker
+                        AnnounceUrls.Add(keyValue.Value);
+                        break;
+                    case "as": //Acceptable Source
+                        Webseeds.Add(keyValue.Value);
+                        break;
+                    case "dn": //display name
+                        Name = keyValue.Value;
+                        break;
+                    case "xl": //exact length
+                    case "xs": // eXact Source - P2P link.
+                    case "kt": //keyword topic
+                    case "mt": //manifest topic
                         //not supported for moment
-                    break;
-                    default:
+                        break;
                         //not supported
-                    break;
                 }
             }
         }
