@@ -26,122 +26,107 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MonoTorrent.Common
 {
+    using System;
+
     public class SpeedMonitor
     {
         private const int DefaultAveragePeriod = 12;
 
-        private long total;
-        private int speed;
-        private int[] speeds;
-        private int speedsIndex;
-        private DateTime lastUpdated;
-        private long tempRecvCount;
-
-
-        public int Rate
-        {
-            get { return this.speed; }
-        }
-
-        public long Total
-        {
-            get { return this.total; }
-        }
-
+        private readonly int[] _speeds;
+        private DateTime _lastUpdated;
+        private int _speedsIndex;
+        private long _tempRecvCount;
 
         public SpeedMonitor()
             : this(DefaultAveragePeriod)
         {
-
         }
 
         public SpeedMonitor(int averagingPeriod)
         {
             if (averagingPeriod < 0)
-                throw new ArgumentOutOfRangeException ("averagingPeriod");
+                throw new ArgumentOutOfRangeException("averagingPeriod");
 
-            this.lastUpdated = DateTime.UtcNow;
-            this.speeds = new int [Math.Max (1, averagingPeriod)];
-            this.speedsIndex = -speeds.Length;
+            _lastUpdated = DateTime.UtcNow;
+            _speeds = new int[Math.Max(1, averagingPeriod)];
+            _speedsIndex = -_speeds.Length;
         }
 
+        public int Rate { get; private set; }
+
+        public long Total { get; private set; }
 
         public void AddDelta(int speed)
         {
-            this.total += speed;
-            this.tempRecvCount += speed;
+            Total += speed;
+            _tempRecvCount += speed;
         }
 
         public void AddDelta(long speed)
         {
-            this.total += speed;
-            this.tempRecvCount += speed;
+            Total += speed;
+            _tempRecvCount += speed;
         }
 
         public void Reset()
         {
-            this.total = 0;
-            this.speed = 0;
-            this.tempRecvCount = 0;
-            this.lastUpdated = DateTime.UtcNow;
-            this.speedsIndex = -speeds.Length;
+            Total = 0;
+            Rate = 0;
+            _tempRecvCount = 0;
+            _lastUpdated = DateTime.UtcNow;
+            _speedsIndex = -_speeds.Length;
         }
 
         private void TimePeriodPassed(int difference)
         {
-            int currSpeed = (int)(tempRecvCount * 1000 / difference);
-            tempRecvCount = 0;
+            var currSpeed = (int) (_tempRecvCount*1000/difference);
+            _tempRecvCount = 0;
 
             int speedsCount;
-            if( speedsIndex < 0 )
+            if (_speedsIndex < 0)
             {
                 //speeds array hasn't been filled yet
 
-                int idx = speeds.Length + speedsIndex;
+                var idx = _speeds.Length + _speedsIndex;
 
-                speeds[idx] = currSpeed;
+                _speeds[idx] = currSpeed;
                 speedsCount = idx + 1;
 
-                speedsIndex++;
+                _speedsIndex++;
             }
             else
             {
                 //speeds array is full, keep wrapping around overwriting the oldest value
-                speeds[speedsIndex] = currSpeed;
-                speedsCount = speeds.Length;
-        
-                speedsIndex = (speedsIndex + 1) % speeds.Length;
+                _speeds[_speedsIndex] = currSpeed;
+                speedsCount = _speeds.Length;
+
+                _speedsIndex = (_speedsIndex + 1)%_speeds.Length;
             }
-        
-            int total = speeds[0];
-            for( int i = 1; i < speedsCount; i++ )
-                total += speeds[i];
 
-            speed = total / speedsCount;
+            var total = _speeds[0];
+            for (var i = 1; i < speedsCount; i++)
+                total += _speeds[i];
+
+            Rate = total/speedsCount;
         }
-
 
         public void Tick()
         {
-            DateTime old = lastUpdated;
-            lastUpdated = DateTime.UtcNow;
-            int difference = (int) (lastUpdated - old).TotalMilliseconds;
+            var old = _lastUpdated;
+            _lastUpdated = DateTime.UtcNow;
+            var difference = (int) (_lastUpdated - old).TotalMilliseconds;
 
             if (difference > 800)
                 TimePeriodPassed(difference);
         }
 
         // Used purely for unit testing purposes.
-        internal void Tick (int difference)
+        internal void Tick(int difference)
         {
-            lastUpdated = DateTime.UtcNow;
-            TimePeriodPassed (difference);
+            _lastUpdated = DateTime.UtcNow;
+            TimePeriodPassed(difference);
         }
     }
 }
