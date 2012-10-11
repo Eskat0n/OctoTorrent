@@ -1,88 +1,79 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.Client;
-using MonoTorrent.Common;
-using System.IO;
-using MonoTorrent.BEncoding;
-
 namespace MonoTorrent.Client
 {
+    using System;
+    using Common;
+    using System.IO;
+    using BEncoding;
+
     public class FastResume
     {
-        private static readonly BEncodedString VersionKey = (BEncodedString)"version";
-        private static readonly BEncodedString InfoHashKey = (BEncodedString)"infohash";
-        private static readonly BEncodedString BitfieldKey = (BEncodedString)"bitfield";
-        private static readonly BEncodedString BitfieldLengthKey = (BEncodedString)"bitfield_length";
+        private static readonly BEncodedString VersionKey = "version";
+        private static readonly BEncodedString InfoHashKey = "infohash";
+        private static readonly BEncodedString BitfieldKey = "bitfield";
+        private static readonly BEncodedString BitfieldLengthKey = "bitfield_length";
 
-        private BitField bitfield;
-        private InfoHash infoHash;
-
-        public BitField Bitfield
-        {
-            get { return bitfield; }
-        }
-
-        public InfoHash Infohash
-        {
-            get { return infoHash; }
-        }
-
-        public FastResume()
-        {
-        }
+        public BitField Bitfield { get; private set; }
+        public InfoHash Infohash { get; private set; }
 
         public FastResume(InfoHash infoHash, BitField bitfield)
         {
-            if (infoHash==null)
+            if (infoHash == null)
                 throw new ArgumentNullException("infoHash");
-            if(bitfield == null)
+            if (bitfield == null)
                 throw new ArgumentNullException("bitfield");
 
-            this.infoHash = infoHash;
-            this.bitfield = bitfield;
+            Infohash = infoHash;
+            Bitfield = bitfield;
         }
 
         public FastResume(BEncodedDictionary dict)
         {
-            CheckContent(dict, VersionKey, (BEncodedNumber)1);
+            CheckContent(dict, VersionKey, 1);
             CheckContent(dict, InfoHashKey);
             CheckContent(dict, BitfieldKey);
             CheckContent(dict, BitfieldLengthKey);
 
-            infoHash = new InfoHash(((BEncodedString)dict[InfoHashKey]).TextBytes);
-            bitfield = new BitField((int)((BEncodedNumber)dict[BitfieldLengthKey]).Number);
-            byte[] data = ((BEncodedString)dict[BitfieldKey]).TextBytes;
-            bitfield.FromArray(data, 0, data.Length);
+            Infohash = new InfoHash(((BEncodedString)dict[InfoHashKey]).TextBytes);
+            Bitfield = new BitField((int)((BEncodedNumber)dict[BitfieldLengthKey]).Number);
+            var data = ((BEncodedString)dict[BitfieldKey]).TextBytes;
+            Bitfield.FromArray(data, 0, data.Length);
         }
 
-        private void CheckContent(BEncodedDictionary dict, BEncodedString key, BEncodedNumber value)
+        public static FastResume Decode(byte[] data)
         {
-            CheckContent(dict, key);
-            if (!dict[key].Equals(value))
-                throw new TorrentException(string.Format("Invalid FastResume data. The value of '{0}' was '{1}' instead of '{2}'", key, dict[key], value));
-        }
-
-        private void CheckContent(BEncodedDictionary dict, BEncodedString key)
-        {
-            if (!dict.ContainsKey(key))
-                throw new TorrentException(string.Format("Invalid FastResume data. Key '{0}' was not present", key));
+            var dictionary = (BEncodedDictionary) BEncodedValue.Decode(data);
+            return new FastResume(dictionary);
         }
 
         public BEncodedDictionary Encode()
         {
-            BEncodedDictionary dict = new BEncodedDictionary();
-            dict.Add(VersionKey, (BEncodedNumber)1);
-            dict.Add(InfoHashKey, new BEncodedString(infoHash.Hash));
-            dict.Add(BitfieldKey, new BEncodedString(bitfield.ToByteArray()));
-            dict.Add(BitfieldLengthKey, (BEncodedNumber)bitfield.Length);
+            var dict = new BEncodedDictionary
+                           {
+                               {VersionKey, (BEncodedNumber) 1},
+                               {InfoHashKey, new BEncodedString(Infohash.Hash)},
+                               {BitfieldKey, new BEncodedString(Bitfield.ToByteArray())},
+                               {BitfieldLengthKey, (BEncodedNumber) Bitfield.Length}
+                           };
             return dict;
         }
 
-        public void Encode(Stream s)
+        public void Encode(Stream stream)
         {
-            byte[] data = Encode().Encode();
-            s.Write(data, 0, data.Length);
+            var data = Encode().Encode();
+            stream.Write(data, 0, data.Length);
+        }
+
+        private static void CheckContent(BEncodedDictionary dict, BEncodedString key, BEncodedNumber value)
+        {
+            CheckContent(dict, key);
+            if (dict[key].Equals(value) == false)
+                throw new TorrentException(string.Format("Invalid FastResume data. The value of '{0}' was '{1}' instead of '{2}'", key, dict[key], value));
+        }
+
+        private static void CheckContent(BEncodedDictionary dict, BEncodedString key)
+        {
+            if (dict.ContainsKey(key) == false)
+                throw new TorrentException(string.Format("Invalid FastResume data. Key '{0}' was not present", key));
         }
     }
 }
