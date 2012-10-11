@@ -63,8 +63,8 @@ namespace MonoTorrent.Client.PieceWriters
             if (offset < 0 || offset + count > torrentSize)
                 throw new ArgumentOutOfRangeException("offset");
 
-            int i = 0;
-            int totalRead = 0;
+            int i;
+            var totalRead = 0;
 
             for (i = 0; i < files.Count; i++)
             {
@@ -74,9 +74,12 @@ namespace MonoTorrent.Client.PieceWriters
                 offset -= files[i].Length;
             }
 
+            if (files[i].Priority == Priority.DoNotDownload)
+                return false;
+
             while (totalRead < count)
             {
-                int fileToRead = (int)Math.Min(files[i].Length - offset, count - totalRead);
+                var fileToRead = (int)Math.Min(files[i].Length - offset, count - totalRead);
                 fileToRead = Math.Min(fileToRead, Piece.BlockSize);
 
                 if (fileToRead != Read(files[i], offset, buffer, bufferOffset + totalRead, fileToRead))
@@ -84,11 +87,12 @@ namespace MonoTorrent.Client.PieceWriters
 
                 offset += fileToRead;
                 totalRead += fileToRead;
-                if (offset >= files[i].Length)
-                {
-                    offset = 0;
-                    i++;
-                }
+
+                if (offset < files[i].Length) 
+                    continue;
+
+                offset = 0;
+                i++;
             }
 
             //monitor.BytesSent(totalRead, TransferType.Data);
@@ -120,7 +124,8 @@ namespace MonoTorrent.Client.PieceWriters
                 int fileToWrite = (int)Math.Min(files[i].Length - offset, count - totalWritten);
                 fileToWrite = Math.Min(fileToWrite, Piece.BlockSize);
 
-                Write(files[i], offset, buffer, bufferOffset + totalWritten, fileToWrite);
+                if (files[i].Priority != Priority.DoNotDownload)
+                    Write(files[i], offset, buffer, bufferOffset + totalWritten, fileToWrite);
 
                 offset += fileToWrite;
                 totalWritten += fileToWrite;
