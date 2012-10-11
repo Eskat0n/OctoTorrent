@@ -38,7 +38,7 @@ namespace MonoTorrent.Client.PieceWriters
             base.Dispose();
         }
 
-        internal TorrentFileStream GetStream(TorrentFile file, FileAccess access)
+        private TorrentFileStream GetStream(TorrentFile file, FileAccess access)
         {
             return streamsBuffer.GetStream(file, access);
         }

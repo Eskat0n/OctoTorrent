@@ -464,8 +464,8 @@ namespace MonoTorrent.Client
 
             if (tickCount%(1000/TickLength) == 0)
             {
-                diskManager.writeLimiter.UpdateChunks(settings.MaxWriteRate, diskManager.WriteRate);
-                diskManager.readLimiter.UpdateChunks(settings.MaxReadRate, diskManager.ReadRate);
+                diskManager.WriteLimiter.UpdateChunks(settings.MaxWriteRate, diskManager.WriteRate);
+                diskManager.ReadLimiter.UpdateChunks(settings.MaxReadRate, diskManager.ReadRate);
             }
 
             ConnectionManager.TryConnect();
