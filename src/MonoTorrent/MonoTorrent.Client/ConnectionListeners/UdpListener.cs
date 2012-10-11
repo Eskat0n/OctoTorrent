@@ -27,13 +27,9 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Net.Sockets;
 using System.Net;
-using MonoTorrent.BEncoding;
 using MonoTorrent.Client;
 using MonoTorrent.Common;
 
@@ -41,7 +37,6 @@ namespace MonoTorrent
 {
     public abstract class UdpListener : Listener
     {
-
         private UdpClient client;
 
         protected UdpListener(IPEndPoint endpoint)

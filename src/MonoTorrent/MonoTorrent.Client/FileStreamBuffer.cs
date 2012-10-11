@@ -52,47 +52,47 @@ namespace MonoTorrent.Client
 
         internal TorrentFileStream GetStream(TorrentFile file, FileAccess access)
         {
-            TorrentFileStream s = FindStream(file.FullPath);
+            var fileStream = FindStream(file.FullPath);
 
-            if (s != null)
+            if (fileStream != null)
             {
                 // If we are requesting write access and the current stream does not have it
-                if (((access & FileAccess.Write) == FileAccess.Write) && !s.CanWrite)
+                if (((access & FileAccess.Write) == FileAccess.Write) && !fileStream.CanWrite)
                 {
                     Logger.Log (null, "Didn't have write permission - reopening");
-                    CloseAndRemove(s);
-                    s = null;
+                    CloseAndRemove(fileStream);
+                    fileStream = null;
                 }
                 else
                 {
                     // Place the filestream at the end so we know it's been recently used
-                    list.Remove(s);
-                    list.Add(s);
+                    list.Remove(fileStream);
+                    list.Add(fileStream);
                 }
             }
 
-            if (s == null)
+            if (fileStream == null)
             {
-                if (!File.Exists(file.FullPath))
+                if (File.Exists(file.FullPath) == false)
                 {
-                    Directory.CreateDirectory (Path.GetDirectoryName(file.FullPath));
-                    SparseFile.CreateSparse (file.FullPath, file.Length);
+                    Directory.CreateDirectory(Path.GetDirectoryName(file.FullPath));
+                    SparseFile.CreateSparse(file.FullPath, file.Length);
                 }
-                s = new TorrentFileStream (file, FileMode.OpenOrCreate, access, FileShare.Read);
+                fileStream = new TorrentFileStream (file, FileMode.OpenOrCreate, access, FileShare.Read);
 
                 // Ensure that we truncate existing files which are too large
-                if (s.Length > file.Length) {
-                    if (!s.CanWrite) {
-                        s.Close();
-                        s = new TorrentFileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
+                if (fileStream.Length > file.Length) {
+                    if (!fileStream.CanWrite) {
+                        fileStream.Close();
+                        fileStream = new TorrentFileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
                     }
-                    s.SetLength(file.Length);
+                    fileStream.SetLength(file.Length);
                 }
 
-                Add(s);
+                Add(fileStream);
             }
 
-            return s;
+            return fileStream;
         }
 
         #region IDisposable Members

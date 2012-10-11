@@ -402,25 +402,23 @@ namespace MonoTorrent.Client
 
         void Initialise(string savePath, string baseDirectory, IList<RawTrackerTier> announces)
         {
-            this.bitfield = new BitField(HasMetadata ? torrent.Pieces.Count : 1);
+            bitfield = new BitField(HasMetadata ? torrent.Pieces.Count : 1);
             this.savePath = Path.Combine(savePath, baseDirectory);
-            this.finishedPieces = new Queue<int>();
-            this.monitor = new ConnectionMonitor();
-            this.inactivePeerManager = new InactivePeerManager(this);
-            this.peers = new PeerManager();
-            this.pieceManager = new PieceManager();
-            this.trackerManager = new TrackerManager(this, InfoHash, announces);
+            finishedPieces = new Queue<int>();
+            monitor = new ConnectionMonitor();
+            inactivePeerManager = new InactivePeerManager(this);
+            peers = new PeerManager();
+            pieceManager = new PieceManager();
+            trackerManager = new TrackerManager(this, InfoHash, announces);
 
             Mode = new StoppedMode(this);            
             CreateRateLimiters();
 
-            PieceHashed += delegate(object o, PieceHashedEventArgs e) {
-                PieceManager.UnhashedPieces[e.PieceIndex] = false;
-            };
+            PieceHashed += (o, e) => PieceManager.UnhashedPieces[e.PieceIndex] = false;
 
             if (HasMetadata) {
-                foreach (TorrentFile file in torrent.Files)
-                    file.FullPath = Path.Combine (SavePath, file.Path);
+                foreach (var file in torrent.Files)
+                    file.FullPath = Path.Combine(SavePath, file.Path);
             }
         }
 
@@ -867,10 +865,10 @@ namespace MonoTorrent.Client
                 throw new ArgumentException("The fast resume data does not match this torrent", "fastResumeData");
 
             bitfield.From(data.Bitfield);
-            for (int i = 0; i < torrent.Pieces.Count; i++)
+            for (var i = 0; i < torrent.Pieces.Count; i++)
                 RaisePieceHashed (new PieceHashedEventArgs (this, i, bitfield[i]));
 
-            this.hashChecked = true;
+            hashChecked = true;
         }
 
         public FastResume SaveFastResume()
@@ -878,7 +876,7 @@ namespace MonoTorrent.Client
             CheckMetadata();
             if (!HashChecked)
                 throw new InvalidOperationException ("Fast resume data cannot be created when the TorrentManager has not been hash checked");
-            return new FastResume(InfoHash, this.bitfield);
+            return new FastResume(InfoHash, bitfield);
         }
 
         void VerifyHashState ()

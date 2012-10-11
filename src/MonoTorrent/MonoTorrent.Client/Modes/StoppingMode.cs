@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.Common;
-
-namespace MonoTorrent.Client
+﻿namespace MonoTorrent.Client
 {
+    using System.Linq;
+    using Common;
+
 	class StoppingMode : Mode
 	{
-		WaitHandleGroup handle = new WaitHandleGroup();
+	    readonly WaitHandleGroup _handle = new WaitHandleGroup();
 
 		public override TorrentState State
 		{
@@ -18,20 +16,21 @@ namespace MonoTorrent.Client
 			: base(manager)
 		{
 			CanAcceptConnections = false;
-			ClientEngine engine = manager.Engine;
-			if (manager.Mode is HashingMode)
-				handle.AddHandle(((HashingMode)manager.Mode).hashingWaitHandle, "Hashing");
+			var engine = manager.Engine;
+
+		    var hashingMode = manager.Mode as HashingMode;
+		    if (hashingMode != null)
+		        _handle.AddHandle(hashingMode.HashingWaitHandle, "Hashing");
 
 			if (manager.TrackerManager.CurrentTracker != null)
-				handle.AddHandle(manager.TrackerManager.Announce(TorrentEvent.Stopped), "Announcing");
+				_handle.AddHandle(manager.TrackerManager.Announce(TorrentEvent.Stopped), "Announcing");
 
-			foreach (PeerId id in manager.Peers.ConnectedPeers)
-				if (id.Connection != null)
-					id.Connection.Dispose();
+			foreach (var id in manager.Peers.ConnectedPeers.Where(id => id.Connection != null))
+			    id.Connection.Dispose();
 
 			manager.Peers.ClearAll();
 
-			handle.AddHandle(engine.DiskManager.CloseFileStreams(manager), "DiskManager");
+			_handle.AddHandle(engine.DiskManager.CloseFileStreams(manager), "DiskManager");
 
 			manager.Monitor.Reset();
 			manager.PieceManager.Reset();
@@ -39,18 +38,18 @@ namespace MonoTorrent.Client
 			engine.Stop();
 		}
 
-		public override void HandlePeerConnected(PeerId id, MonoTorrent.Common.Direction direction)
+		public override void HandlePeerConnected(PeerId id, Direction direction)
 		{
 			id.CloseConnection();
 		}
 
 		public override void Tick(int counter)
 		{
-			if (handle.WaitOne(0, true))
-			{
-				handle.Close();
-				Manager.Mode = new StoppedMode(Manager);
-			}
+		    if (_handle.WaitOne(0, true) == false) 
+                return;
+
+		    _handle.Close();
+		    Manager.Mode = new StoppedMode(Manager);
 		}
 	}
 }

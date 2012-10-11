@@ -1,31 +1,27 @@
 #if !DISABLE_DHT
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.Client;
-using System.Net;
-using MonoTorrent.Common;
 
 namespace MonoTorrent.Dht.Listeners
 {
+    using System.Net;
+
     public delegate void MessageReceived(byte[] buffer, IPEndPoint endpoint);
 
     public class DhtListener : UdpListener
     {
-        public event MessageReceived MessageReceived;
-
         public DhtListener(IPEndPoint endpoint)
             : base(endpoint)
         {
-
         }
+
+        public event MessageReceived MessageReceived;
 
         protected override void OnMessageReceived(byte[] buffer, IPEndPoint endpoint)
         {
-            MessageReceived h = MessageReceived;
-            if (h != null)
-                h(buffer, endpoint);
+            var onMessageReceived = MessageReceived;
+            if (onMessageReceived != null)
+                onMessageReceived(buffer, endpoint);
         }
     }
 }
+
 #endif
