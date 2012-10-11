@@ -100,7 +100,7 @@ namespace MonoTorrent
 
         public static bool operator !=(InfoHash left, InfoHash right)
         {
-            return left != right;
+            return !(left == right);
         }
 
         public static InfoHash FromBase32(string infoHash)
