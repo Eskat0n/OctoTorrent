@@ -26,29 +26,27 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Net;
-using System.Net.Sockets;
-using MonoTorrent.Client.Encryption;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Connections;
-
 namespace MonoTorrent.Client
 {
+    using System;
+    using System.Net;
+    using System.Net.Sockets;
+    using Encryption;
+    using Common;
+    using Connections;
+
     /// <summary>
     /// Accepts incoming connections and passes them off to the right TorrentManager
     /// </summary>
     public class SocketListener : PeerListener
     {
-        private AsyncCallback endAcceptCallback;
-        private Socket listener;
+        private readonly AsyncCallback _endAcceptCallback;
+        private Socket _listener;
 
         public SocketListener(IPEndPoint endpoint)
             : base(endpoint)
         {
-            this.endAcceptCallback = EndAccept;
+            _endAcceptCallback = EndAccept;
         }
 
         private void EndAccept(IAsyncResult result)
@@ -56,17 +54,15 @@ namespace MonoTorrent.Client
             Socket peerSocket = null;
             try
             {
-                Socket listener = (Socket)result.AsyncState;
+                var listener = (Socket)result.AsyncState;
                 peerSocket = listener.EndAccept(result);
 
-                IPEndPoint endpoint = (IPEndPoint)peerSocket.RemoteEndPoint;
-                Uri uri = new Uri("tcp://" + endpoint.Address.ToString() + ':' + endpoint.Port);
-                Peer peer = new Peer("", uri, EncryptionTypes.All);
-                IConnection connection = null;
-                if (peerSocket.AddressFamily == AddressFamily.InterNetwork)
-                    connection = new IPV4Connection(peerSocket, true);
-                else
-                    connection = new IPV6Connection(peerSocket, true);
+                var endpoint = (IPEndPoint)peerSocket.RemoteEndPoint;
+                var uri = new Uri(string.Format("tcp://{0}{1}{2}", endpoint.Address, ':', endpoint.Port));
+                var peer = new Peer("", uri, EncryptionTypes.All);
+                var connection = peerSocket.AddressFamily == AddressFamily.InterNetwork
+                                     ? (IConnection) new IPV4Connection(peerSocket, true)
+                                     : new IPV6Connection(peerSocket, true);
 
 
                 RaiseConnectionReceived(peer, connection, null);
@@ -86,7 +82,7 @@ namespace MonoTorrent.Client
                 try
                 {
                     if (Status == ListenerStatus.Listening)
-                        listener.BeginAccept(endAcceptCallback, listener);
+                        _listener.BeginAccept(_endAcceptCallback, _listener);
                 }
                 catch (ObjectDisposedException)
                 {
@@ -102,10 +98,10 @@ namespace MonoTorrent.Client
 
             try
             {
-                listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                listener.Bind(Endpoint);
-                listener.Listen(6);
-                listener.BeginAccept(endAcceptCallback, listener);
+                _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _listener.Bind(Endpoint);
+                _listener.Listen(6);
+                _listener.BeginAccept(_endAcceptCallback, _listener);
                 RaiseStatusChanged(ListenerStatus.Listening);
             }
             catch (SocketException)
@@ -118,8 +114,8 @@ namespace MonoTorrent.Client
         {
             RaiseStatusChanged(ListenerStatus.NotListening);
 
-            if (listener != null)
-                listener.Close();
+            if (_listener != null)
+                _listener.Close();
         }
     }
 }

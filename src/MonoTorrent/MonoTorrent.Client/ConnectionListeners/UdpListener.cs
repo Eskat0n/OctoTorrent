@@ -27,17 +27,17 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Net.Sockets;
-using System.Net;
-using MonoTorrent.Client;
-using MonoTorrent.Common;
-
 namespace MonoTorrent
 {
+    using System;
+    using System.Net.Sockets;
+    using System.Net;
+    using Client;
+    using Common;
+
     public abstract class UdpListener : Listener
     {
-        private UdpClient client;
+        private UdpClient _client;
 
         protected UdpListener(IPEndPoint endpoint)
             :base(endpoint)
@@ -49,11 +49,11 @@ namespace MonoTorrent
         {
             try
             {
-                IPEndPoint e = new IPEndPoint(IPAddress.Any, Endpoint.Port);
-                byte[] buffer = client.EndReceive(result, ref e);
+                var endPoint = new IPEndPoint(IPAddress.Any, Endpoint.Port);
+                var buffer = _client.EndReceive(result, ref endPoint);
 
-                OnMessageReceived(buffer, e);
-                client.BeginReceive(EndReceive, null);
+                OnMessageReceived(buffer, endPoint);
+                _client.BeginReceive(EndReceive, null);
             }
             catch (ObjectDisposedException)
             {
@@ -70,7 +70,7 @@ namespace MonoTorrent
                     {
                         try
                         {
-                            client.BeginReceive(EndReceive, null);
+                            _client.BeginReceive(EndReceive, null);
                             return;
                         }
                         catch (ObjectDisposedException)
@@ -94,7 +94,7 @@ namespace MonoTorrent
             try
             {
                if (endpoint.Address != IPAddress.Any)
-                    client.Send(buffer, buffer.Length, endpoint);
+                    _client.Send(buffer, buffer.Length, endpoint);
             }
             catch(Exception ex)
             {
@@ -106,8 +106,8 @@ namespace MonoTorrent
         {
             try
             {
-                client = new UdpClient(Endpoint);
-                client.BeginReceive(EndReceive, null);
+                _client = new UdpClient(Endpoint);
+                _client.BeginReceive(EndReceive, null);
                 RaiseStatusChanged(ListenerStatus.Listening);
             }
             catch (SocketException)
@@ -124,7 +124,7 @@ namespace MonoTorrent
         {
             try
             {
-                client.Close();
+                _client.Close();
             }
             catch
             {

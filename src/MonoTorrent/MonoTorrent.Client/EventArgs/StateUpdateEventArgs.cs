@@ -1,12 +1,8 @@
-using System;
-using System.Text;
-
 namespace MonoTorrent.Client
 {
+    using System;
+
     public class StatsUpdateEventArgs : EventArgs
     {
-        public StatsUpdateEventArgs()
-        {
-        }
     }
 }

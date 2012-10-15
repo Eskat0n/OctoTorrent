@@ -27,34 +27,31 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-using System;
-using System.IO;
-using System.Security.Cryptography;
-using System.Collections.Generic;
-
-using MonoTorrent.BEncoding;
-using MonoTorrent.Client;
-
 namespace MonoTorrent
 {
+    using System;
+    using System.Collections.Generic;
+    using Client;
+
     public class PeersFoundEventArgs : EventArgs
     {
-        private List<Peer> peers;
-        private InfoHash infoHash;
+        private readonly List<Peer> _peers;
+        private readonly InfoHash _infoHash;
         
         public PeersFoundEventArgs(InfoHash infoHash, List<Peer> peers)
         {
-            this.peers = peers;
-            this.infoHash = infoHash;
+            _peers = peers;
+            _infoHash = infoHash;
         }
+
         public List<Peer> Peers
         {
-            get { return peers; }
+            get { return _peers; }
         }
+
         public InfoHash InfoHash
         {
-            get { return infoHash; }
+            get { return _infoHash; }
         }
     }
 }

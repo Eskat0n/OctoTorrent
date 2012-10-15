@@ -26,28 +26,26 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MonoTorrent.Client
 {
+    using System;
+
     public class TrackerPeersAdded : PeersAddedEventArgs
     {
-        MonoTorrent.Client.Tracker.Tracker tracker;
+        private readonly Tracker.Tracker _tracker;
 
-        public MonoTorrent.Client.Tracker.Tracker Tracker
+        public Tracker.Tracker Tracker
         {
-            get { return tracker; }
+            get { return _tracker; }
         }
 
-        public TrackerPeersAdded(TorrentManager manager, int peersAdded, int total, MonoTorrent.Client.Tracker.Tracker tracker)
+        public TrackerPeersAdded(TorrentManager manager, int peersAdded, int total, Tracker.Tracker tracker)
             :base (manager, peersAdded, total)
         {
             if (tracker == null)
                 throw new ArgumentNullException("tracker");
 
-            this.tracker = tracker;
+            _tracker = tracker;
         }
     }
 }

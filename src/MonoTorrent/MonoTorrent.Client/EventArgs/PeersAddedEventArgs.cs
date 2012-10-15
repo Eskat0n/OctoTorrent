@@ -26,11 +26,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using MonoTorrent.Common;
-
 namespace MonoTorrent.Client
 {
     /// <summary>
@@ -38,35 +33,35 @@ namespace MonoTorrent.Client
     /// </summary>
     public abstract class PeersAddedEventArgs : TorrentEventArgs
     {
-        private int count;
-        private int total;
+        private readonly int _count;
+        private readonly int _total;
         
         #region Member Variables
 
         public int ExistingPeers
         {
-            get { return total - NewPeers; }
+            get { return _total - NewPeers; }
         }
         
         public int NewPeers
         {
-            get { return this.count; }
+            get { return _count; }
         }
         
         #endregion
 
-
         #region Constructors
+
         /// <summary>
         /// Creates a new PeersAddedEventArgs
         /// </summary>
-        /// <param name="peersAdded">The number of peers just added</param>
         protected PeersAddedEventArgs(TorrentManager manager, int peersAdded, int total)
             : base(manager)
         {
-            this.count = peersAdded;
-            this.total = total;
+            _count = peersAdded;
+            _total = total;
         }
+
         #endregion
     }
 }

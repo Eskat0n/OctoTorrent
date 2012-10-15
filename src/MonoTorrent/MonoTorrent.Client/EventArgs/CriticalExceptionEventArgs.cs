@@ -1,25 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MonoTorrent.Client
 {
+    using System;
+
     public class CriticalExceptionEventArgs : EventArgs
     {
-        private ClientEngine engine;
-        private Exception ex;
-
-
-        public ClientEngine Engine
-        {
-            get { return engine; }
-        }
-
-        public Exception Exception
-        {
-            get { return ex; }
-        }
-
+        private readonly ClientEngine _engine;
+        private readonly Exception _ex;
 
         public CriticalExceptionEventArgs(Exception ex, ClientEngine engine)
         {
@@ -28,8 +14,18 @@ namespace MonoTorrent.Client
             if (engine == null)
                 throw new ArgumentNullException("engine");
 
-            this.engine = engine;
-            this.ex = ex;
+            _engine = engine;
+            _ex = ex;
+        }
+
+        public ClientEngine Engine
+        {
+            get { return _engine; }
+        }
+
+        public Exception Exception
+        {
+            get { return _ex; }
         }
     }
 }

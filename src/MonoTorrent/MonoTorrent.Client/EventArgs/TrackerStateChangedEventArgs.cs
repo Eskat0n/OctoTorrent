@@ -26,57 +26,55 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using MonoTorrent.Common;
-
 namespace MonoTorrent.Client.Tracker
 {
+    using Common;
+
     /// <summary>
-    /// Provides the data needed to handle a TrackerUpdate event
+    ///   Provides the data needed to handle a TrackerUpdate event
     /// </summary>
     public class TrackerStateChangedEventArgs : TorrentEventArgs
     {
         #region Member Variables
+
+        private readonly TrackerState _newState;
+        private readonly TrackerState _oldState;
+        private readonly Tracker _tracker;
+
         /// <summary>
-        /// The current status of the tracker update
+        ///   The current status of the tracker update
         /// </summary>
         public Tracker Tracker
         {
-            get { return this.tracker; }
+            get { return _tracker; }
         }
-        private Tracker tracker;
-
 
         public TrackerState OldState
         {
-            get { return this.oldState; }
+            get { return _oldState; }
         }
-        private TrackerState oldState;
-
 
         public TrackerState NewState
         {
-            get { return this.newState; }
+            get { return _newState; }
         }
-        private TrackerState newState;
+
         #endregion
 
-
         #region Constructors
+
         /// <summary>
-        /// Creates a new TrackerUpdateEventArgs
+        ///   Creates a new TrackerUpdateEventArgs
         /// </summary>
-        /// <param name="state">The current state of the update</param>
-        /// <param name="response">The response of the tracker (if any)</param>
-        public TrackerStateChangedEventArgs(TorrentManager manager, Tracker tracker, TrackerState oldState, TrackerState newState)
+        public TrackerStateChangedEventArgs(TorrentManager manager, Tracker tracker, TrackerState oldState,
+                                            TrackerState newState)
             : base(manager)
         {
-            this.tracker = tracker;
-            this.oldState = oldState;
-            this.newState = newState;
+            this._tracker = tracker;
+            this._oldState = oldState;
+            this._newState = newState;
         }
+
         #endregion
     }
 }

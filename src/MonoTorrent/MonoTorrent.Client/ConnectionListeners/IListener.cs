@@ -26,14 +26,12 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Net;
-using MonoTorrent.Common;
-
 namespace MonoTorrent.Client
 {
+    using System;
+    using System.Net;
+    using Common;
+
     public interface IListener
     {
         event EventHandler<EventArgs> StatusChanged;

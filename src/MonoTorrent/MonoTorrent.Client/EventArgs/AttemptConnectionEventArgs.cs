@@ -1,29 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.Client;
-
 namespace MonoTorrent.Client
 {
+    using System;
+
     public class AttemptConnectionEventArgs : EventArgs
     {
-        private bool banPeer;
-        private Peer peer;
-
-        public bool BanPeer
-        {
-            get { return banPeer; }
-            set { banPeer = value; }
-        }
-
-        public Peer Peer
-        {
-            get { return peer; }
-        }
+        private readonly Peer _peer;
 
         public AttemptConnectionEventArgs(Peer peer)
         {
-            this.peer = peer;
+            _peer = peer;
+        }
+
+        public bool BanPeer { get; set; }
+
+        public Peer Peer
+        {
+            get { return _peer; }
         }
     }
 }

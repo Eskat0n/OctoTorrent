@@ -1,19 +1,14 @@
-using System;
-using System.Text;
-using MonoTorrent.Common;
-
 namespace MonoTorrent.Client
 {
     public class BlockEventArgs : TorrentEventArgs
     {
         #region Private Fields
 
-        private Block block;
-        private PeerId id;
-        private Piece piece;
+        private Block _block;
+        private PeerId _id;
+        private Piece _piece;
 
         #endregion
-
 
         #region Public Properties
 
@@ -22,37 +17,32 @@ namespace MonoTorrent.Client
         /// </summary>
         public Block Block
         {
-            get { return this.block; }
+            get { return _block; }
         }
-
 
         /// <summary>
         /// The piece that the block belongs too
         /// </summary>
         public Piece Piece
         {
-            get { return this.piece; }
+            get { return _piece; }
         }
-
 
         /// <summary>
         /// The peer who the block has been requested off
         /// </summary>
         public PeerId ID
         {
-            get { return this.id; }
+            get { return _id; }
         }
 
         #endregion
-
 
         #region Constructors
 
         /// <summary>
         /// Creates a new PeerMessageEventArgs
-        /// </summary>
-        /// <param name="message">The peer message involved</param>
-        /// <param name="direction">The direction of the message</param>
+        /// </summary>       
         internal BlockEventArgs(TorrentManager manager, Block block, Piece piece, PeerId id)
             : base(manager)
         {
@@ -61,27 +51,27 @@ namespace MonoTorrent.Client
 
         private void Init(Block block, Piece piece, PeerId id)
         {
-            this.block = block;
-            this.id = id;
-            this.piece = piece;
+            _block = block;
+            _id = id;
+            _piece = piece;
         }
 
         #endregion
-
 
         #region Methods
 
         public override bool Equals(object obj)
         {
-            BlockEventArgs args = obj as BlockEventArgs;
-            return (args == null) ? false : this.piece.Equals(args.piece)
-                                         && this.id.Equals(args.id)
-                                         && this.block.Equals(args.block);
+            var args = obj as BlockEventArgs;
+            return args != null &&
+                   _piece.Equals(args._piece) &&
+                   _id.Equals(args._id) &&
+                   _block.Equals(args._block);
         }
 
         public override int GetHashCode()
         {
-            return this.block.GetHashCode();
+            return _block.GetHashCode();
         }
 
         #endregion Methods

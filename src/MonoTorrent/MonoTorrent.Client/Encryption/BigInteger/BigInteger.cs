@@ -35,15 +35,12 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Security.Cryptography;
-
 namespace Mono.Math
 {
+    using System;
 
     internal class BigInteger
     {
-
         #region Data Storage
 
         /// <summary>
@@ -420,13 +417,13 @@ namespace Mono.Math
             if (this == 0) return "0";
             if (this == 1) return "1";
 
-            string result = "";
+            var result = "";
 
-            BigInteger a = new BigInteger(this);
+            var a = new BigInteger(this);
 
             while (a != 0)
             {
-                uint rem = Kernel.SingleByteDivideInPlace(a, radix);
+                var rem = Kernel.SingleByteDivideInPlace(a, radix);
                 result = characterSet[(int)rem] + result;
             }
 
@@ -460,8 +457,8 @@ namespace Mono.Math
         {
             uint val = 0;
 
-            for (uint i = 0; i < this.length; i++)
-                val ^= this.data[i];
+            for (uint i = 0; i < length; i++)
+                val ^= data[i];
 
             return (int)val;
         }
@@ -485,43 +482,38 @@ namespace Mono.Math
 
         public BigInteger ModPow(BigInteger exp, BigInteger n)
         {
-            ModulusRing mr = new ModulusRing(n);
-            return mr.Pow(this, exp);
+            return new ModulusRing(n).Pow(this, exp);
         }
 
         #endregion
 
-
-
         public sealed class ModulusRing
         {
-
-            BigInteger mod, constant;
+            private readonly BigInteger _mod;
+            private readonly BigInteger _constant;
 
             public ModulusRing(BigInteger modulus)
             {
-                this.mod = modulus;
+                _mod = modulus;
 
                 // calculate constant = b^ (2k) / m
-                uint i = mod.length << 1;
+                var i = _mod.length << 1;
 
-                constant = new BigInteger(Sign.Positive, i + 1);
-                constant.data[i] = 0x00000001;
+                _constant = new BigInteger(Sign.Positive, i + 1);
+                _constant.data[i] = 0x00000001;
 
-                constant = constant / mod;
+                _constant = _constant / _mod;
             }
 
             public void BarrettReduction(BigInteger x)
             {
-                BigInteger n = mod;
+                var n = _mod;
                 uint k = n.length,
                     kPlusOne = k + 1,
                     kMinusOne = k - 1;
 
                 // x < mod, so nothing to do.
                 if (x.length < k) return;
-
-                BigInteger q3;
 
                 //
                 // Validate pointers
@@ -533,13 +525,13 @@ namespace Mono.Math
                 // q3 = q2 / b^ (k+1), Needs to be accessed with an offset of kPlusOne
 
                 // TODO: We should the method in HAC p 604 to do this (14.45)
-                q3 = new BigInteger(Sign.Positive, x.length - kMinusOne + constant.length);
-                Kernel.Multiply(x.data, kMinusOne, x.length - kMinusOne, constant.data, 0, constant.length, q3.data, 0);
+                var q3 = new BigInteger(Sign.Positive, x.length - kMinusOne + _constant.length);
+                Kernel.Multiply(x.data, kMinusOne, x.length - kMinusOne, _constant.data, 0, _constant.length, q3.data, 0);
 
                 // r1 = x mod b^ (k+1)
                 // i.e. keep the lowest (k+1) words
 
-                uint lengthToCopy = (x.length > kPlusOne) ? kPlusOne : x.length;
+                var lengthToCopy = (x.length > kPlusOne) ? kPlusOne : x.length;
 
                 x.length = lengthToCopy;
                 x.Normalize();
@@ -547,18 +539,16 @@ namespace Mono.Math
                 // r2 = (q3 * n) mod b^ (k+1)
                 // partial multiplication of q3 and n
 
-                BigInteger r2 = new BigInteger(Sign.Positive, kPlusOne);
+                var r2 = new BigInteger(Sign.Positive, kPlusOne);
                 Kernel.MultiplyMod2p32pmod(q3.data, (int)kPlusOne, (int)q3.length - (int)kPlusOne, n.data, 0, (int)n.length, r2.data, 0, (int)kPlusOne);
 
                 r2.Normalize();
 
                 if (r2 <= x)
-                {
                     Kernel.MinusEq(x, r2);
-                }
                 else
                 {
-                    BigInteger val = new BigInteger(Sign.Positive, kPlusOne + 1);
+                    var val = new BigInteger(Sign.Positive, kPlusOne + 1);
                     val.data[kPlusOne] = 0x00000001;
 
                     Kernel.MinusEq(val, r2);
@@ -573,13 +563,13 @@ namespace Mono.Math
             {
                 if (a == 0 || b == 0) return 0;
 
-                if (a > mod)
-                    a %= mod;
+                if (a > _mod)
+                    a %= _mod;
 
-                if (b > mod)
-                    b %= mod;
+                if (b > _mod)
+                    b %= _mod;
 
-                BigInteger ret = a * b;
+                var ret = a * b;
                 BarrettReduction(ret);
 
                 return ret;
@@ -587,7 +577,7 @@ namespace Mono.Math
 
             public BigInteger Difference(BigInteger a, BigInteger b)
             {
-                Sign cmp = Kernel.Compare(a, b);
+                var cmp = Kernel.Compare(a, b);
                 BigInteger diff;
 
                 switch (cmp)
@@ -602,25 +592,25 @@ namespace Mono.Math
                         throw new Exception();
                 }
 
-                if (diff >= mod)
+                if (diff >= _mod)
                 {
-                    if (diff.length >= mod.length << 1)
-                        diff %= mod;
+                    if (diff.length >= _mod.length << 1)
+                        diff %= _mod;
                     else
                         BarrettReduction(diff);
                 }
                 if (cmp == Sign.Negative)
-                    diff = mod - diff;
+                    diff = _mod - diff;
                 return diff;
             }
 
             public BigInteger Pow(BigInteger a, BigInteger k)
             {
-                BigInteger b = new BigInteger(1);
+                var b = new BigInteger(1);
                 if (k == 0)
                     return b;
 
-                BigInteger A = a;
+                var A = a;
                 if (k.TestBit(0))
                     b = a;
 
@@ -634,12 +624,10 @@ namespace Mono.Math
                 return b;
             }
 
-
             public BigInteger Pow(uint b, BigInteger exp)
             {
                 return Pow(new BigInteger(b), exp);
             }
-
         }
 
         private sealed class Kernel

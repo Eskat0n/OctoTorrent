@@ -26,53 +26,50 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Text;
-using MonoTorrent.Common;
-
 namespace MonoTorrent.Client
 {
+    using Common;
+
     /// <summary>
     /// Provides the data needed to handle a TorrentStateChanged event
     /// </summary>
     public class TorrentStateChangedEventArgs : TorrentEventArgs
     {
+        private readonly TorrentState _oldState;
+        private readonly TorrentState _newState;
+
         #region Member Variables
+
         /// <summary>
         /// The old state for the torrent
         /// </summary>
         public TorrentState OldState
         {
-            get { return this.oldState; }
-        }
-        private TorrentState oldState;
-
+            get { return _oldState; }
+        }        
 
         /// <summary>
         /// The new state for the torrent
         /// </summary>
         public TorrentState NewState
         {
-            get { return this.newState; }
+            get { return _newState; }
         }
-        private TorrentState newState;
+
         #endregion
 
-
         #region Constructors
+
         /// <summary>
         /// Creates a new TorrentStateChangedEventArgs
         /// </summary>
-        /// <param name="oldState">The old state of the Torrent</param>
-        /// <param name="newState">The new state of the Torrent</param>
         public TorrentStateChangedEventArgs(TorrentManager manager, TorrentState oldState, TorrentState newState)
             : base(manager)
         {
-            this.oldState = oldState;
-            this.newState = newState;
+            _oldState = oldState;
+            _newState = newState;
         }
+
         #endregion
     }
 }

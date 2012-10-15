@@ -26,66 +26,60 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using MonoTorrent.Common;
-
 namespace MonoTorrent.Client
 {
+    using System;
+    using Common;
+
     /// <summary>
     /// Provides the data needed to handle a PeerConnection event
     /// </summary>
     public class PeerConnectionEventArgs : TorrentEventArgs
     {
+        private readonly PeerId _peerConnectionId;
+        private readonly Direction _connectionDirection;
+        private readonly String _message;
+
         #region Member Variables
 
         public PeerId PeerID
         {
-            get { return this.peerConnectionId; }
+            get { return _peerConnectionId; }
         }
-        private PeerId peerConnectionId;
-
 
         /// <summary>
         /// The peer event that just happened
         /// </summary>
         public Direction ConnectionDirection
         {
-            get { return this.connectionDirection; }
+            get { return _connectionDirection; }
         }
-        private Direction connectionDirection;
-
-        private String message;
 
         /// <summary>
         /// Any message that might be associated with this event
         /// </summary>
         public String Message
         {
-            get { return message; }
+            get { return _message; }
         }
 
         #endregion
 
-
         #region Constructors
 
-
         internal PeerConnectionEventArgs( TorrentManager manager, PeerId id, Direction direction )
-            : this( manager, id, direction, "" )
+            : this(manager, id, direction, string.Empty)
         {
-
         }
-
 
         internal PeerConnectionEventArgs( TorrentManager manager, PeerId id, Direction direction, String message )
             : base( manager )
         {
-            this.peerConnectionId = id;
-            this.connectionDirection = direction;
-            this.message = message;
+            _peerConnectionId = id;
+            _connectionDirection = direction;
+            _message = message;
         }
+
         #endregion
     }
 }

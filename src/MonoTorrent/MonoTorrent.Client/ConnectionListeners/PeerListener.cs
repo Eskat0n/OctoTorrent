@@ -26,16 +26,13 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Net;
-using MonoTorrent.Client.Connections;
-using MonoTorrent.Common;
-using System.Net.Sockets;
-
 namespace MonoTorrent.Client
 {
+    using System;
+    using System.Net;
+    using Connections;
+    using Common;
+
     public abstract class PeerListener : Listener
     {
         public event EventHandler<NewConnectionEventArgs> ConnectionReceived;
@@ -43,13 +40,12 @@ namespace MonoTorrent.Client
         protected PeerListener(IPEndPoint endpoint)
             : base(endpoint)
         {
-
         }
 
         protected virtual void RaiseConnectionReceived(Peer peer, IConnection connection, TorrentManager manager)
         {
             if (ConnectionReceived != null)
-                Toolbox.RaiseAsyncEvent<NewConnectionEventArgs>(ConnectionReceived, this, new NewConnectionEventArgs(peer, connection, manager));
+                Toolbox.RaiseAsyncEvent(ConnectionReceived, this, new NewConnectionEventArgs(peer, connection, manager));
         }
     }
 }
