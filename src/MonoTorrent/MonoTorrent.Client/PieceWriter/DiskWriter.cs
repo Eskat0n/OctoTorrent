@@ -1,19 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.Common;
-using System.IO;
-using System.Threading;
-
 namespace MonoTorrent.Client.PieceWriters
 {
+    using System;
+    using Common;
+    using System.IO;
+
     public class DiskWriter : PieceWriter
     {
-        private FileStreamBuffer streamsBuffer;
+        private readonly FileStreamBuffer _streamsBuffer;
 
         public int OpenFiles
         {
-            get { return streamsBuffer.Count; }
+            get { return _streamsBuffer.Count; }
         }
 
         public DiskWriter()
@@ -24,28 +21,28 @@ namespace MonoTorrent.Client.PieceWriters
 
         public DiskWriter(int maxOpenFiles)
         {
-            this.streamsBuffer = new FileStreamBuffer(maxOpenFiles);
+            this._streamsBuffer = new FileStreamBuffer(maxOpenFiles);
         }
 
         public override void Close(TorrentFile file)
         {
-            streamsBuffer.CloseStream(file.FullPath);
+            _streamsBuffer.CloseStream(file.FullPath);
         }
 
         public override void Dispose()
         {
-            streamsBuffer.Dispose();
+            _streamsBuffer.Dispose();
             base.Dispose();
         }
 
         private TorrentFileStream GetStream(TorrentFile file, FileAccess access)
         {
-            return streamsBuffer.GetStream(file, access);
+            return _streamsBuffer.GetStream(file, access);
         }
 
         public override void Move(string oldPath, string newPath, bool ignoreExisting)
         {
-            streamsBuffer.CloseStream(oldPath);
+            _streamsBuffer.CloseStream(oldPath);
             if (ignoreExisting)
                 File.Delete(newPath);
             File.Move(oldPath, newPath);
@@ -59,7 +56,7 @@ namespace MonoTorrent.Client.PieceWriters
             if (offset < 0 || offset + count > file.Length)
                 throw new ArgumentOutOfRangeException("offset");
 
-            Stream s = GetStream(file, FileAccess.Read);
+            var s = GetStream(file, FileAccess.Read);
             if (s.Length < offset + count)
                 return 0;
             s.Seek(offset, SeekOrigin.Begin);
@@ -74,7 +71,7 @@ namespace MonoTorrent.Client.PieceWriters
             if (offset < 0 || offset + count > file.Length)
                 throw new ArgumentOutOfRangeException("offset");
 
-            TorrentFileStream stream = GetStream(file, FileAccess.ReadWrite);
+            var stream = GetStream(file, FileAccess.ReadWrite);
             stream.Seek(offset, SeekOrigin.Begin);
             stream.Write(buffer, bufferOffset, count);
         }
@@ -86,7 +83,7 @@ namespace MonoTorrent.Client.PieceWriters
 
         public override void Flush(TorrentFile file)
         {
-            Stream s = streamsBuffer.FindStream(file.FullPath);
+            var s = _streamsBuffer.FindStream(file.FullPath);
             if (s != null)
                 s.Flush();
         }

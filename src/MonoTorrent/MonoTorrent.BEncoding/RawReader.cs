@@ -26,46 +26,43 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
-
 namespace MonoTorrent.BEncoding
 {
+    using System;
+    using System.IO;
+
     public class RawReader : Stream
     {
-        bool hasPeek;
-        Stream input;
-        byte[] peeked;
-        bool strictDecoding;
-
-        public bool StrictDecoding
-        {
-            get { return strictDecoding; }
-        }
+        private readonly Stream _input;
+        private readonly byte[] _peeked;
+        private readonly bool _strictDecoding;
+        private bool _hasPeek;
 
         public RawReader(Stream input)
             : this(input, true)
         {
-
         }
 
         public RawReader(Stream input, bool strictDecoding)
         {
-            this.input = input;
-            this.peeked = new byte[1];
-            this.strictDecoding = strictDecoding;
+            _input = input;
+            _peeked = new byte[1];
+            _strictDecoding = strictDecoding;
+        }
+
+        public bool StrictDecoding
+        {
+            get { return _strictDecoding; }
         }
 
         public override bool CanRead
         {
-            get { return input.CanRead; }
+            get { return _input.CanRead; }
         }
 
         public override bool CanSeek
         {
-            get { return input.CanSeek; }
+            get { return _input.CanSeek; }
         }
 
         public override bool CanWrite
@@ -73,74 +70,74 @@ namespace MonoTorrent.BEncoding
             get { return false; }
         }
 
-        public override void Flush()
-        {
-            throw new NotSupportedException();
-        }
-
         public override long Length
         {
-            get { return input.Length; }
-        }
-
-        public int PeekByte()
-        {
-            if (!hasPeek)
-                hasPeek = Read(peeked, 0, 1) == 1;
-            return hasPeek ? peeked[0] : -1;
-        }
-
-        public override int ReadByte()
-        {
-            if (hasPeek)
-            {
-                hasPeek = false;
-                return peeked[0];
-            }
-            return base.ReadByte();
+            get { return _input.Length; }
         }
 
         public override long Position
         {
             get
             {
-                if (hasPeek)
-                    return input.Position - 1;
-                return input.Position;
+                return _hasPeek
+                           ? _input.Position - 1
+                           : _input.Position;
             }
             set
             {
-                if (value != Position)
-                {
-                    hasPeek = false;
-                    input.Position = value;
-                }
+                if (value == Position) 
+                    return;
+
+                _hasPeek = false;
+                _input.Position = value;
             }
+        }
+
+        public override void Flush()
+        {
+            throw new NotSupportedException();
+        }
+
+        public int PeekByte()
+        {
+            if (!_hasPeek)
+                _hasPeek = Read(_peeked, 0, 1) == 1;
+            return _hasPeek ? _peeked[0] : -1;
+        }
+
+        public override int ReadByte()
+        {
+            if (_hasPeek)
+            {
+                _hasPeek = false;
+                return _peeked[0];
+            }
+            return base.ReadByte();
         }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            int read = 0;
-            if (hasPeek && count > 0)
+            var read = 0;
+            if (_hasPeek && count > 0)
             {
-                hasPeek = false;
-                buffer[offset] = peeked[0];
+                _hasPeek = false;
+                buffer[offset] = _peeked[0];
                 offset++;
                 count--;
                 read++;
             }
-            read += input.Read(buffer, offset, count);
+            read += _input.Read(buffer, offset, count);
             return read;
         }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
             long val;
-            if (hasPeek && origin == SeekOrigin.Current)
-                val = input.Seek(offset - 1, origin);
+            if (_hasPeek && origin == SeekOrigin.Current)
+                val = _input.Seek(offset - 1, origin);
             else
-                val = input.Seek(offset, origin);
-            hasPeek = false;
+                val = _input.Seek(offset, origin);
+            _hasPeek = false;
             return val;
         }
 

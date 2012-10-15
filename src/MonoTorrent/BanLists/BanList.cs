@@ -26,49 +26,14 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Net;
-
 namespace MonoTorrent.Client
 {
-    public struct AddressRange
-    {
-        public int Start;
-        public int End;
-
-        public AddressRange(int start, int end)
-        {
-            Start = start;
-            End = end;
-        }
-
-        public AddressRange(IPAddress start, IPAddress end)
-        {
-            Start = (IPAddress.NetworkToHostOrder(BitConverter.ToInt32(start.GetAddressBytes(), 0)));
-            End = (IPAddress.NetworkToHostOrder(BitConverter.ToInt32(end.GetAddressBytes(), 0)));
-        }
-
-        public bool Contains(int value)
-        {
-            return value >= Start && value <= End;
-        }
-
-        public bool Contains(AddressRange range)
-        {
-            return range.Start >= Start && range.End <= End;
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{0},{1}", Start, End);
-        }
-    }
+    using System.Collections.Generic;
+    using System.Net;
 
     public class BanList
     {
-        RangeCollection addresses = new RangeCollection();
+        private readonly RangeCollection _addresses = new RangeCollection();
 
         public void Add(IPAddress address)
         {
@@ -78,24 +43,24 @@ namespace MonoTorrent.Client
 
         public void Add(AddressRange addressRange)
         {
-            addresses.Add(addressRange);
+            _addresses.Add(addressRange);
         }
 
         public void AddRange(IEnumerable<AddressRange> addressRanges)
         {
             Check.AddressRanges(addressRanges);
-            addresses.AddRange(addressRanges);
+            _addresses.AddRange(addressRanges);
         }
 
         public bool IsBanned(IPAddress address)
         {
             Check.Address(address);
-            return addresses.Contains(new AddressRange(address, address));
+            return _addresses.Contains(new AddressRange(address, address));
         }
 
         void Remove(AddressRange addressRange)
         {
-            addresses.Remove(addressRange);
+            _addresses.Remove(addressRange);
         }
 
         public void Remove(IPAddress address)
@@ -107,7 +72,7 @@ namespace MonoTorrent.Client
         public void Remove(IEnumerable<AddressRange> addressRanges)
         {
             Check.AddressRanges(addressRanges);
-            foreach (AddressRange address in addressRanges)
+            foreach (var address in addressRanges)
                 Remove(address);
         }
     }

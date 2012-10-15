@@ -26,13 +26,11 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MonoTorrent.Client
 {
+    using System;
+    using System.Collections.Generic;
+
     public struct RangeComparer : IComparer<AddressRange>
     {
         public int Compare(AddressRange x, AddressRange y)
@@ -43,111 +41,110 @@ namespace MonoTorrent.Client
 
     public class RangeCollection
     {
-        List<AddressRange> ranges = new List<AddressRange>();
+        private readonly List<AddressRange> _ranges = new List<AddressRange>();
 
         public int Count
         {
-            get { return ranges.Count; }
+            get { return _ranges.Count; }
         }
 
         internal List<AddressRange> Ranges
         {
-            get { return ranges; }
+            get { return _ranges; }
         }
 
         public void Add(AddressRange item)
         {
             int index;
-            if (ranges.Count == 0 || item.Start > ranges[ranges.Count - 1].Start)
+            if (_ranges.Count == 0 || item.Start > _ranges[_ranges.Count - 1].Start)
             {
-                index = ranges.Count;
+                index = _ranges.Count;
             }
             else
             {
-                index = ranges.BinarySearch(item, new RangeComparer());
+                index = _ranges.BinarySearch(item, new RangeComparer());
                 if (index < 0)
                     index = ~index;
             }
-            bool mergedLeft = MergeLeft(item, index);
-            bool mergedRight = MergeRight(item, index);
+            var mergedLeft = MergeLeft(item, index);
+            var mergedRight = MergeRight(item, index);
 
             if (mergedLeft || mergedRight)
             {
                 if (index > 0)
                     index--;
 
-                while ((index +1) < ranges.Count)
+                while ((index + 1) < _ranges.Count)
                 {
-                    if (ranges[index].End > ranges[index + 1].Start || ranges[index].End + 1 == ranges[index + 1].Start)
-                    {
-                        ranges[index] = new AddressRange(ranges[index].Start, Math.Max(ranges[index].End, ranges[index + 1].End));
-                        ranges.RemoveAt(index + 1);
-                    }
-                    else
+                    if (_ranges[index].End <= _ranges[index + 1].Start &&
+                        _ranges[index].End + 1 != _ranges[index + 1].Start)
                         break;
+
+                    _ranges[index] = new AddressRange(_ranges[index].Start,
+                                                      Math.Max(_ranges[index].End, _ranges[index + 1].End));
+                    _ranges.RemoveAt(index + 1);
                 }
             }
             else
-            {
-                ranges.Insert(index, item);
-            }
+                _ranges.Insert(index, item);
         }
 
-        public void AddRange(IEnumerable<MonoTorrent.Client.AddressRange> ranges)
+        public void AddRange(IEnumerable<AddressRange> ranges)
         {
-            List<AddressRange> list = new List<AddressRange>(ranges);
-            list.Sort(delegate(AddressRange x, AddressRange y) { return x.Start.CompareTo(y.Start); });
+            var list = new List<AddressRange>(ranges);
+            list.Sort((x, y) => x.Start.CompareTo(y.Start));
 
-            foreach (MonoTorrent.Client.AddressRange r in list)
+            foreach (var r in list)
                 Add(new AddressRange(r.Start, r.End));
         }
 
-        bool MergeLeft(AddressRange range, int position)
+        private bool MergeLeft(AddressRange range, int position)
         {
             if (position > 0)
                 position--;
-            if (ranges.Count > position && position >= 0)
+
+            if (_ranges.Count > position && position >= 0)
             {
-                AddressRange leftRange = ranges[position];
+                var leftRange = _ranges[position];
                 if (leftRange.Contains(range.Start))
                 {
-                    ranges[position] = new AddressRange(leftRange.Start, Math.Max(leftRange.End, range.End));
+                    _ranges[position] = new AddressRange(leftRange.Start, Math.Max(leftRange.End, range.End));
                     return true;
                 }
-                else if (leftRange.End + 1 == range.Start)
+                if (leftRange.End + 1 == range.Start)
                 {
-                    ranges[position] = new AddressRange(leftRange.Start, range.End);
+                    _ranges[position] = new AddressRange(leftRange.Start, range.End);
                     return true;
                 }
-                else if (leftRange.Start - 1 == range.End)
+                if (leftRange.Start - 1 == range.End)
                 {
-                    ranges[position] = new AddressRange(range.Start, leftRange.End);
+                    _ranges[position] = new AddressRange(range.Start, leftRange.End);
                     return true;
                 }
             }
             return false;
         }
 
-        bool MergeRight(AddressRange range, int position)
+        private bool MergeRight(AddressRange range, int position)
         {
-            if (position == ranges.Count)
+            if (position == _ranges.Count)
                 position--;
-            if (position >= 0 && position < ranges.Count)
+            if (position >= 0 && position < _ranges.Count)
             {
-                AddressRange rightRange = ranges[position];
+                var rightRange = _ranges[position];
                 if (rightRange.Contains(range.End))
                 {
-                    ranges[position] = new AddressRange(Math.Min(range.Start, rightRange.Start), rightRange.End);
+                    _ranges[position] = new AddressRange(Math.Min(range.Start, rightRange.Start), rightRange.End);
                     return true;
                 }
-                else if (range.Contains(rightRange))
+                if (range.Contains(rightRange))
                 {
-                    ranges[position] = range;
+                    _ranges[position] = range;
                     return true;
                 }
-                else if (rightRange.Contains(range.Start))
+                if (rightRange.Contains(range.Start))
                 {
-                    ranges[position] = new AddressRange(rightRange.Start, Math.Max(range.End, rightRange.End));
+                    _ranges[position] = new AddressRange(rightRange.Start, Math.Max(range.End, rightRange.End));
                     return true;
                 }
             }
@@ -156,7 +153,7 @@ namespace MonoTorrent.Client
 
         internal bool Contains(AddressRange range)
         {
-            int index = ranges.BinarySearch(range, new RangeComparer());
+            var index = _ranges.BinarySearch(range, new RangeComparer());
             
             // The start of this range is smaller than the start of any range in the list
             if (index == -1)
@@ -164,53 +161,53 @@ namespace MonoTorrent.Client
 
             // An element in the collection has the same 'Start' as 'range' 
             if (index >= 0)
-                return range.End <= ranges[index].End;
+                return range.End <= _ranges[index].End;
 
             index = ~index;
-            AddressRange r = ranges[index - 1];
+            var r = _ranges[index - 1];
             return r.Contains(range);
         }
 
         internal void Remove(AddressRange item)
         {
-            if (ranges.Count == 0)
+            if (_ranges.Count == 0)
                 return;
 
-            for (int i = item.Start; i <= item.End; i++)
+            for (var i = item.Start; i <= item.End; i++)
             {
-                AddressRange addressRange = new AddressRange(i, i);
-                int index = ranges.BinarySearch(addressRange, new RangeComparer());
+                var addressRange = new AddressRange(i, i);
+                var index = _ranges.BinarySearch(addressRange, new RangeComparer());
                 if (index < 0)
                 {
                     index = Math.Max((~index) - 1, 0);
 
-                    AddressRange range = ranges[index];
+                    var range = _ranges[index];
                     if (addressRange.Start < range.Start || addressRange.Start > range.End)
                         continue;
 
                     if (addressRange.Start == range.Start)
                     {
-                        ranges[index] = new AddressRange(range.Start + 1, range.End);
+                        _ranges[index] = new AddressRange(range.Start + 1, range.End);
                     }
                     else if (addressRange.End == range.End)
                     {
-                        ranges[index] = new AddressRange(range.Start, range.End - 1);
+                        _ranges[index] = new AddressRange(range.Start, range.End - 1);
                     }
                     else
                     {
-                        ranges[index] = new AddressRange(range.Start, addressRange.Start - 1);
-                        ranges.Insert(index + 1, new AddressRange(addressRange.Start + 1, range.End));
+                        _ranges[index] = new AddressRange(range.Start, addressRange.Start - 1);
+                        _ranges.Insert(index + 1, new AddressRange(addressRange.Start + 1, range.End));
                     }
                 }
                 else
                 {
-                    AddressRange range = ranges[index];
+                    var range = _ranges[index];
                     if (range.Contains(addressRange))
                     {
                         if (range.Start == range.End)
-                            ranges.RemoveAt(index);
+                            _ranges.RemoveAt(index);
                         else
-                            ranges[index] = new AddressRange(range.Start + 1, range.End);
+                            _ranges[index] = new AddressRange(range.Start + 1, range.End);
                     }
                 }
             }
@@ -218,10 +215,11 @@ namespace MonoTorrent.Client
 
         internal void Validate()
         {
-            for (int i = 1; i < ranges.Count; i++)
+            for (var i = 1; i < _ranges.Count; i++)
             {
-                AddressRange left = ranges[i - 1];
-                AddressRange right = ranges[i];
+                var left = _ranges[i - 1];
+                var right = _ranges[i];
+
                 if (left.Start > left.End)
                     throw new Exception();
                 if (left.End >= right.Start)

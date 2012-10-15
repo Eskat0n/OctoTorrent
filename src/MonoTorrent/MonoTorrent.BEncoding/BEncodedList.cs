@@ -26,15 +26,12 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
-
 namespace MonoTorrent.BEncoding
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     /// <summary>
     /// Class representing a BEncoded list
     /// </summary>
@@ -42,12 +39,12 @@ namespace MonoTorrent.BEncoding
     {
         #region Member Variables
 
-        private List<BEncodedValue> list;
+        private readonly List<BEncodedValue> _list;
 
         #endregion
 
-
         #region Constructors
+
         /// <summary>
         /// Create a new BEncoded List with default capacity
         /// </summary>
@@ -63,7 +60,6 @@ namespace MonoTorrent.BEncoding
         public BEncodedList(int capacity)
             : this(new List<BEncodedValue>(capacity))
         {
-
         }
 
         public BEncodedList(IEnumerable<BEncodedValue> list)
@@ -71,19 +67,17 @@ namespace MonoTorrent.BEncoding
             if (list == null)
                 throw new ArgumentNullException("list");
  
-            this.list = new List<BEncodedValue>(list);
+            _list = new List<BEncodedValue>(list);
         }
 
         private BEncodedList(List<BEncodedValue> value)
         {
-            this.list = value;
+            _list = value;
         }
 
         #endregion
 
-
         #region Encode/Decode Methods
-
 
         /// <summary>
         /// Encodes the list to a byte[]
@@ -93,13 +87,13 @@ namespace MonoTorrent.BEncoding
         /// <returns></returns>
         public override int Encode(byte[] buffer, int offset)
         {
-            int written = 0;
+            var written = 0;
             buffer[offset] = (byte)'l';
             written++;
-            for (int i = 0; i < this.list.Count; i++)
-                written += this.list[i].Encode(buffer, offset + written);
+            written = _list.Aggregate(written, (current, t) => current + t.Encode(buffer, offset + current));
             buffer[offset + written] = (byte)'e';
             written++;
+
             return written;
         }
 
@@ -113,105 +107,97 @@ namespace MonoTorrent.BEncoding
                 throw new BEncodingException("Invalid data found. Aborting");
 
             while ((reader.PeekByte() != -1) && (reader.PeekByte() != 'e'))
-                list.Add(BEncodedValue.Decode(reader));
+                _list.Add(Decode(reader));
 
             if (reader.ReadByte() != 'e')                            // Remove the trailing 'e'
                 throw new BEncodingException("Invalid data found. Aborting");
         }
+
         #endregion
 
-
         #region Helper Methods
+
         /// <summary>
         /// Returns the size of the list in bytes
         /// </summary>
         /// <returns></returns>
         public override int LengthInBytes()
         {
-            int length = 0;
+            var length = 0;
 
             length += 1;   // Lists start with 'l'
-            for (int i=0; i < this.list.Count; i++)
-                length += this.list[i].LengthInBytes();
-
+            length += _list.Sum(t => t.LengthInBytes());
             length += 1;   // Lists end with 'e'
+
             return length;
         }
+
         #endregion
 
-
         #region Overridden Methods
+
         public override bool Equals(object obj)
         {
-            BEncodedList other = obj as BEncodedList;
+            var other = obj as BEncodedList;
 
             if (other == null)
                 return false;
 
-            for (int i = 0; i < this.list.Count; i++)
-                if (!this.list[i].Equals(other.list[i]))
-                    return false;
-
-            return true;
+            return _list.Where((t, i) => !t.Equals(other._list[i])).Any() == false;
         }
-
 
         public override int GetHashCode()
         {
-            int result = 0;
-            for (int i = 0; i < list.Count; i++)
-                result ^= list[i].GetHashCode();
-
-            return result;
+            return _list.Aggregate(0, (current, t) => current ^ t.GetHashCode());
         }
-
 
         public override string ToString()
         {
             return System.Text.Encoding.UTF8.GetString(Encode());
         }
+
         #endregion
 
-
         #region IList methods
+
         public void Add(BEncodedValue item)
         {
-            this.list.Add(item);
+            _list.Add(item);
         }
 
         public void AddRange (IEnumerable<BEncodedValue> collection)
         {
-            list.AddRange (collection);
+            _list.AddRange (collection);
         }
 
         public void Clear()
         {
-            this.list.Clear();
+            _list.Clear();
         }
 
         public bool Contains(BEncodedValue item)
         {
-            return this.list.Contains(item);
+            return _list.Contains(item);
         }
 
         public void CopyTo(BEncodedValue[] array, int arrayIndex)
         {
-            this.list.CopyTo(array, arrayIndex);
+            _list.CopyTo(array, arrayIndex);
         }
 
         public int Count
         {
-            get { return this.list.Count; }
+            get { return _list.Count; }
         }
 
         public int IndexOf(BEncodedValue item)
         {
-            return this.list.IndexOf(item);
+            return _list.IndexOf(item);
         }
 
         public void Insert(int index, BEncodedValue item)
         {
-            this.list.Insert(index, item);
+            _list.Insert(index, item);
         }
 
         public bool IsReadOnly
@@ -221,29 +207,30 @@ namespace MonoTorrent.BEncoding
 
         public bool Remove(BEncodedValue item)
         {
-            return this.list.Remove(item);
+            return _list.Remove(item);
         }
 
         public void RemoveAt(int index)
         {
-            this.list.RemoveAt(index);
+            _list.RemoveAt(index);
         }
 
         public BEncodedValue this[int index]
         {
-            get { return this.list[index]; }
-            set { this.list[index] = value; }
+            get { return _list[index]; }
+            set { _list[index] = value; }
         }
 
         public IEnumerator<BEncodedValue> GetEnumerator()
         {
-            return this.list.GetEnumerator();
+            return _list.GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
+
         #endregion
     }
 }

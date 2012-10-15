@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using MonoTorrent.Client.Tracker;
-using MonoTorrent.Client;
-using System.Threading;
-using MonoTorrent.Common;
-
 namespace MonoTorrent.Tracker
 {
+    using System;
+    using System.Threading;
+    using Client.Tracker;
+    using Common;
+    using Listeners;
+    using NUnit.Framework;
+
     [TestFixture]
     public class TrackerTests
     {
@@ -20,26 +18,8 @@ namespace MonoTorrent.Tracker
         //    t.MultipleAnnounce();
         //    t.FixtureTeardown();
         //}
-        Uri uri = new Uri("http://127.0.0.1:23456/");
-        MonoTorrent.Tracker.Listeners.HttpListener listener;
-        MonoTorrent.Tracker.Tracker server;
-        //MonoTorrent.Client.Tracker.HTTPTracker tracker;
-        [TestFixtureSetUp]
-        public void FixtureSetup()
-        {
-            listener = new MonoTorrent.Tracker.Listeners.HttpListener(uri.OriginalString);
-            listener.Start();
-            server = new MonoTorrent.Tracker.Tracker();
-            server.RegisterListener(listener);
-            listener.Start();
-        }
 
-        [TestFixtureTearDown]
-        public void FixtureTeardown()
-        {
-            listener.Stop();
-            server.Dispose();
-        }
+        #region Setup/Teardown
 
         [SetUp]
         public void Setup()
@@ -47,26 +27,51 @@ namespace MonoTorrent.Tracker
             //tracker = new MonoTorrent.Client.Tracker.HTTPTracker(uri);
         }
 
+        #endregion
+
+        private readonly Uri _uri = new Uri("http://127.0.0.1:23456/");
+        private HttpListener _listener;
+        private Tracker _server;
+
+        [TestFixtureSetUp]
+        public void FixtureSetup()
+        {
+            _listener = new HttpListener(_uri.OriginalString);
+            _listener.Start();
+            _server = new Tracker();
+            _server.RegisterListener(_listener);
+            _listener.Start();
+        }
+
+        [TestFixtureTearDown]
+        public void FixtureTeardown()
+        {
+            _listener.Stop();
+            _server.Dispose();
+        }
+
         [Test]
         public void MultipleAnnounce()
         {
-            int announceCount = 0;
-            Random r = new Random();
-            ManualResetEvent handle = new ManualResetEvent(false);
+            var announceCount = 0;
+            var random = new Random();
+            var handle = new ManualResetEvent(false);
 
-            for (int i=0; i < 20; i++)
+            for (var i = 0; i < 20; i++)
             {
-                InfoHash infoHash = new InfoHash(new byte[20]);
-                r.NextBytes(infoHash.Hash);
-                TrackerTier tier = new TrackerTier(new string[] { uri.ToString() });
-                tier.Trackers[0].AnnounceComplete += delegate {
-                    if (++announceCount == 20)
-                        handle.Set();
-                };
-                TrackerConnectionID id = new TrackerConnectionID(tier.Trackers[0], false, TorrentEvent.Started, new ManualResetEvent(false));
-                MonoTorrent.Client.Tracker.AnnounceParameters parameters;
-                parameters = new MonoTorrent.Client.Tracker.AnnounceParameters(0, 0, 0, TorrentEvent.Started,
-                                                                       infoHash, false, new string('1', 20), "", 1411);
+                var infoHash = new InfoHash(new byte[20]);
+                random.NextBytes(infoHash.Hash);
+                var tier = new TrackerTier(new[] {_uri.ToString()});
+                tier.Trackers[0].AnnounceComplete += (sender, args) =>
+                                                         {
+                                                             if (++announceCount == 20)
+                                                                 handle.Set();
+                                                         };
+                var id = new TrackerConnectionID(tier.Trackers[0], false, TorrentEvent.Started,
+                                                 new ManualResetEvent(false));
+                var parameters = new MonoTorrent.Client.Tracker.AnnounceParameters(0, 0, 0, TorrentEvent.Started,
+                                                                                   infoHash, false, new string('1', 20),
+                                                                                   string.Empty, 1411);
                 tier.Trackers[0].Announce(parameters, id);
             }
 
