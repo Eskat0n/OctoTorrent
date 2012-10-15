@@ -33,9 +33,9 @@ namespace MonoTorrent.Client
             CheckContent(dict, BitfieldKey);
             CheckContent(dict, BitfieldLengthKey);
 
-            Infohash = new InfoHash(((BEncodedString)dict[InfoHashKey]).TextBytes);
-            Bitfield = new BitField((int)((BEncodedNumber)dict[BitfieldLengthKey]).Number);
-            var data = ((BEncodedString)dict[BitfieldKey]).TextBytes;
+            Infohash = new InfoHash(((BEncodedString) dict[InfoHashKey]).TextBytes);
+            Bitfield = new BitField((int) ((BEncodedNumber) dict[BitfieldLengthKey]).Number);
+            var data = ((BEncodedString) dict[BitfieldKey]).TextBytes;
             Bitfield.FromArray(data, 0, data.Length);
         }
 
