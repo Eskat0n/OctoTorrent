@@ -8,8 +8,8 @@
     <ProjectGuid>{7A2A7E73-FD43-4171-AA34-DA413D35459E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MonoTorrent.Dht</RootNamespace>
-    <AssemblyName>MonoTorrent.Dht</AssemblyName>
+    <RootNamespace>OctoTorrent.Dht</RootNamespace>
+    <AssemblyName>OctoTorrent.Dht</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>

@@ -8,8 +8,8 @@
     <ProjectGuid>{526928D8-DBC8-4717-BCF0-A4FEDA80A0BD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MonoTorrent.Tests</RootNamespace>
-    <AssemblyName>MonoTorrent.Tests</AssemblyName>
+    <RootNamespace>OctoTorrent.Tests</RootNamespace>
+    <AssemblyName>OctoTorrent.Tests</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
