@@ -405,14 +405,13 @@ namespace MonoTorrent.Client
         /// <param name="id"> The peer whose connection needs to be closed </param>
         internal void CleanupSocket(PeerId id, string message)
         {
-            ClientEngine.MainLoop.Queue(delegate { id.ConnectionManager.AsyncCleanupSocket(id, true, message); });
+            ClientEngine.MainLoop.Queue(() => id.ConnectionManager.AsyncCleanupSocket(id, true, message));
         }
 
 
         /// <summary>
         ///   This method is called when the ClientEngine recieves a valid incoming connection
         /// </summary>
-        /// <param name="result"> </param>
         private void IncomingConnectionAccepted(bool succeeded, int count, object state)
         {
             var id = (PeerId) state;
@@ -497,25 +496,25 @@ namespace MonoTorrent.Client
                 return;
             }
 
-            var msg = id.Dequeue();
-            if (msg is PieceMessage)
+            var message = id.Dequeue();
+            var pieceMessage = message as PieceMessage;
+            if (pieceMessage != null)
             {
                 using (var handle = new ManualResetEvent(false))
                 {
-                    var pm = (PieceMessage) msg;
-                    pm.Data = BufferManager.EmptyBuffer;
-                    ClientEngine.BufferManager.GetBuffer(ref pm.Data, pm.ByteLength);
+                    pieceMessage.Data = BufferManager.EmptyBuffer;
+                    ClientEngine.BufferManager.GetBuffer(ref pieceMessage.Data, pieceMessage.ByteLength);
                     _engine.DiskManager.QueueRead(id.TorrentManager,
-                                                 pm.StartOffset +
-                                                 ((long) pm.PieceIndex*id.TorrentManager.Torrent.PieceLength), pm.Data,
-                                                 pm.RequestLength, delegate { handle.Set(); });
+                                                  pieceMessage.StartOffset +
+                                                  ((long) pieceMessage.PieceIndex*id.TorrentManager.Torrent.PieceLength), pieceMessage.Data,
+                                                  pieceMessage.RequestLength, successful => handle.Set());
                     handle.WaitOne();
                     id.PiecesSent++;
                 }
             }
             try
             {
-                SendMessage(id, msg, _messageSentCallback);
+                SendMessage(id, message, _messageSentCallback);
             }
             catch (Exception e)
             {
@@ -528,26 +527,25 @@ namespace MonoTorrent.Client
             if (PeerMessageTransferred == null)
                 return;
 
-            ThreadPool.QueueUserWorkItem(delegate
+            ThreadPool.QueueUserWorkItem(state =>
                                              {
-                                                 var h = PeerMessageTransferred;
-                                                 if (h == null)
+                                                 var handler = PeerMessageTransferred;
+                                                 if (handler == null)
                                                      return;
 
-                                                 if (!(e.Message is MessageBundle))
+                                                 var messageBundle = e.Message as MessageBundle;
+                                                 if (messageBundle == null)
                                                  {
-                                                     h(e.TorrentManager, e);
+                                                     handler(e.TorrentManager, e);
                                                  }
                                                  else
                                                  {
                                                      // Message bundles are only a convience for internal usage!
-                                                     var b = (MessageBundle) e.Message;
-                                                     foreach (var message in b.Messages)
-                                                     {
-                                                         var args = new PeerMessageEventArgs(e.TorrentManager, message,
-                                                                                             e.Direction, e.ID);
-                                                         h(args.TorrentManager, args);
-                                                     }
+                                                     var peerMessageEventArgs = messageBundle.Messages
+                                                         .Select(m => new PeerMessageEventArgs(e.TorrentManager, m, e.Direction, e.ID));
+
+                                                     foreach (var args in peerMessageEventArgs)
+                                                         handler(args.TorrentManager, args);
                                                  }
                                              });
         }

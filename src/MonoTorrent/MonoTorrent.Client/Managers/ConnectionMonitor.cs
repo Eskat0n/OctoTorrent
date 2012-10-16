@@ -26,127 +26,119 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Net.Sockets;
-using MonoTorrent.Common;
-
 namespace MonoTorrent.Client
 {
+    using Common;
+
     /// <summary>
-    /// This class is used to track upload/download speed and bytes uploaded/downloaded for each connection
+    ///   This class is used to track upload/download speed and bytes uploaded/downloaded for each connection
     /// </summary>
     public class ConnectionMonitor
     {
         #region Member Variables
 
-        private SpeedMonitor dataDown;
-        private SpeedMonitor dataUp;
-        private object locker = new object();
-        private SpeedMonitor protocolDown;
-        private SpeedMonitor protocolUp;
+        private readonly SpeedMonitor _dataDown;
+        private readonly SpeedMonitor _dataUp;
+        private readonly object _locker = new object();
+        private readonly SpeedMonitor _protocolDown;
+        private readonly SpeedMonitor _protocolUp;
 
         #endregion Member Variables
-
 
         #region Public Properties
 
         public long DataBytesDownloaded
         {
-            get { return dataDown.Total; }
+            get { return _dataDown.Total; }
         }
 
         public long DataBytesUploaded
         {
-            get { return dataUp.Total; }
+            get { return _dataUp.Total; }
         }
 
         public int DownloadSpeed
         {
-            get { return dataDown.Rate + protocolDown.Rate; }
+            get { return _dataDown.Rate + _protocolDown.Rate; }
         }
 
         public long ProtocolBytesDownloaded
         {
-            get { return protocolDown.Total; }
+            get { return _protocolDown.Total; }
         }
 
         public long ProtocolBytesUploaded
         {
-            get { return protocolUp.Total; }
+            get { return _protocolUp.Total; }
         }
 
         public int UploadSpeed
         {
-            get { return dataUp.Rate + protocolUp.Rate; }
+            get { return _dataUp.Rate + _protocolUp.Rate; }
         }
 
         #endregion Public Properties
-
 
         #region Constructors
 
         internal ConnectionMonitor()
             : this(12)
         {
-
         }
 
         internal ConnectionMonitor(int averagingPeriod)
         {
-            dataDown = new SpeedMonitor(averagingPeriod);
-            dataUp = new SpeedMonitor(averagingPeriod);
-            protocolDown = new SpeedMonitor(averagingPeriod);
-            protocolUp = new SpeedMonitor(averagingPeriod);
+            _dataDown = new SpeedMonitor(averagingPeriod);
+            _dataUp = new SpeedMonitor(averagingPeriod);
+            _protocolDown = new SpeedMonitor(averagingPeriod);
+            _protocolUp = new SpeedMonitor(averagingPeriod);
         }
 
         #endregion
-
 
         #region Methods
 
         internal void BytesSent(int bytesUploaded, TransferType type)
         {
-            lock (locker)
+            lock (_locker)
             {
                 if (type == TransferType.Data)
-                    dataUp.AddDelta(bytesUploaded);
+                    _dataUp.AddDelta(bytesUploaded);
                 else
-                    protocolUp.AddDelta(bytesUploaded);
+                    _protocolUp.AddDelta(bytesUploaded);
             }
         }
 
         internal void BytesReceived(int bytesDownloaded, TransferType type)
         {
-            lock (locker)
+            lock (_locker)
             {
                 if (type == TransferType.Data)
-                    dataDown.AddDelta(bytesDownloaded);
+                    _dataDown.AddDelta(bytesDownloaded);
                 else
-                    protocolDown.AddDelta(bytesDownloaded);
+                    _protocolDown.AddDelta(bytesDownloaded);
             }
         }
 
         internal void Reset()
         {
-            lock (locker)
+            lock (_locker)
             {
-                dataDown.Reset();
-                dataUp.Reset();
-                protocolDown.Reset();
-                protocolUp.Reset();
+                _dataDown.Reset();
+                _dataUp.Reset();
+                _protocolDown.Reset();
+                _protocolUp.Reset();
             }
         }
 
         internal void Tick()
         {
-            lock (locker)
+            lock (_locker)
             {
-                dataDown.Tick();
-                dataUp.Tick();
-                protocolDown.Tick();
-                protocolUp.Tick();
+                _dataDown.Tick();
+                _dataUp.Tick();
+                _protocolDown.Tick();
+                _protocolUp.Tick();
             }
         }
 

@@ -26,51 +26,53 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Timers;
-using MonoTorrent;
-using MonoTorrent.Common;
-using MonoTorrent.Client;
-
 namespace MonoTorrent.Client
 {
-    class LocalPeerManager : IDisposable
+    using System;
+    using System.Net;
+    using System.Net.Sockets;
+    using System.Text;
+
+    internal class LocalPeerManager : IDisposable
     {
-        private const int port = 6771;
-        
-        private UdpClient socket;
-        private IPEndPoint ep;
+        private const int Port = 6771;
+
+        private readonly IPEndPoint _ep;
+        private readonly UdpClient _socket;
 
         public LocalPeerManager()
         {
-            socket = new UdpClient();
-            ep = new IPEndPoint(IPAddress.Broadcast, port);
+            _socket = new UdpClient();
+            _ep = new IPEndPoint(IPAddress.Broadcast, Port);
         }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            _socket.Close();
+        }
+
+        #endregion
 
         public void Broadcast(TorrentManager manager)
         {
             if (manager.HasMetadata && manager.Torrent.IsPrivate)
                 return;
-            
-            string message = String.Format("BT-SEARCH * HTTP/1.1\r\nHost: 239.192.152.143:6771\r\nPort: {0}\r\nInfohash: {1}\r\n\r\n\r\n", manager.Engine.Settings.ListenPort, manager.InfoHash.ToHex());
-            byte[] data = Encoding.ASCII.GetBytes(message);
-			try
-			{
-				socket.Send(data, data.Length, ep);
-			}
-			catch
-			{
-				// If data can't be sent, just ignore the error
-			}
-        }
 
-        public void Dispose()
-        {
-            socket.Close();
+            var message =
+                String.Format(
+                    "BT-SEARCH * HTTP/1.1\r\nHost: 239.192.152.143:6771\r\nPort: {0}\r\nInfohash: {1}\r\n\r\n\r\n",
+                    manager.Engine.Settings.ListenPort, manager.InfoHash.ToHex());
+            var data = Encoding.ASCII.GetBytes(message);
+            try
+            {
+                _socket.Send(data, data.Length, _ep);
+            }
+            catch
+            {
+                // If data can't be sent, just ignore the error
+            }
         }
     }
 }
