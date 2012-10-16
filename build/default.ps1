@@ -5,7 +5,7 @@ properties {
     $configuration = $null
 
     $solutionPath = '../'
-	$solutionFilename = $solutionPath + 'MonoTorrent.sln'
+	$solutionFilename = $solutionPath + 'OctoTorrent.sln'
 }
 
 task default -depends DoNotRunItDirectly

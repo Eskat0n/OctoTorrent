@@ -127,9 +127,9 @@
     <VisualStudio />
   </ProjectExtensions>
   <ItemGroup>
-    <ProjectReference Include="..\MonoTorrent\MonoTorrent.csproj">
+    <ProjectReference Include="..\MonoTorrent\OctoTorrent.csproj">
       <Project>{411A9E0E-FDC6-4E25-828A-0C2CD1CD96F8}</Project>
-      <Name>MonoTorrent</Name>
+      <Name>OctoTorrent</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>
