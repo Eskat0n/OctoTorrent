@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Security.Cryptography;
 
-namespace MonoTorrent
+namespace OctoTorrent
 {
     class SHA1Fake : SHA1
     {

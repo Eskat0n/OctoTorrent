@@ -33,11 +33,11 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using System.Security.Cryptography;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 using System.Collections;
 using System.Net;
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     /// <summary>
     /// The "Torrent" class for both Tracker and Client should inherit from this

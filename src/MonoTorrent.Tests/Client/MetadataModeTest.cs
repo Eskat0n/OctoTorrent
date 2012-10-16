@@ -1,16 +1,16 @@
-﻿using MonoTorrent.Client;
-using MonoTorrent.Client.Encryption;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Client.Messages.Libtorrent;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.Common;
+﻿using OctoTorrent.Client;
+using OctoTorrent.Client.Encryption;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Client.Messages.Libtorrent;
+using OctoTorrent.Client.Messages.Standard;
+using OctoTorrent.Common;
 using NUnit.Framework;
 using System;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     [TestFixture]
     public class MetadataModeTests

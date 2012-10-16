@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     public class CustomFileSource : ITorrentFileSource
     {

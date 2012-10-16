@@ -30,7 +30,7 @@ using System;
 using System.Text;
 using Mono.Math;
 
-namespace MonoTorrent.Client.Encryption
+namespace OctoTorrent.Client.Encryption
 {
     /// <summary>
     /// Class to facilitate the calculation of a^b mod p, where a and b are large integers

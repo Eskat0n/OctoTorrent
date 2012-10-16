@@ -1,11 +1,11 @@
 #if !DISABLE_DHT
-using MonoTorrent.Dht.Messages;
+using OctoTorrent.Dht.Messages;
 using System;
 using System.Net;
 using System.Collections.Generic;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 
-namespace MonoTorrent.Dht.Tasks
+namespace OctoTorrent.Dht.Tasks
 {
     class InitialiseTask : Task
     {

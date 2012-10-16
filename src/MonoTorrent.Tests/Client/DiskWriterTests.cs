@@ -31,13 +31,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Client.PieceWriters;
-using MonoTorrent.Common;
+using OctoTorrent.Client.PieceWriters;
+using OctoTorrent.Common;
 using NUnit.Framework;
 using System.IO;
 using System.Threading;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public class ExceptionWriter : PieceWriter
     {

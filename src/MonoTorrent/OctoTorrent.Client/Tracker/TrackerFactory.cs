@@ -29,10 +29,10 @@
 using System;
 using System.Net;
 using System.Threading;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 using System.Collections.Generic;
 
-namespace MonoTorrent.Client.Tracker
+namespace OctoTorrent.Client.Tracker
 {
     public static class TrackerFactory
     {

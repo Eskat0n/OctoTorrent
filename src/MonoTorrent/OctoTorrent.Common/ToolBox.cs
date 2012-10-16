@@ -26,12 +26,12 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using MonoTorrent.Client.Encryption;
+    using OctoTorrent.Client.Encryption;
 
     public static class Toolbox
     {

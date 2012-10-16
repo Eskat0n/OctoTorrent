@@ -30,7 +30,7 @@
 using System;
 using System.IO;
 
-namespace MonoTorrent.TorrentWatcher
+namespace OctoTorrent.TorrentWatcher
 {
     public class TorrentFolderWatcher : ITorrentWatcher
     {

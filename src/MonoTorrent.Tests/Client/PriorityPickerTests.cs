@@ -31,10 +31,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using MonoTorrent.Common;
-using MonoTorrent.Client;
+using OctoTorrent.Common;
+using OctoTorrent.Client;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     [TestFixture]
     public class PriorityPickerTests

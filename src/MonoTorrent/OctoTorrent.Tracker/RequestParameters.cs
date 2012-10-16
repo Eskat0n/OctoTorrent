@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Collections.Specialized;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 using System.Net;
 
-namespace MonoTorrent.Tracker
+namespace OctoTorrent.Tracker
 {
     public abstract class RequestParameters : EventArgs
     {

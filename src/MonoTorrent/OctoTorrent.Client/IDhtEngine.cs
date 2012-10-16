@@ -28,9 +28,9 @@
 
 
 using System;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 
-namespace MonoTorrent
+namespace OctoTorrent
 {
     public interface IDhtEngine : IDisposable
     {

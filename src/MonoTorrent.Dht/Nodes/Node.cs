@@ -34,12 +34,12 @@ using System.Collections;
 using System.Collections.Generic;
 
 using Mono.Math;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 using System.Net;
-using MonoTorrent.Dht.Messages;
+using OctoTorrent.Dht.Messages;
 using System.Text;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     internal class Node : IComparable<Node>, IEquatable<Node>
     {

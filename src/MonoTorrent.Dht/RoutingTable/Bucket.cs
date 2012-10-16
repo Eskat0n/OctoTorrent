@@ -35,7 +35,7 @@ using System.Collections.Generic;
 
 using Mono.Math;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
 	/// <summary>
 	/// This class holds a maximum amount of 8 Nodes and is itself a child of a RoutingTable

@@ -35,13 +35,13 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using MonoTorrent.Client.Encryption;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Connections;
-using MonoTorrent.Client.Messages;
+using OctoTorrent.Client.Encryption;
+using OctoTorrent.Common;
+using OctoTorrent.Client.Connections;
+using OctoTorrent.Client.Messages;
 
 
-namespace MonoTorrent.Client.Encryption
+namespace OctoTorrent.Client.Encryption
 {
     public class EncryptionException : TorrentException
     {

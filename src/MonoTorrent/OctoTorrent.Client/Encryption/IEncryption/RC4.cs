@@ -33,7 +33,7 @@ using System.IO;
 using System.Threading;
 using System.Security.Cryptography;
 
-namespace MonoTorrent.Client.Encryption
+namespace OctoTorrent.Client.Encryption
 {
     /// <summary>
     /// RC4 encryption

@@ -1,4 +1,4 @@
-namespace MonoTorrent.Tracker
+namespace OctoTorrent.Tracker
 {
     using System;
     using System.Threading;
@@ -69,7 +69,7 @@ namespace MonoTorrent.Tracker
                                                          };
                 var id = new TrackerConnectionID(tier.Trackers[0], false, TorrentEvent.Started,
                                                  new ManualResetEvent(false));
-                var parameters = new MonoTorrent.Client.Tracker.AnnounceParameters(0, 0, 0, TorrentEvent.Started,
+                var parameters = new OctoTorrent.Client.Tracker.AnnounceParameters(0, 0, 0, TorrentEvent.Started,
                                                                                    infoHash, false, new string('1', 20),
                                                                                    string.Empty, 1411);
                 tier.Trackers[0].Announce(parameters, id);

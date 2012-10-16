@@ -30,11 +30,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Common;
+using OctoTorrent.Client.Messages.Standard;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public class EndGameSwitcher : PiecePicker
     {
@@ -103,7 +103,7 @@ namespace MonoTorrent.Client
             ActivePicker.Initialise(bitfield, files, requests);
         }
 
-        public override bool IsInteresting(MonoTorrent.Common.BitField bitfield)
+        public override bool IsInteresting(BitField bitfield)
         {
             return ActivePicker.IsInteresting(bitfield);
         }

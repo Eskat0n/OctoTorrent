@@ -29,7 +29,7 @@
 
 
 using System;
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     interface IRateLimiter
     {

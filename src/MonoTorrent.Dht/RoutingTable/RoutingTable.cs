@@ -34,10 +34,10 @@ using System.Collections.Generic;
 
 using Mono.Math;
 using System.Net;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     internal class RoutingTable
     {

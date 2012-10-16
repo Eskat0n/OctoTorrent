@@ -28,9 +28,9 @@
 
 using System;
 using System.Net;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public abstract class Listener : IListener
     {

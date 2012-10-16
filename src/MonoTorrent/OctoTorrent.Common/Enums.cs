@@ -30,7 +30,7 @@
 
 using System;
 
-namespace MonoTorrent
+namespace OctoTorrent
 {
     public enum DhtState
     {
@@ -40,7 +40,7 @@ namespace MonoTorrent
     }
 }
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     public enum ListenerStatus
     {

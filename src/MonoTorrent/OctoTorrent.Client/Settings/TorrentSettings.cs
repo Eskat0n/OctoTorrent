@@ -30,7 +30,7 @@
 
 using System;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     [Serializable]
     public class TorrentSettings : ICloneable

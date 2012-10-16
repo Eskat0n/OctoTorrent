@@ -32,7 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     [Serializable]
     public class TorrentException : Exception

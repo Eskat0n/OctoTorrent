@@ -26,7 +26,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace MonoTorrent.Client.Messages.UdpTracker
+namespace OctoTorrent.Client.Messages.UdpTracker
 {
     using System;
     using System.Collections.Generic;

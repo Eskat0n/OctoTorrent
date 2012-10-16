@@ -1,13 +1,9 @@
 #if !DISABLE_DHT
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using MonoTorrent.Dht.Listeners;
-using MonoTorrent.Dht.Messages;
+using OctoTorrent.Dht.Listeners;
+using OctoTorrent.Dht.Messages;
 using System.Net;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     internal class TestListener : DhtListener
     {
@@ -31,10 +27,7 @@ namespace MonoTorrent.Dht
 
         public void RaiseMessageReceived(Message message, IPEndPoint endpoint)
         {
-            DhtEngine.MainLoop.Queue(delegate
-            {
-                OnMessageReceived(message.Encode(), endpoint);
-            });
+            DhtEngine.MainLoop.Queue(() => OnMessageReceived(message.Encode(), endpoint));
         }
 
         public override void Start()

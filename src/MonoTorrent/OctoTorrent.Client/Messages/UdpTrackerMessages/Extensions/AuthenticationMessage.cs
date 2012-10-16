@@ -1,4 +1,4 @@
-namespace MonoTorrent.Client.Messages.UdpTracker
+namespace OctoTorrent.Client.Messages.UdpTracker
 {
     using System;
     using System.Text;

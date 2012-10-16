@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using MonoTorrent.Client.Tracker;
-using MonoTorrent.Client;
+using OctoTorrent.Client.Tracker;
+using OctoTorrent.Client;
 using System.Threading;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public class DefaultTracker : Tracker.Tracker
     {

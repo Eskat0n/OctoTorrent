@@ -26,7 +26,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     using System;
     using System.Collections.Generic;
@@ -34,7 +34,7 @@ namespace MonoTorrent.Client
     using Common;
     using Messages;
     using Messages.UdpTracker;
-    using MonoTorrent.Tracker.Listeners;
+    using OctoTorrent.Tracker.Listeners;
     using NUnit.Framework;
     using Tracker;
 
@@ -83,7 +83,7 @@ namespace MonoTorrent.Client
                                                                                     false, new string('a', 20), null,
                                                                                     1515);
 
-        private MonoTorrent.Tracker.Tracker _server;
+        private OctoTorrent.Tracker.Tracker _server;
         private UdpListener _listener;
         private List<string> _keys;
 
@@ -91,7 +91,7 @@ namespace MonoTorrent.Client
         public void FixtureSetup()
         {
             _keys = new List<string>();
-            _server = new MonoTorrent.Tracker.Tracker {AllowUnregisteredTorrents = true};
+            _server = new OctoTorrent.Tracker.Tracker {AllowUnregisteredTorrents = true};
             _listener = new UdpListener(6767);
             _listener.AnnounceReceived += (o, e) => _keys.Add(e.Key);
             _server.RegisterListener(_listener);

@@ -29,13 +29,13 @@
 using System;
 using System.Net;
 
-using MonoTorrent.Client.Connections;
-using MonoTorrent.Client.Encryption;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client.Connections;
+using OctoTorrent.Client.Encryption;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Common;
+using OctoTorrent.Client.Messages.Standard;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     internal static partial class PeerIO
     {

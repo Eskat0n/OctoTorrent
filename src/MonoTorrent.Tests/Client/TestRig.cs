@@ -1,19 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Client.Connections;
-using MonoTorrent.BEncoding;
-using MonoTorrent.Client.Tracker;
-using MonoTorrent.Client.PieceWriters;
-using MonoTorrent.Client;
-using MonoTorrent.Common;
+using OctoTorrent.Client.Connections;
+using OctoTorrent.BEncoding;
+using OctoTorrent.Client.Tracker;
+using OctoTorrent.Client.PieceWriters;
+using OctoTorrent.Client;
+using OctoTorrent.Common;
 using System.Net.Sockets;
 using System.Net;
-using MonoTorrent.Client.Encryption;
+using OctoTorrent.Client.Encryption;
 using System.Threading;
 using NUnit.Framework;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public class TestWriter : PieceWriter
     {
@@ -61,10 +61,10 @@ namespace MonoTorrent.Client
         }
     }
 
-    public class CustomTracker : MonoTorrent.Client.Tracker.Tracker
+    public class CustomTracker : OctoTorrent.Client.Tracker.Tracker
     {
-        public List<DateTime> AnnouncedAt = new List<DateTime>();
-        public List<DateTime> ScrapedAt = new List<DateTime>();
+        public readonly List<DateTime> AnnouncedAt = new List<DateTime>();
+        public readonly List<DateTime> ScrapedAt = new List<DateTime>();
 
         public bool FailAnnounce;
         public bool FailScrape;
@@ -287,8 +287,8 @@ namespace MonoTorrent.Client
 
         public void Add(TorrentManager manager, IConnection connection)
         {
-            MonoTorrent.Client.Peer p = new MonoTorrent.Client.Peer("", new Uri("tcp://12.123.123.1:2342"), EncryptionTypes.All);
-            base.RaiseConnectionReceived(p, connection, manager);
+            var peer = new Peer("", new Uri("tcp://12.123.123.1:2342"), EncryptionTypes.All);
+            base.RaiseConnectionReceived(peer, connection, manager);
         }
     }
 

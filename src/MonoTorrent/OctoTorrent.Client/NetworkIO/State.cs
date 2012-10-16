@@ -27,9 +27,9 @@
 //
 
 using System;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     internal static partial class PeerIO
     {

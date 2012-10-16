@@ -5,11 +5,11 @@
 //
 
 using System;
-using MonoTorrent.Client;
+using OctoTorrent.Client;
 using System.Net.Sockets;
 using System.Net;
 
-namespace MonoTorrent.Client.Connections
+namespace OctoTorrent.Client.Connections
 {
 	public interface IConnection : IDisposable
 	{

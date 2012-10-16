@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     public class TorrentFileSource : ITorrentFileSource
     {

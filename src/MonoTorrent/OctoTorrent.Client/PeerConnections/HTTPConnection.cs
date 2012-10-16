@@ -35,15 +35,15 @@ using System.Threading;
 using System.Collections.Generic;
 using System.IO;
 
-using MonoTorrent.Client.Encryption;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.Common;
+using OctoTorrent.Client.Encryption;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Client.Messages.Standard;
+using OctoTorrent.Common;
 using System.Text.RegularExpressions;
 using System.Reflection;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 
-namespace MonoTorrent.Client.Connections
+namespace OctoTorrent.Client.Connections
 {
     public partial class HttpConnection : IConnection
     {

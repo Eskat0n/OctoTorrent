@@ -26,7 +26,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace MonoTorrent.Client.Messages.Libtorrent
+namespace OctoTorrent.Client.Messages.Libtorrent
 {
     using System;
     using System.IO;

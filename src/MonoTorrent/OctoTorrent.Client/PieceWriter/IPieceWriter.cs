@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client.PieceWriters
+namespace OctoTorrent.Client.PieceWriters
 {
     public interface IPieceWriter
     {

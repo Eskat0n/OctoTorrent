@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MonoTorrent.Tracker
+namespace OctoTorrent.Tracker
 {
     public class TrackerException : Exception
     {

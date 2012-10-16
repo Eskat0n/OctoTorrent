@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Client;
-using MonoTorrent.Common;
+using OctoTorrent.Client;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Tracker
+namespace OctoTorrent.Tracker
 {
     public class RequestMonitor
     {

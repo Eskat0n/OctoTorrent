@@ -1,9 +1,9 @@
 using System;
 
 using NUnit.Framework;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     [TestFixture]
     public class TorrentEditorTests

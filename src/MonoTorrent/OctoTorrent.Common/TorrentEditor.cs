@@ -28,10 +28,10 @@
 
 using System;
 
-using MonoTorrent.BEncoding;
-using MonoTorrent.Common;
+using OctoTorrent.BEncoding;
+using OctoTorrent.Common;
 
-namespace MonoTorrent {
+namespace OctoTorrent {
 
     public class TorrentEditor : EditableTorrent {
 

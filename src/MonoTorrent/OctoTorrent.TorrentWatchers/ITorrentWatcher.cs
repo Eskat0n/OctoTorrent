@@ -27,7 +27,7 @@
 //
 
 using System;
-namespace MonoTorrent.TorrentWatcher
+namespace OctoTorrent.TorrentWatcher
 {
     public interface ITorrentWatcher
     {

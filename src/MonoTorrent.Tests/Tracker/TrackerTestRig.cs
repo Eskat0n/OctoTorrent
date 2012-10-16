@@ -1,24 +1,27 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.Tracker;
-using MonoTorrent.Tracker.Listeners;
-using System.Collections.Specialized;
-using System.Net;
-using System.Web;
-using MonoTorrent.BEncoding;
-
-namespace MonoTorrent.Tracker
+namespace OctoTorrent.Tracker
 {
-    public class CustomComparer : MonoTorrent.Tracker.IPeerComparer
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.Specialized;
+    using System.Globalization;
+    using System.Net;
+    using BEncoding;
+    using Listeners;
+
+    public class CustomComparer : IPeerComparer
     {
-        public new bool Equals(object left, object right)
-        {
-            return left.Equals(right);
-        }
+        #region IPeerComparer Members
+
         public object GetKey(AnnounceParameters parameters)
         {
             return parameters.Uploaded;
+        }
+
+        #endregion
+
+        public new bool Equals(object left, object right)
+        {
+            return left.Equals(right);
         }
 
         public int GetHashCode(object obj)
@@ -29,39 +32,38 @@ namespace MonoTorrent.Tracker
 
     public class CustomListener : ListenerBase
     {
-        public BEncodedValue Handle(PeerDetails d, MonoTorrent.Common.TorrentEvent e, ITrackable trackable)
-        {
-            NameValueCollection c = new NameValueCollection();
-            c.Add("info_hash", trackable.InfoHash.UrlEncode());
-            c.Add("peer_id", d.peerId);
-            c.Add("port", d.Port.ToString());
-            c.Add("uploaded", d.Uploaded.ToString());
-            c.Add("downloaded", d.Downloaded.ToString());
-            c.Add("left", d.Remaining.ToString());
-            c.Add("compact", "0");
-
-            return base.Handle(c, d.ClientAddress, false);
-        }
-
         public override bool Running
         {
             get { return true; }
         }
 
+        public BEncodedValue Handle(PeerDetails peerDetails, ITrackable trackable)
+        {
+            var c = new NameValueCollection();
+            c.Add("info_hash", trackable.InfoHash.UrlEncode());
+            c.Add("peer_id", peerDetails.PeerId);
+            c.Add("port", peerDetails.Port.ToString(CultureInfo.InvariantCulture));
+            c.Add("uploaded", peerDetails.Uploaded.ToString(CultureInfo.InvariantCulture));
+            c.Add("downloaded", peerDetails.Downloaded.ToString(CultureInfo.InvariantCulture));
+            c.Add("left", peerDetails.Remaining.ToString(CultureInfo.InvariantCulture));
+            c.Add("compact", "0");
+
+            return base.Handle(c, peerDetails.ClientAddress, false);
+        }
+
         public override void Start()
         {
-            
         }
 
         public override void Stop()
         {
-            
         }
     }
+
     public class Trackable : ITrackable
     {
-        private InfoHash infoHash;
-        private string name;
+        private readonly InfoHash infoHash;
+        private readonly string name;
 
 
         public Trackable(InfoHash infoHash, string name)
@@ -69,6 +71,8 @@ namespace MonoTorrent.Tracker
             this.infoHash = infoHash;
             this.name = name;
         }
+
+        #region ITrackable Members
 
         public InfoHash InfoHash
         {
@@ -79,32 +83,34 @@ namespace MonoTorrent.Tracker
         {
             get { return name; }
         }
+
+        #endregion
     }
 
     public class PeerDetails
     {
-        public int Port;
         public IPAddress ClientAddress;
         public long Downloaded;
-        public long Uploaded;
+        public int Port;
         public long Remaining;
-        public string peerId;
-        public ITrackable trackable;
+        public long Uploaded;
+        public string PeerId;
+        public ITrackable Trackable;
     }
 
     public class TrackerTestRig : IDisposable
     {
-        private Random r = new Random(1000);
+        private readonly Random _random = new Random(1000);
 
-        public CustomListener Listener;
-        public Tracker Tracker;
+        public readonly CustomListener Listener;
 
         public List<PeerDetails> Peers;
         public List<Trackable> Trackables;
+        public readonly Tracker Tracker;
 
         public TrackerTestRig()
         {
-            Tracker = new MonoTorrent.Tracker.Tracker();
+            Tracker = new Tracker();
             Listener = new CustomListener();
             Tracker.RegisterListener(Listener);
 
@@ -112,37 +118,43 @@ namespace MonoTorrent.Tracker
             GeneratePeers();
         }
 
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            Tracker.Dispose();
+            Listener.Stop();
+        }
+
+        #endregion
+
         private void GenerateTrackables()
         {
             Trackables = new List<Trackable>();
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
-                byte[] infoHash = new byte[20];
-                r.NextBytes(infoHash);
-                Trackables.Add(new Trackable(new InfoHash (infoHash), i.ToString()));
+                var infoHash = new byte[20];
+                _random.NextBytes(infoHash);
+                Trackables.Add(new Trackable(new InfoHash(infoHash), i.ToString()));
             }
         }
 
         private void GeneratePeers()
         {
             Peers = new List<PeerDetails>();
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
-                PeerDetails d = new PeerDetails();
-                d.ClientAddress = IPAddress.Parse(string.Format("127.0.{0}.2", i));
-                d.Downloaded = (int)(10000 * r.NextDouble());
-                d.peerId = string.Format("-----------------{0:0.000}", i);
-                d.Port = r.Next(65000);
-                d.Remaining = r.Next(10000, 100000);
-                d.Uploaded = r.Next(10000, 100000);
-                Peers.Add(d);
+                var peerDetails = new PeerDetails
+                            {
+                                ClientAddress = IPAddress.Parse(string.Format("127.0.{0}.2", i)),
+                                Downloaded = (int) (10000*_random.NextDouble()),
+                                PeerId = string.Format("-----------------{0:0.000}", i),
+                                Port = _random.Next(65000),
+                                Remaining = _random.Next(10000, 100000),
+                                Uploaded = _random.Next(10000, 100000)
+                            };
+                Peers.Add(peerDetails);
             }
-        }
-
-        public void Dispose()
-        {
-            Tracker.Dispose();
-            Listener.Stop();
         }
     }
 }

@@ -34,10 +34,10 @@ using System.Text;
 using System.Collections.Specialized;
 using System.Diagnostics;
 
-using MonoTorrent.Common;
-using MonoTorrent.BEncoding;
+using OctoTorrent.Common;
+using OctoTorrent.BEncoding;
 
-namespace MonoTorrent.Tracker.Listeners
+namespace OctoTorrent.Tracker.Listeners
 {
     public class HttpListener : ListenerBase
     {

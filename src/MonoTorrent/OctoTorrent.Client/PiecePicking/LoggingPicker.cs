@@ -30,11 +30,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Common;
+using OctoTorrent.Client.Messages.Standard;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     class LoggingPicker : PiecePicker
     {

@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Dht.Messages;
+using OctoTorrent.Dht.Messages;
 
-namespace MonoTorrent.Dht.Tasks
+namespace OctoTorrent.Dht.Tasks
 {
     class AnnounceTask : Task
     {

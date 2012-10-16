@@ -30,12 +30,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Messages.FastPeer;
-using MonoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Common;
+using OctoTorrent.Client.Messages.FastPeer;
+using OctoTorrent.Client.Messages.Standard;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     // Keep a list of all the pieces which have not yet being fully downloaded
     // From this list we will make requests for all the blocks until the piece is complete.

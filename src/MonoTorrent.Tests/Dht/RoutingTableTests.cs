@@ -2,11 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Dht;
+using OctoTorrent.Dht;
 using NUnit.Framework;
 using System.Net;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     [TestFixture]
     public class RoutingTableTests

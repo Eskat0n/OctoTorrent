@@ -30,9 +30,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     class NullDhtEngine : IDhtEngine
     {

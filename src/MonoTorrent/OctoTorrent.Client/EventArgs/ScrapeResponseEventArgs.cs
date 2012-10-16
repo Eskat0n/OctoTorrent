@@ -1,4 +1,4 @@
-namespace MonoTorrent.Client.Tracker
+namespace OctoTorrent.Client.Tracker
 {
     public class ScrapeResponseEventArgs : TrackerResponseEventArgs
     {

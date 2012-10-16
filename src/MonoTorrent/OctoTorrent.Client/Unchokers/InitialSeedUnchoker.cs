@@ -31,10 +31,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Messages.Standard;
+using OctoTorrent.Common;
+using OctoTorrent.Client.Messages.Standard;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     class ChokeData
     {

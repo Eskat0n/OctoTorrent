@@ -33,11 +33,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 
-using MonoTorrent.BEncoding;
-using MonoTorrent.Dht;
+using OctoTorrent.BEncoding;
+using OctoTorrent.Dht;
 
 
-namespace MonoTorrent.Dht.Messages
+namespace OctoTorrent.Dht.Messages
 {
     internal class ErrorMessage : Message
     {

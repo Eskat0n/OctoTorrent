@@ -31,9 +31,9 @@
 using System;
 using System.Text;
 using System.Net.Sockets;
-using MonoTorrent.Client.Connections;
+using OctoTorrent.Client.Connections;
 
-namespace MonoTorrent.Client.Encryption
+namespace OctoTorrent.Client.Encryption
 {
     public interface IEncryptor
     {

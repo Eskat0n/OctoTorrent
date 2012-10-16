@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
 using System.Net;
-using MonoTorrent.BEncoding;
-using MonoTorrent.Common;
+using OctoTorrent.BEncoding;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     [TestFixture]
     public class NodeTests

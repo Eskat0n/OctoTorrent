@@ -30,12 +30,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-using MonoTorrent.Client;
-using MonoTorrent.Client.Connections;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Common;
+using OctoTorrent.Client;
+using OctoTorrent.Client.Connections;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public delegate void AsyncIOCallback (bool succeeded, int transferred, object state);
     public delegate void AsyncMessageReceivedCallback (bool succeeded, PeerMessage message, object state);

@@ -39,7 +39,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
 
     internal class BigInteger

@@ -30,12 +30,12 @@
 
 using System;
 using System.IO;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 using NUnit.Framework;
 using System.Text;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
 
     /// <summary>

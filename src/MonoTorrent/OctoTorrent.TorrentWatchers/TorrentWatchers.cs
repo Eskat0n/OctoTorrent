@@ -29,9 +29,9 @@
 
 using System;
 using System.Collections.Generic;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.TorrentWatcher
+namespace OctoTorrent.TorrentWatcher
 {
     /// <summary>
     /// Main controller class for ITorrentWatcher

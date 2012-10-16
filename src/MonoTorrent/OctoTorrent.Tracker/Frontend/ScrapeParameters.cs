@@ -34,7 +34,7 @@ using System.Web;
 using System.Net;
 
 
-namespace MonoTorrent.Tracker
+namespace OctoTorrent.Tracker
 {
     public class ScrapeParameters : RequestParameters
     {

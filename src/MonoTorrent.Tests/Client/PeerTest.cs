@@ -29,11 +29,11 @@
 
 using System;
 using System.Net;
-using MonoTorrent.BEncoding;
-using MonoTorrent.Client;
+using OctoTorrent.BEncoding;
+using OctoTorrent.Client;
 using NUnit.Framework;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     [TestFixture]
     public class PeerTest

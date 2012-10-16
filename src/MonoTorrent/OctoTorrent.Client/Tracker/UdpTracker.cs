@@ -4,11 +4,11 @@ using System.Text;
 using System.Threading;
 using System.Net.Sockets;
 using System.Net;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Client.Messages.UdpTracker;
-using MonoTorrent.Common;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Client.Messages.UdpTracker;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client.Tracker
+namespace OctoTorrent.Client.Tracker
 {
    public class UdpTracker : Tracker
    {

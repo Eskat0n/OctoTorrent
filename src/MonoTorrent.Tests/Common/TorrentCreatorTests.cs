@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using MonoTorrent.Common;
-using MonoTorrent.BEncoding;
-using MonoTorrent.Client;
+using OctoTorrent.Common;
+using OctoTorrent.BEncoding;
+using OctoTorrent.Client;
 using System.IO;
-using MonoTorrent.Client.PieceWriters;
+using OctoTorrent.Client.PieceWriters;
 using System.Security.Cryptography;
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     public class TestTorrentCreator : TorrentCreator
     {

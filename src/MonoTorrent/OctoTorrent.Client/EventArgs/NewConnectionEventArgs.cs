@@ -1,4 +1,4 @@
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     using System;
     using Connections;

@@ -26,7 +26,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public class DhtPeersAdded : PeersAddedEventArgs
     {

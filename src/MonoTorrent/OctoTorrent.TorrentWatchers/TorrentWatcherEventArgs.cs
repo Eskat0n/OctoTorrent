@@ -29,7 +29,7 @@
 
 using System;
 
-namespace MonoTorrent.TorrentWatcher
+namespace OctoTorrent.TorrentWatcher
 {
     /// <summary>
     /// Provides the data needed to handle a TorrentWatcher event

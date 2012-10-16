@@ -26,26 +26,22 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
+    using Common;
+
     class PauseLimiter : IRateLimiter
     {
-        TorrentManager manager;
+        readonly TorrentManager _manager;
 
         public bool Unlimited
         {
-            get { return manager.State != MonoTorrent.Common.TorrentState.Paused; }
+            get { return _manager.State != TorrentState.Paused; }
         }
 
         public PauseLimiter(TorrentManager manager)
         {
-            this.manager = manager;
+            _manager = manager;
         }
 
         public bool TryProcess(int amount)

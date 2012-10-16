@@ -32,9 +32,9 @@ using System;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
-using MonoTorrent.Client.Encryption;
+using OctoTorrent.Client.Encryption;
 
-namespace MonoTorrent.Client.Connections
+namespace OctoTorrent.Client.Connections
 {
     public class IPV4Connection : IConnection
     {

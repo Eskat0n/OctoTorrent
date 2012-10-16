@@ -2,16 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using MonoTorrent.Client.Connections;
+using OctoTorrent.Client.Connections;
 using System.Net;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.Client;
+using OctoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client;
 using System.Threading;
-using MonoTorrent.Client.Messages;
+using OctoTorrent.Client.Messages;
 using System.Text.RegularExpressions;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     [TestFixture]
     public class TestWebSeed

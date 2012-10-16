@@ -32,10 +32,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using MonoTorrent.Client;
-using MonoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client;
+using OctoTorrent.Client.Messages.Standard;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     [TestFixture]
     public class InitialSeedUnchokerTests

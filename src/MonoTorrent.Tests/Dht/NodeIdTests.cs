@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     [TestFixture]
     public class NodeIdTests

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     public interface ITorrentFileSource
     {

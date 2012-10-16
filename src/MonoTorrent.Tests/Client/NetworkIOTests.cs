@@ -29,12 +29,12 @@
 using System;
 using NUnit.Framework;
 using System.Threading;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 using System.Net;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.Client.Encryption;
+using OctoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client.Encryption;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     [TestFixture]
     public class NetworkIOTests

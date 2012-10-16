@@ -27,7 +27,7 @@
 //
 
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     public struct FileMapping
     {

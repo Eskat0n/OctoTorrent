@@ -1,6 +1,6 @@
 using System;
 
-namespace MonoTorrent
+namespace OctoTorrent
 {
     public static class Check
     {

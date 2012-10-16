@@ -30,7 +30,7 @@
 
 using System;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
 	internal enum NodeState
 	{

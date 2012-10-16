@@ -1,4 +1,4 @@
-namespace MonoTorrent.Client.Messages
+namespace OctoTorrent.Client.Messages
 {
     internal interface IMessage
     {

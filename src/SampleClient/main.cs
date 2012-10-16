@@ -2,17 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using MonoTorrent.Common;
-using MonoTorrent.Client;
+using OctoTorrent.Common;
+using OctoTorrent.Client;
 using System.Net;
 using System.Diagnostics;
 using System.Threading;
-using MonoTorrent.BEncoding;
-using MonoTorrent.Client.Encryption;
-using MonoTorrent.Dht;
-using MonoTorrent.Dht.Listeners;
+using OctoTorrent.BEncoding;
+using OctoTorrent.Client.Encryption;
+using OctoTorrent.Dht;
+using OctoTorrent.Dht.Listeners;
 
-namespace MonoTorrent
+namespace OctoTorrent
 {
     using System.Linq;
 

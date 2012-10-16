@@ -1,4 +1,4 @@
-namespace MonoTorrent
+namespace OctoTorrent
 {
     using System.Collections;
     using System.Collections.Generic;

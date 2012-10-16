@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Client;
-using MonoTorrent.Common;
+using OctoTorrent.Client;
+using OctoTorrent.Common;
 using System.Threading;
 
-namespace MonoTorrent.Client.PieceWriters
+namespace OctoTorrent.Client.PieceWriters
 {
     public class MemoryWriter : PieceWriter
     {

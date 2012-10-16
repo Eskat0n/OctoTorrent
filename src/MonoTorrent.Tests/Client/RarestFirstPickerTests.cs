@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using MonoTorrent.Client;
-using MonoTorrent.Common;
+using OctoTorrent.Client;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     [TestFixture]
     public class RarestFirstPickerTests

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Client.Tracker;
-using MonoTorrent.Common;
+using OctoTorrent.Client.Tracker;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client.Tracker
+namespace OctoTorrent.Client.Tracker
 {
     interface ITracker
     {

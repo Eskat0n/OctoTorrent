@@ -1,10 +1,8 @@
-using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.IO;
 
 [assembly: InternalsVisibleTo("SampleClient")]
-[assembly: InternalsVisibleTo("MonoTorrent.Tests")]
+[assembly: InternalsVisibleTo("OctoTorrent.Tests")]
 [assembly: AssemblyCopyright("Alan McGovern, Gregor Buguer;  MIT X11 Licensed")]
 [assembly: AssemblyDescription("MonoTorrent Utilities")]
 [assembly: AssemblyFileVersion("1.0.0")]

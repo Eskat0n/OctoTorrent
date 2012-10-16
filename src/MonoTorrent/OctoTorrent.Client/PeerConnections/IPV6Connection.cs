@@ -4,7 +4,7 @@ using System.Text;
 using System.Net.Sockets;
 using System.Net;
 
-namespace MonoTorrent.Client.Connections
+namespace OctoTorrent.Client.Connections
 {
     public class IPV6Connection : IConnection
     {

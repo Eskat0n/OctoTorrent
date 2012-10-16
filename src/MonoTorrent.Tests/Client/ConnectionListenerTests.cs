@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using MonoTorrent.Client;
+using OctoTorrent.Client;
 using System.Net;
 using System.Net.Sockets;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     [TestFixture]
     public class ConnectionListenerTests

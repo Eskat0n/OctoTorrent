@@ -29,7 +29,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace MonoTorrent.BEncoding
+namespace OctoTorrent.BEncoding
 {
     [Serializable]
     public class BEncodingException : Exception

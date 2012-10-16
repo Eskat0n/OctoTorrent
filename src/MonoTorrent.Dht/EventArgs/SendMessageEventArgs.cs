@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Dht.Messages;
+using OctoTorrent.Dht.Messages;
 using System.Net;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     class SendQueryEventArgs : TaskCompleteEventArgs
     {

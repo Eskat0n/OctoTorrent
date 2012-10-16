@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Collections;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client.Tracker
+namespace OctoTorrent.Client.Tracker
 {
     public class TrackerTier : IEnumerable<Tracker>
     {

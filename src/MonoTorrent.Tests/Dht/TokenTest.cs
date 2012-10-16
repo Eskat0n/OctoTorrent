@@ -33,10 +33,10 @@ using System.Text;
 using NUnit.Framework;
 using System.Net;
 
-using MonoTorrent.Dht;
-using MonoTorrent.BEncoding;
+using OctoTorrent.Dht;
+using OctoTorrent.BEncoding;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     [TestFixture]
     public class TokenTest

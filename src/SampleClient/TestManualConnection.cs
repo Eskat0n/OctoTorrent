@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Client;
+using OctoTorrent.Client;
 using System.Net.Sockets;
 using System.Net;
-using MonoTorrent.Common;
-using MonoTorrent.BEncoding;
-using MonoTorrent.Client.Encryption;
-using MonoTorrent.Client.Connections;
-using MonoTorrent.Client.PieceWriters;
-using MonoTorrent.Client.Tracker;
+using OctoTorrent.Common;
+using OctoTorrent.BEncoding;
+using OctoTorrent.Client.Encryption;
+using OctoTorrent.Client.Connections;
+using OctoTorrent.Client.PieceWriters;
+using OctoTorrent.Client.Tracker;
 using System.Threading;
 
 namespace SampleClient
@@ -183,43 +183,46 @@ namespace SampleClient
 
         public void Add(TorrentManager manager, IConnection connection)
         {
-            MonoTorrent.Client.Peer p = new MonoTorrent.Client.Peer("", new Uri("tcp://12.123.123.1:2342"), EncryptionTypes.All);
-            base.RaiseConnectionReceived(p, connection, manager);
+            var peer = new Peer(string.Empty, new Uri("tcp://12.123.123.1:2342"), EncryptionTypes.All);
+            base.RaiseConnectionReceived(peer, connection, manager);
         }
     }
+
     public class ConnectionPair : IDisposable
     {
-        TcpListener socketListener;
-        public IConnection Incoming;
-        public IConnection Outgoing;
+        private readonly TcpListener _socketListener;
+
+        public readonly IConnection Incoming;
+        public readonly IConnection Outgoing;
 
         public ConnectionPair(int port)
         {
-            socketListener = new TcpListener(port);
-            socketListener.Start();
+            _socketListener = new TcpListener(port);
+            _socketListener.Start();
 
-            Socket s1a = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            s1a.Connect(IPAddress.Loopback, port);
-            Socket s1b = socketListener.AcceptSocket();
+            var socket1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            socket1.Connect(IPAddress.Loopback, port);
+            var socket2 = _socketListener.AcceptSocket();
 
-            Incoming = new CustomConnection(s1a, true, "1A");
-            Outgoing = new CustomConnection(s1b, false, "1B");
+            Incoming = new CustomConnection(socket1, true, "1A");
+            Outgoing = new CustomConnection(socket2, false, "1B");
         }
 
         public void Dispose()
         {
             Incoming.Dispose();
             Outgoing.Dispose();
-            socketListener.Stop();
+            _socketListener.Stop();
         }
     }
+
     public class EngineTestRig
     {
-        private BEncodedDictionary torrentDict;
-        private ClientEngine engine;
-        private CustomListener listener;
-        private TorrentManager manager;
-        private Torrent torrent;
+        private readonly BEncodedDictionary torrentDict;
+        private readonly ClientEngine engine;
+        private readonly CustomListener listener;
+        private readonly TorrentManager manager;
+        private readonly Torrent torrent;
 
         public ClientEngine Engine
         {

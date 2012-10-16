@@ -30,10 +30,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Messages;
+using OctoTorrent.Common;
+using OctoTorrent.Client.Messages;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public class IgnoringPicker : PiecePicker
     {

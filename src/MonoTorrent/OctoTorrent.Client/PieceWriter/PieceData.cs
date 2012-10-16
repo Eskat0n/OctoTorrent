@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public partial class DiskManager
     {
@@ -28,7 +28,7 @@ namespace MonoTorrent.Client
         }
         public int BlockIndex
         {
-            get { return PieceOffset / MonoTorrent.Client.Piece.BlockSize; }
+            get { return PieceOffset / Piece.BlockSize; }
         }
         public byte[] Buffer
         {

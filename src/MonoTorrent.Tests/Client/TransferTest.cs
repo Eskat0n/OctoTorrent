@@ -35,14 +35,14 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Messages.FastPeer;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Client.Encryption;
+using OctoTorrent.Client.Messages.Standard;
+using OctoTorrent.Common;
+using OctoTorrent.Client.Messages.FastPeer;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Client.Encryption;
 
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     [TestFixture]
     public class TransferTest

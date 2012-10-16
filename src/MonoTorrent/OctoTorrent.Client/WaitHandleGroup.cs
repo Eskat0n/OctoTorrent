@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     class WaitHandleGroup : WaitHandle
     {

@@ -32,10 +32,10 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 
-using MonoTorrent.BEncoding;
-using MonoTorrent.Common;
+using OctoTorrent.BEncoding;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     internal class TokenManager
     {

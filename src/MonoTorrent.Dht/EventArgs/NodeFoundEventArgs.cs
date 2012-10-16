@@ -32,9 +32,9 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Collections.Generic;
 
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     internal class NodeFoundEventArgs : EventArgs
     {

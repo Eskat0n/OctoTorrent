@@ -32,9 +32,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 
-namespace MonoTorrent.Dht.Messages
+namespace OctoTorrent.Dht.Messages
 {
     delegate Message Creator(BEncodedDictionary dictionary);
     delegate Message ResponseCreator(BEncodedDictionary dictionary, QueryMessage message);

@@ -1,4 +1,4 @@
-namespace MonoTorrent.Client.Messages.Libtorrent
+namespace OctoTorrent.Client.Messages.Libtorrent
 {
     public struct ExtensionSupport
     {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MonoTorrent.Client.Connections
+namespace OctoTorrent.Client.Connections
 {
     public static class ConnectionFactory
     {

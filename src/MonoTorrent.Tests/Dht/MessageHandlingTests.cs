@@ -3,13 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using MonoTorrent.Dht.Messages;
-using MonoTorrent.BEncoding;
+using OctoTorrent.Dht.Messages;
+using OctoTorrent.BEncoding;
 using System.Net;
 using System.Threading;
-using MonoTorrent.Dht.Tasks;
+using OctoTorrent.Dht.Tasks;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     [TestFixture]
     public class MessageHandlingTests

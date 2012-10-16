@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 using System.IO;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     class FileStreamBuffer : IDisposable
     {

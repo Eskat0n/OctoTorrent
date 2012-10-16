@@ -32,7 +32,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     /// <summary>
     /// BitTorrrent 

@@ -32,10 +32,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 using System.Net;
 
-namespace MonoTorrent.Dht.Messages
+namespace OctoTorrent.Dht.Messages
 {
     class AnnouncePeer : QueryMessage
     {

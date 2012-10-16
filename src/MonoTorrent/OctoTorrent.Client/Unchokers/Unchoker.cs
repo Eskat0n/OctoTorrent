@@ -31,9 +31,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client.Messages.Standard;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     abstract class Unchoker : IUnchoker
     {

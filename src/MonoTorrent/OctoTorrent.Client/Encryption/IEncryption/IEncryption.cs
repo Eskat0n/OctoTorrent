@@ -29,7 +29,7 @@
 using System;
 using System.Text;
 
-namespace MonoTorrent.Client.Encryption
+namespace OctoTorrent.Client.Encryption
 {
     public interface IEncryption
     {

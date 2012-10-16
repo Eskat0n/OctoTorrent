@@ -26,11 +26,11 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using MonoTorrent.Client.Connections;
-using MonoTorrent.Client.Encryption;
-using MonoTorrent.Common;
+using OctoTorrent.Client.Connections;
+using OctoTorrent.Client.Encryption;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     internal static partial class PeerIO
     {

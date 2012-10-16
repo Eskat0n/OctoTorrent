@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 using System.Collections.Specialized;
 using System.Net;
 using System.Threading;
 
-namespace MonoTorrent.Tracker.Listeners
+namespace OctoTorrent.Tracker.Listeners
 {
     public abstract class ListenerBase
     {

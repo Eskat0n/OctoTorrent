@@ -30,9 +30,9 @@
 
 
 using System;
-using MonoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client.Messages.Standard;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     /// <summary>
     /// 

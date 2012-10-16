@@ -28,12 +28,12 @@
 
 
 
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 using System.Net;
 using System.Threading;
 
 
-namespace MonoTorrent.Client.Tracker
+namespace OctoTorrent.Client.Tracker
 {
     internal class TrackerConnectionID
     {

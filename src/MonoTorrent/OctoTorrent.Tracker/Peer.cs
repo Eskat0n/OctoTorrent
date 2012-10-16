@@ -32,10 +32,10 @@ using System.Threading;
 using System.Diagnostics;
 using System.Collections.Generic;
 
-using MonoTorrent.Common;
-using MonoTorrent.BEncoding;
+using OctoTorrent.Common;
+using OctoTorrent.BEncoding;
 
-namespace MonoTorrent.Tracker
+namespace OctoTorrent.Tracker
 {
     ///<summary>This class holds informations about Peers downloading Files</summary>
     public class Peer : IEquatable<Peer>

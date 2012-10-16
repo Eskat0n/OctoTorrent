@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
 using System.Threading;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Encryption;
+using OctoTorrent.Client.Messages.Standard;
+using OctoTorrent.Common;
+using OctoTorrent.Client.Encryption;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     [TestFixture]
     public class TestEncryption

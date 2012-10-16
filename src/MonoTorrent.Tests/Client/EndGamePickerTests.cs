@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using MonoTorrent.Client;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.Client.Messages;
+using OctoTorrent.Client;
+using OctoTorrent.Common;
+using OctoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client.Messages;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     [TestFixture]
     public class EndGamePickerTests

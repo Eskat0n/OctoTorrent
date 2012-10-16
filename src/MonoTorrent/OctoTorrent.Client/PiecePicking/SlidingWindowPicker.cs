@@ -31,15 +31,15 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent;
-using MonoTorrent.Common;
-using MonoTorrent.Client;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.Client.Messages.FastPeer;
+using OctoTorrent;
+using OctoTorrent.Common;
+using OctoTorrent.Client;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client.Messages.FastPeer;
 using System.Diagnostics;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     /// <summary>
     /// Generates a sliding window with high, medium, and low priority sets. The high priority set is downloaded first and in order.

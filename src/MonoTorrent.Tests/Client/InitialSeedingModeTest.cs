@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using MonoTorrent.Client.Messages.FastPeer;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.Common;
+using OctoTorrent.Client.Messages.FastPeer;
+using OctoTorrent.Client.Messages.Standard;
+using OctoTorrent.Common;
 using NUnit.Framework;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     [TestFixture]
     public class InitialSeedingModeTest

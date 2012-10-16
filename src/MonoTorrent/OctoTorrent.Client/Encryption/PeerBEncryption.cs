@@ -30,11 +30,11 @@
 using System;
 using System.Text;
 using System.Net.Sockets;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Connections;
-using MonoTorrent.Client.Messages;
+using OctoTorrent.Common;
+using OctoTorrent.Client.Connections;
+using OctoTorrent.Client.Messages;
 
-namespace MonoTorrent.Client.Encryption
+namespace OctoTorrent.Client.Encryption
 {
     /// <summary>
     /// Class to handle message stream encryption for receiving connections

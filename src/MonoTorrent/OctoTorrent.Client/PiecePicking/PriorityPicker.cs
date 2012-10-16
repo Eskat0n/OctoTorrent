@@ -30,10 +30,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Common;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public class PriorityPicker : PiecePicker
     {

@@ -26,7 +26,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace MonoTorrent.Tracker
+namespace OctoTorrent.Tracker
 {
     using System;
     using System.Diagnostics;

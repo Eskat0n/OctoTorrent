@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     interface ITask
     {

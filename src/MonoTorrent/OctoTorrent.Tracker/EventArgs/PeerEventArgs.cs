@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Tracker;
+using OctoTorrent.Tracker;
 
-namespace MonoTorrent.Tracker
+namespace OctoTorrent.Tracker
 {
     public abstract class PeerEventArgs : EventArgs
     {

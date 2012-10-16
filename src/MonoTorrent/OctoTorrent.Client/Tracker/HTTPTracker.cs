@@ -30,15 +30,15 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 using System.Threading;
 using System.Text.RegularExpressions;
 using System.Net;
 using System.Web;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 using System.IO;
 
-namespace MonoTorrent.Client.Tracker
+namespace OctoTorrent.Client.Tracker
 {
     public class HTTPTracker : Tracker
     {
@@ -85,7 +85,7 @@ namespace MonoTorrent.Client.Tracker
             {
                 Uri announceString = CreateAnnounceString(parameters);
                 HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(announceString);
-                request.UserAgent = MonoTorrent.Common.VersionInfo.ClientVersion;
+                request.UserAgent = VersionInfo.ClientVersion;
                 request.Proxy = new WebProxy();   // If i don't do this, i can't run the webrequest. It's wierd.
                 RaiseBeforeAnnounce();
                 BeginRequest(request, AnnounceReceived, new object[] { request, state });
@@ -293,8 +293,8 @@ namespace MonoTorrent.Client.Tracker
                     url += "&info_hash=" + parameters.InfoHash.UrlEncode ();
 
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                request.UserAgent = MonoTorrent.Common.VersionInfo.ClientVersion;
-                BeginRequest(request, ScrapeReceived, new object[] { request, state });
+                request.UserAgent = VersionInfo.ClientVersion;
+                BeginRequest(request, ScrapeReceived, new[] { request, state });
             }
             catch
             {
@@ -304,10 +304,10 @@ namespace MonoTorrent.Client.Tracker
 
         void ScrapeReceived(IAsyncResult result)
         {
-            string message = "";
-            object[] stateOb = (object[])result.AsyncState;
-            WebRequest request = (WebRequest)stateOb[0];
-            object state = stateOb[1];
+            var message = "";
+            var stateOb = (object[])result.AsyncState;
+            var request = (WebRequest)stateOb[0];
+            var state = stateOb[1];
 
             try
             {

@@ -34,13 +34,13 @@ using System.Text;
 using System.Collections.Specialized;
 using System.Diagnostics;
 
-using MonoTorrent.Common;
-using MonoTorrent.BEncoding;
-using MonoTorrent.Client.Messages.UdpTracker;
-using MonoTorrent.Client;
+using OctoTorrent.Common;
+using OctoTorrent.BEncoding;
+using OctoTorrent.Client.Messages.UdpTracker;
+using OctoTorrent.Client;
 using System.Collections.Generic;
 
-namespace MonoTorrent.Tracker.Listeners
+namespace OctoTorrent.Tracker.Listeners
 {
     public class UdpListener : ListenerBase
     {
@@ -164,8 +164,8 @@ namespace MonoTorrent.Tracker.Listeners
                 TimeSpan interval = TimeSpan.Zero;
                 int leechers = 0;
                 int seeders = 0;
-                List<MonoTorrent.Client.Peer> peers = new List<MonoTorrent.Client.Peer>();
-                foreach (KeyValuePair<BEncodedString, BEncodedValue> keypair in dict)
+                var peers = new List<Client.Peer>();
+                foreach (var keypair in dict)
                 {
                     switch (keypair.Key.Text)
                     {
@@ -183,12 +183,9 @@ namespace MonoTorrent.Tracker.Listeners
 
                         case ("peers"):
                             if (keypair.Value is BEncodedList)          // Non-compact response
-                                peers.AddRange(MonoTorrent.Client.Peer.Decode((BEncodedList)keypair.Value));
+                                peers.AddRange(Client.Peer.Decode((BEncodedList)keypair.Value));
                             else if (keypair.Value is BEncodedString)   // Compact response
-                                peers.AddRange(MonoTorrent.Client.Peer.Decode((BEncodedString)keypair.Value));
-                            break;
-
-                        default:
+                                peers.AddRange(Client.Peer.Decode((BEncodedString)keypair.Value));
                             break;
                     }
                 }

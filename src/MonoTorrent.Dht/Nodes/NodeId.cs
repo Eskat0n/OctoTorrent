@@ -32,9 +32,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     internal class NodeId : IEquatable<NodeId>, IComparable<NodeId>, IComparable
     {

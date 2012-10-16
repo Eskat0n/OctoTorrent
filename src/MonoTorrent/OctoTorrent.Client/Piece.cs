@@ -28,9 +28,9 @@
 
 
 using System;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public class Piece : IComparable<Piece>
     {

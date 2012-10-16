@@ -26,7 +26,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     using System;
     using System.Collections;
@@ -429,7 +429,7 @@ namespace MonoTorrent.Common
 
         private void Check(BitField value)
         {
-            MonoTorrent.Check.Value(value);
+            OctoTorrent.Check.Value(value);
             if (_length != value._length)
                 throw new ArgumentException("BitFields are of different lengths", "value");
         }

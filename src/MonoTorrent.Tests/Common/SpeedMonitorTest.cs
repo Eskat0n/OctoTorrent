@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     [TestFixture]
     public class SpeedMonitorTest

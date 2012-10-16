@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Tracker
+namespace OctoTorrent.Tracker
 {
     public class InfoHashTrackable : ITrackable
     {

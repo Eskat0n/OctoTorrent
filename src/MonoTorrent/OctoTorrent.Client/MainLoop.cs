@@ -32,9 +32,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using Mono.Ssdp.Internal;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
 	public delegate void MainLoopResult (object result);
     public delegate object MainLoopJob();

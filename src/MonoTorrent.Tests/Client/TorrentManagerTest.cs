@@ -2,15 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using MonoTorrent.Client.Connections;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Messages;
+using OctoTorrent.Client.Connections;
+using OctoTorrent.Client.Messages.Standard;
+using OctoTorrent.Common;
+using OctoTorrent.Client.Messages;
 using System.Threading;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
+    using Tracker;
 
     [TestFixture]
     public class TorrentManagerTest
@@ -155,15 +156,11 @@ namespace MonoTorrent.Client
         [Test]
         public void UnsupportedTrackers ()
         {
-            RawTrackerTier tier = new RawTrackerTier {
-                "fake://123.123.123.2:5665"
-            };
+            var tier = new RawTrackerTier { "fake://123.123.123.2:5665" };
             rig.Torrent.AnnounceUrls.Add (tier);
-            TorrentManager manager = new TorrentManager (rig.Torrent, "", new TorrentSettings());
-            foreach (MonoTorrent.Client.Tracker.TrackerTier t in manager.TrackerManager)
-            {
-                Assert.IsTrue (t.Trackers.Count > 0, "#1");
-            }
+            var manager = new TorrentManager (rig.Torrent, "", new TorrentSettings());
+            foreach (var t in manager.TrackerManager)
+                Assert.IsTrue(t.Trackers.Count > 0, "#1");
         }
 
         [Test]
@@ -171,10 +168,8 @@ namespace MonoTorrent.Client
         {
             // Check that the engine announces when the download starts, completes
             // and is stopped.
-            AutoResetEvent handle = new AutoResetEvent(false);
-            rig.Manager.TrackerManager.CurrentTracker.AnnounceComplete += delegate {
-                handle.Set ();
-            };
+            var handle = new AutoResetEvent(false);
+            rig.Manager.TrackerManager.CurrentTracker.AnnounceComplete += (sender, args) => handle.Set();
 
             rig.Manager.Start();
             Assert.IsTrue (handle.WaitOne(5000, false), "Announce on startup");

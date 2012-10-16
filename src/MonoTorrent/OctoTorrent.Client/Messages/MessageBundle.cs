@@ -1,4 +1,4 @@
-namespace MonoTorrent.Client.Messages
+namespace OctoTorrent.Client.Messages
 {
     using System;
     using System.Collections.Generic;

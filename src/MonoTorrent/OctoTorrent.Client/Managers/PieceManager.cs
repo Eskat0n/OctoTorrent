@@ -30,15 +30,15 @@
 
 using System;
 using System.Collections.Generic;
-using MonoTorrent.Common;
-using MonoTorrent.Client;
+using OctoTorrent.Common;
+using OctoTorrent.Client;
 using System.Threading;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.Client.Messages.FastPeer;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Client.Connections;
+using OctoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client.Messages.FastPeer;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Client.Connections;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     /// <summary>
     /// Contains the logic for choosing what piece to download next

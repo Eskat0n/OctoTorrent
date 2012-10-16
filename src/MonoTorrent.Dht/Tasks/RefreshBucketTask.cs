@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Dht.Messages;
-using MonoTorrent.Dht.Tasks;
+using OctoTorrent.Dht.Messages;
+using OctoTorrent.Dht.Tasks;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     class RefreshBucketTask : Task
     {

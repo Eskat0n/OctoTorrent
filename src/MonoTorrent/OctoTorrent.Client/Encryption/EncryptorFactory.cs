@@ -29,13 +29,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Client;
-using MonoTorrent.Common;
+using OctoTorrent.Client;
+using OctoTorrent.Common;
 using System.Threading;
-using MonoTorrent.Client.Connections;
-using MonoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client.Connections;
+using OctoTorrent.Client.Messages.Standard;
 
-namespace MonoTorrent.Client.Encryption
+namespace OctoTorrent.Client.Encryption
 {
     internal static class EncryptorFactory
     {

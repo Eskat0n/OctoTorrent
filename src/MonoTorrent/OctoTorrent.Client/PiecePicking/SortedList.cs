@@ -31,7 +31,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public class SortList<T> : IList<T>
     {

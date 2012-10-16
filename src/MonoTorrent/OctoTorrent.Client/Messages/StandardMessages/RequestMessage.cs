@@ -1,4 +1,4 @@
-namespace MonoTorrent.Client.Messages.Standard
+namespace OctoTorrent.Client.Messages.Standard
 {
     using System.Text;
 

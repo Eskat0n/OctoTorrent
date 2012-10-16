@@ -29,14 +29,14 @@
 using System;
 using System.Net;
 
-using MonoTorrent.Client;
-using MonoTorrent.Client.Connections;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Common;
+using OctoTorrent.Client;
+using OctoTorrent.Client.Connections;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Common;
 using System.Threading;
-using MonoTorrent.Client.Encryption;
+using OctoTorrent.Client.Encryption;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     static partial class NetworkIO
     {

@@ -34,7 +34,7 @@ using System;
 using NUnit.Framework;
 using System.Web;
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
 	[TestFixture]
 	public class UriQueryBuilderTest

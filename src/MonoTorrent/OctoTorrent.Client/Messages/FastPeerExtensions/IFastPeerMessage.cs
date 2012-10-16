@@ -1,4 +1,4 @@
-namespace MonoTorrent.Client.Messages.FastPeer
+namespace OctoTorrent.Client.Messages.FastPeer
 {
     internal interface IFastPeerMessage
     {

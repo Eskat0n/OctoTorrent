@@ -36,11 +36,11 @@ using System.Net.Sockets;
 using System.Collections;
 using System.Collections.Generic;
 
-using MonoTorrent.Common;
-using MonoTorrent.BEncoding;
-using MonoTorrent.Tracker.Listeners;
+using OctoTorrent.Common;
+using OctoTorrent.BEncoding;
+using OctoTorrent.Tracker.Listeners;
 
-namespace MonoTorrent.Tracker
+namespace OctoTorrent.Tracker
 {
     public class Tracker : IEnumerable<SimpleTorrentManager>, IDisposable
     {

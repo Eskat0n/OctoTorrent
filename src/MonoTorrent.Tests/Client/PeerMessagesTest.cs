@@ -31,14 +31,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 using System.Net;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.BEncoding;
-using MonoTorrent.Client.Messages.Libtorrent;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Client.Messages.Standard;
+using OctoTorrent.BEncoding;
+using OctoTorrent.Client.Messages.Libtorrent;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     [TestFixture]
     public class PeerMessagesTest

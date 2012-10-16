@@ -1,4 +1,4 @@
-namespace MonoTorrent.Client.PieceWriters
+namespace OctoTorrent.Client.PieceWriters
 {
     using System;
     using Common;

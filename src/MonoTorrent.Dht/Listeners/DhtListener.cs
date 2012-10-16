@@ -1,6 +1,6 @@
 #if !DISABLE_DHT
 
-namespace MonoTorrent.Dht.Listeners
+namespace OctoTorrent.Dht.Listeners
 {
     using System.Net;
 

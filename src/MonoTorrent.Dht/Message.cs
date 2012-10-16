@@ -27,12 +27,12 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace MonoTorrent.Dht.Messages
+namespace OctoTorrent.Dht.Messages
 {
     using BEncoding;
     using Common;
 
-    internal abstract class Message : MonoTorrent.Client.Messages.Message
+    internal abstract class Message : OctoTorrent.Client.Messages.Message
     {
         internal static bool UseVersionKey = true;
 

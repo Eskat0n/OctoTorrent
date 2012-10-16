@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-using MonoTorrent.Client;
-using MonoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client;
+using OctoTorrent.Client.Messages.Standard;
 
 using NUnit.Framework;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     //[TestFixture]
     //public class SlidingWindowPickerTests : PiecePickerTests

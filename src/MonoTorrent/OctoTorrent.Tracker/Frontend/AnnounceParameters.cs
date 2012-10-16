@@ -27,14 +27,14 @@
 //
 
 using System;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 using System.Collections.Specialized;
 using System.Collections.Generic;
-using MonoTorrent.BEncoding;
+using OctoTorrent.BEncoding;
 using System.Web;
 using System.Net;
 
-namespace MonoTorrent.Tracker
+namespace OctoTorrent.Tracker
 {       
     public class AnnounceParameters : RequestParameters
     {

@@ -26,7 +26,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace MonoTorrent.Client.Messages.FastPeer
+namespace OctoTorrent.Client.Messages.FastPeer
 {
     public class HaveNoneMessage : PeerMessage, IFastPeerMessage
     {

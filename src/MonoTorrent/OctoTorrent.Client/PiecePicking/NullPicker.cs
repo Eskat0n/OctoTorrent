@@ -26,36 +26,29 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Common;
-
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
+    using System.Collections.Generic;
+    using Messages;
+    using Common;
+
     public class NullPicker : PiecePicker
     {
         public NullPicker()
             : base(null)
         {
-
         }
 
         public override void CancelRequest(PeerId peer, int piece, int startOffset, int length)
         {
-            
         }
 
         public override void CancelRequests(PeerId peer)
         {
-            
         }
 
         public override void CancelTimedOutRequests()
         {
-            
         }
 
         public override int CurrentRequestCount()
@@ -68,12 +61,11 @@ namespace MonoTorrent.Client
             return new List<Piece>();
         }
 
-        public override void Initialise(MonoTorrent.Common.BitField bitfield, MonoTorrent.Common.TorrentFile[] files, IEnumerable<Piece> requests)
+        public override void Initialise(BitField bitfield, TorrentFile[] files, IEnumerable<Piece> requests)
         {
-            
         }
         
-        public override bool IsInteresting(MonoTorrent.Common.BitField bitfield)
+        public override bool IsInteresting(BitField bitfield)
         {
             return false;
         }
@@ -85,7 +77,6 @@ namespace MonoTorrent.Client
 
         public override void Reset()
         {
-            
         }
 
         public override bool ValidatePiece(PeerId peer, int pieceIndex, int startOffset, int length, out Piece piece)

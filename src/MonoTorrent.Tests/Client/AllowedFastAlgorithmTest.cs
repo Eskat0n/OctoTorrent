@@ -34,7 +34,7 @@ using NUnit.Framework;
 using System.Net;
 
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
 	//[TestFixture]
 	//public class AllowedFastAlgorithmTest

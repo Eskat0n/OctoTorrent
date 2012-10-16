@@ -28,11 +28,11 @@
 
 using System;
 using NUnit.Framework;
-using MonoTorrent.Client;
+using OctoTorrent.Client;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     [TestFixture]
     public class BitFieldTest

@@ -27,7 +27,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     using System;
     using System.Collections.Generic;
@@ -36,8 +36,8 @@ namespace MonoTorrent.Common
     using System.Security.Cryptography;
     using System.Threading;
     using BEncoding;
-    using MonoTorrent.Client;
-    using MonoTorrent.Client.PieceWriters;
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.PieceWriters;
 
     public class TorrentCreator : EditableTorrent
     {

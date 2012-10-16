@@ -1,8 +1,8 @@
 #if !DISABLE_DHT
-using MonoTorrent.Dht.Messages;
+using OctoTorrent.Dht.Messages;
 using System;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     internal abstract class Task : ITask
     {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Diagnostics;
-using MonoTorrent.Client.Connections;
+using OctoTorrent.Client.Connections;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public static class Logger
     {

@@ -33,17 +33,17 @@ using System.Net;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 
-using MonoTorrent;
-using MonoTorrent.Common;
-using MonoTorrent.Client;
-using MonoTorrent.BEncoding;
+using OctoTorrent;
+using OctoTorrent.Common;
+using OctoTorrent.Client;
+using OctoTorrent.BEncoding;
 using System.IO;
-using MonoTorrent.Dht.Listeners;
-using MonoTorrent.Dht.Messages;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Dht.Tasks;
+using OctoTorrent.Dht.Listeners;
+using OctoTorrent.Dht.Messages;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Dht.Tasks;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     internal enum ErrorCode : int
     {

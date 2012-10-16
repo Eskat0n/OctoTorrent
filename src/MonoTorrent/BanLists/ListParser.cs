@@ -33,7 +33,7 @@ using System.Net;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public class BanListParser
     {

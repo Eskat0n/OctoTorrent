@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     [TestFixture]
     public class InfoHashTests

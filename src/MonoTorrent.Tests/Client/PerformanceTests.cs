@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Connections;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Client.Messages.Standard;
+using OctoTorrent.Common;
+using OctoTorrent.Client.Connections;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public class PerformanceTests
     {

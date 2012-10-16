@@ -3,12 +3,12 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using System.Net;
-using MonoTorrent.Dht.Tasks;
-using MonoTorrent.Dht.Messages;
-using MonoTorrent.BEncoding;
+using OctoTorrent.Dht.Tasks;
+using OctoTorrent.Dht.Messages;
+using OctoTorrent.BEncoding;
 using System.Threading;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     [TestFixture]
     public class TaskTests

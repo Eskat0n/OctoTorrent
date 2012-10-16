@@ -1,4 +1,4 @@
-namespace MonoTorrent.Client.Messages.Libtorrent
+namespace OctoTorrent.Client.Messages.Libtorrent
 {
     using System;
     using BEncoding;

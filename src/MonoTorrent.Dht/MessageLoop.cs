@@ -31,16 +31,16 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Dht.Messages;
+using OctoTorrent.Dht.Messages;
 using System.Threading;
 using System.Net.Sockets;
 using System.Net;
-using MonoTorrent.BEncoding;
-using MonoTorrent.Dht.Listeners;
-using MonoTorrent.Common;
+using OctoTorrent.BEncoding;
+using OctoTorrent.Dht.Listeners;
+using OctoTorrent.Common;
 using System.Diagnostics;
 
-namespace MonoTorrent.Dht
+namespace OctoTorrent.Dht
 {
     internal class MessageLoop
     {

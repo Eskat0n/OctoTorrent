@@ -29,12 +29,12 @@
 
 using System;
 using System.Collections.Generic;
-using MonoTorrent.Client.Encryption;
+using OctoTorrent.Client.Encryption;
 using System.Net;
 using System.Security.Cryptography;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public static class AllowedFastAlgorithm
     {

@@ -26,13 +26,13 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace MonoTorrent.Common
+namespace OctoTorrent.Common
 {
     using System;
     using System.IO;
     using System.Security.Cryptography;
     using BEncoding;
-    using MonoTorrent.Client;
+    using OctoTorrent.Client;
     using NUnit.Framework;
 
     [TestFixture]

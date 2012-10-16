@@ -32,18 +32,18 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
-using MonoTorrent.Common;
+using OctoTorrent.Common;
 using System.Threading;
 using System.IO;
 using System.Diagnostics;
-using MonoTorrent.BEncoding;
-using MonoTorrent.Client.Tracker;
-using MonoTorrent.Client.Messages;
-using MonoTorrent.Client.Messages.Standard;
-using MonoTorrent.Client.Connections;
-using MonoTorrent.Client.Encryption;
+using OctoTorrent.BEncoding;
+using OctoTorrent.Client.Tracker;
+using OctoTorrent.Client.Messages;
+using OctoTorrent.Client.Messages.Standard;
+using OctoTorrent.Client.Connections;
+using OctoTorrent.Client.Encryption;
 
-namespace MonoTorrent.Client
+namespace OctoTorrent.Client
 {
     public class TorrentManager : IDisposable, IEquatable<TorrentManager>
     {

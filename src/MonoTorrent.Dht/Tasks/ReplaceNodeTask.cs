@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MonoTorrent.Dht.Messages;
-using MonoTorrent.Client;
+using OctoTorrent.Dht.Messages;
+using OctoTorrent.Client;
 
-namespace MonoTorrent.Dht.Tasks
+namespace OctoTorrent.Dht.Tasks
 {
     class ReplaceNodeTask : Task
     {
