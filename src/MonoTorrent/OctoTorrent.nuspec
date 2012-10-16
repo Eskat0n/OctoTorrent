@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>OctoTorrent</id>
+    <version>$version$</version>
+    <title>OctoTorrent</title>
+    <authors>Eskat0n</authors>
+    <owners>Eskat0n</owners>
+    <licenseUrl>http://www.opensource.org/licenses/mit-license.php</licenseUrl>
+    <projectUrl>https://github.com/Eskat0n/octotorrent</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>OctoTorrent is a cross platform and open source implementation of the BitTorrent protocol. It supports many advanced features such as Encryption, DHT, Peer Exchange, Web Seeding and Magnet Links. Based on MonoTorrent project.</description>
+    <tags>torrent p2p</tags>    
+  </metadata>
+</package>

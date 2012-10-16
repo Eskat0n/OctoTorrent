@@ -374,5 +374,7 @@
     </MonoDevelop>
     <VisualStudio />
   </ProjectExtensions>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="OctoTorrent.nuspec" />
+  </ItemGroup>
 </Project>
