@@ -26,37 +26,33 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Text;
-using System.Net;
-
 namespace MonoTorrent.Client.Messages.FastPeer
 {
     public class HaveAllMessage : PeerMessage, IFastPeerMessage
     {
-        internal static readonly byte MessageId = 0x0E;
-        private readonly int messageLength = 1;
-
+        internal const byte MessageId = 0x0E;
+        private const int MessageLength = 1;
 
         #region Constructors
-        public HaveAllMessage()
-        {
-        }
+
         #endregion
 
-
         #region Methods
+
+        public override int ByteLength
+        {
+            get { return MessageLength + 4; }
+        }
+
         public override int Encode(byte[] buffer, int offset)
         {
             if (!ClientEngine.SupportsFastPeer)
                 throw new ProtocolException("Message encoding not supported");
 
-			int written = offset;
+            var written = offset;
 
-			written += Write(buffer, written, messageLength);
-			written += Write(buffer, written, MessageId);
+            written += Write(buffer, written, MessageLength);
+            written += Write(buffer, written, MessageId);
 
             return CheckWritten(written - offset);
         }
@@ -67,14 +63,10 @@ namespace MonoTorrent.Client.Messages.FastPeer
                 throw new ProtocolException("Message decoding not supported");
         }
 
-        public override int ByteLength
-        {
-            get { return this.messageLength + 4; }
-        }
         #endregion
 
-
         #region Overidden Methods
+
         public override bool Equals(object obj)
         {
             return obj is HaveAllMessage;
@@ -82,13 +74,14 @@ namespace MonoTorrent.Client.Messages.FastPeer
 
         public override int GetHashCode()
         {
-            return this.ToString().GetHashCode();
+            return ToString().GetHashCode();
         }
 
         public override string ToString()
         {
             return "HaveAllMessage";
         }
+
         #endregion
     }
 }

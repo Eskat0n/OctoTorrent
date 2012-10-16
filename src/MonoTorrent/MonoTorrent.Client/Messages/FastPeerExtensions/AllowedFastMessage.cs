@@ -26,52 +26,51 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Text;
-using System.Net;
-using MonoTorrent.Client.Encryption;
-
 namespace MonoTorrent.Client.Messages.FastPeer
 {
+    using System.Text;
+
     public class AllowedFastMessage : PeerMessage, IFastPeerMessage
     {
-        internal static readonly byte MessageId = 0x11;
-        private readonly int messageLength = 5;
+        internal const byte MessageId = 0x11;
+        private const int MessageLength = 5;
 
         #region Member Variables
-        public int PieceIndex
-        {
-            get { return this.pieceIndex; }
-        }
-        private int pieceIndex;
+
+        public int PieceIndex { get; private set; }
+
         #endregion
 
-
         #region Constructors
+
         internal AllowedFastMessage()
         {
         }
 
         internal AllowedFastMessage(int pieceIndex)
         {
-            this.pieceIndex = pieceIndex;
+            PieceIndex = pieceIndex;
         }
+
         #endregion
 
-
         #region Methods
+
+        public override int ByteLength
+        {
+            get { return MessageLength + 4; }
+        }
+
         public override int Encode(byte[] buffer, int offset)
         {
             if (!ClientEngine.SupportsFastPeer)
                 throw new ProtocolException("Message encoding not supported");
 
-			int written = offset;
+            var written = offset;
 
-			written += Write(buffer, written, messageLength);
-			written += Write(buffer, written, MessageId);
-			written += Write(buffer, written, pieceIndex);
+            written += Write(buffer, written, MessageLength);
+            written += Write(buffer, written, MessageId);
+            written += Write(buffer, written, PieceIndex);
 
             return CheckWritten(written - offset);
         }
@@ -81,41 +80,36 @@ namespace MonoTorrent.Client.Messages.FastPeer
             if (!ClientEngine.SupportsFastPeer)
                 throw new ProtocolException("Message decoding not supported");
 
-            this.pieceIndex = ReadInt(buffer, offset);
+            PieceIndex = ReadInt(buffer, offset);
         }
 
-        public override int ByteLength
-        {
-            get { return this.messageLength + 4; }
-        }
         #endregion
 
-
         #region Overidden Methods
+
         public override bool Equals(object obj)
         {
-            AllowedFastMessage msg = obj as AllowedFastMessage;
+            var msg = obj as AllowedFastMessage;
             if (msg == null)
                 return false;
 
-            return this.pieceIndex == msg.pieceIndex;
+            return PieceIndex == msg.PieceIndex;
         }
-
 
         public override int GetHashCode()
         {
-            return this.pieceIndex.GetHashCode();
+            return PieceIndex.GetHashCode();
         }
-
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder(24);
+            var sb = new StringBuilder(24);
             sb.Append("AllowedFast");
             sb.Append(" Index: ");
-            sb.Append(this.pieceIndex);
+            sb.Append(PieceIndex);
             return sb.ToString();
         }
+
         #endregion
     }
 }

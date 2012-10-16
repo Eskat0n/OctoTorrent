@@ -26,58 +26,44 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Text;
-using System.Net;
-using MonoTorrent.Client.Messages.Standard;
-
 namespace MonoTorrent.Client.Messages.FastPeer
 {
+    using System.Text;
+    using Standard;
+
     public class RejectRequestMessage : PeerMessage, IFastPeerMessage
     {
-        internal static readonly byte MessageId = 0x10;
-        public readonly int messageLength = 13;
+        internal const byte MessageId = 0x10;
+        private const int MessageLength = 13;
 
         #region Member Variables
-        /// <summary>
-        /// The offset in bytes of the block of data
-        /// </summary>
-        public int StartOffset
-        {
-            get { return this.startOffset; }
-        }
-        private int startOffset;
 
         /// <summary>
-        /// The index of the piece
+        ///   The offset in bytes of the block of data
         /// </summary>
-        public int PieceIndex
-        {
-            get { return this.pieceIndex; }
-        }
-        private int pieceIndex;
+        public int StartOffset { get; private set; }
 
         /// <summary>
-        /// The length of the block of data
+        ///   The index of the piece
         /// </summary>
-        public int RequestLength
-        {
-            get { return this.requestLength; }
-        }
-        private int requestLength;
+        public int PieceIndex { get; private set; }
+
+        /// <summary>
+        ///   The length of the block of data
+        /// </summary>
+        public int RequestLength { get; private set; }
+
         #endregion
 
-
         #region Constructors
+
         public RejectRequestMessage()
         {
         }
 
 
         public RejectRequestMessage(PieceMessage message)
-            :this(message.PieceIndex, message.StartOffset, message.RequestLength)
+            : this(message.PieceIndex, message.StartOffset, message.RequestLength)
         {
         }
 
@@ -88,26 +74,32 @@ namespace MonoTorrent.Client.Messages.FastPeer
 
         public RejectRequestMessage(int pieceIndex, int startOffset, int requestLength)
         {
-            this.pieceIndex = pieceIndex;
-            this.startOffset = startOffset;
-            this.requestLength = requestLength;
+            PieceIndex = pieceIndex;
+            StartOffset = startOffset;
+            RequestLength = requestLength;
         }
+
         #endregion
 
-        
         #region Methods
+
+        public override int ByteLength
+        {
+            get { return MessageLength + 4; }
+        }
+
         public override int Encode(byte[] buffer, int offset)
         {
             if (!ClientEngine.SupportsFastPeer)
                 throw new ProtocolException("Message encoding not supported");
 
-			int written = offset;
+            var written = offset;
 
-			written += Write(buffer, written, messageLength);
-			written += Write(buffer, written, MessageId);
-			written += Write(buffer, written, pieceIndex);
-			written += Write(buffer, written, startOffset);
-			written += Write(buffer, written, requestLength);
+            written += Write(buffer, written, MessageLength);
+            written += Write(buffer, written, MessageId);
+            written += Write(buffer, written, PieceIndex);
+            written += Write(buffer, written, StartOffset);
+            written += Write(buffer, written, RequestLength);
 
             return CheckWritten(written - offset);
         }
@@ -118,51 +110,49 @@ namespace MonoTorrent.Client.Messages.FastPeer
             if (!ClientEngine.SupportsFastPeer)
                 throw new ProtocolException("Message decoding not supported");
 
-            this.pieceIndex = ReadInt(buffer, ref offset);
-            this.startOffset = ReadInt(buffer, ref offset);
-            this.requestLength = ReadInt(buffer, ref offset);
+            PieceIndex = ReadInt(buffer, ref offset);
+            StartOffset = ReadInt(buffer, ref offset);
+            RequestLength = ReadInt(buffer, ref offset);
         }
 
-        public override int ByteLength
-        {
-            get { return this.messageLength + 4; }
-        }
         #endregion
 
-
         #region Overidden Methods
+
         public override bool Equals(object obj)
         {
-            RejectRequestMessage msg = obj as RejectRequestMessage;
+            var msg = obj as RejectRequestMessage;
             if (msg == null)
                 return false;
 
-            return (this.pieceIndex == msg.pieceIndex
-                && this.startOffset == msg.startOffset
-                && this.requestLength == msg.requestLength);
+            return (PieceIndex == msg.PieceIndex
+                    && StartOffset == msg.StartOffset
+                    && RequestLength == msg.RequestLength);
         }
 
 
         public override int GetHashCode()
         {
-            return (this.pieceIndex.GetHashCode()
-                    ^ this.requestLength.GetHashCode()
-                    ^ this.startOffset.GetHashCode());
+            return (PieceIndex.GetHashCode()
+                    ^ RequestLength.GetHashCode()
+                    ^ StartOffset.GetHashCode());
         }
 
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder(24);
+            var sb = new StringBuilder(24);
             sb.Append("Reject Request");
             sb.Append(" Index: ");
-            sb.Append(this.pieceIndex);
+            sb.Append(PieceIndex);
             sb.Append(" Offset: ");
-            sb.Append(this.startOffset);
-            sb.Append(" Length " );
-            sb.Append(this.requestLength);
+            sb.Append(StartOffset);
+            sb.Append(" Length ");
+            sb.Append(RequestLength);
+
             return sb.ToString();
         }
+
         #endregion
     }
 }
