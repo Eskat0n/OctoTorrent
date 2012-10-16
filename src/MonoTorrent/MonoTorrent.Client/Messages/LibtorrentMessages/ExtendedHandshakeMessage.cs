@@ -26,16 +26,11 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Text;
-using MonoTorrent.Common;
-using MonoTorrent.BEncoding;
-using System.Collections.Generic;
-
 namespace MonoTorrent.Client.Messages.Libtorrent
 {
+    using System.Linq;
+    using BEncoding;
+
     public class ExtendedHandshakeMessage : ExtensionMessage
     {
         private static readonly BEncodedString MaxRequestKey = "reqq";
@@ -44,102 +39,102 @@ namespace MonoTorrent.Client.Messages.Libtorrent
         private static readonly BEncodedString VersionKey = "v";
         private static readonly BEncodedString MetadataSizeKey = "metadata_size";
 
-        internal static readonly ExtensionSupport Support = new ExtensionSupport("LT_handshake", 0);
+        private static readonly ExtensionSupport Support = new ExtensionSupport("LT_handshake", 0);
 
-        private int localPort;
-        private int maxRequests;
-        private ExtensionSupports supports;
-        private string version;
-        private int metadataSize;
+        private int _localPort;
+        private int _maxRequests;
+        private int _metadataSize;
+        private ExtensionSupports _supports;
+        private string _version;
 
         public override int ByteLength
         {
             get
             {
-                // FIXME Implement this properly
-                
+                // TODO: Implement this properly
+
                 // The length of the payload, 4 byte length prefix, 1 byte BT message id, 1 byte LT message id
                 return Create().LengthInBytes() + 4 + 1 + 1;
             }
         }
-        
+
         public int MaxRequests
         {
-            get { return maxRequests; }
+            get { return _maxRequests; }
         }
 
         public int LocalPort
         {
-            get { return localPort; }
+            get { return _localPort; }
         }
 
         public ExtensionSupports Supports
         {
-            get { return supports; }
+            get { return _supports; }
         }
 
         public string Version
         {
-            get { return version ?? ""; }
+            get { return _version ?? ""; }
         }
 
         public int MetadataSize
         {
-            get { return metadataSize; }
+            get { return _metadataSize; }
         }
 
         #region Constructors
+
         public ExtendedHandshakeMessage()
             : base(Support.MessageId)
         {
-            supports = new ExtensionSupports(ExtensionMessage.SupportedMessages);
+            _supports = new ExtensionSupports(SupportedMessages);
         }
 
         public ExtendedHandshakeMessage(int metadataSize)
-            : this ()
+            : this()
         {
-            this.metadataSize = metadataSize;
+            this._metadataSize = metadataSize;
         }
-        #endregion
 
+        #endregion
 
         #region Methods
 
         public override void Decode(byte[] buffer, int offset, int length)
         {
             BEncodedValue val;
-            BEncodedDictionary d = BEncodedDictionary.Decode<BEncodedDictionary>(buffer, offset, length, false);
+            var d = BEncodedValue.Decode<BEncodedDictionary>(buffer, offset, length, false);
 
             if (d.TryGetValue(MaxRequestKey, out val))
-                maxRequests = (int)((BEncodedNumber)val).Number;
+                _maxRequests = (int) ((BEncodedNumber) val).Number;
             if (d.TryGetValue(VersionKey, out val))
-                version = ((BEncodedString)val).Text;
+                _version = ((BEncodedString) val).Text;
             if (d.TryGetValue(PortKey, out val))
-                localPort = (int)((BEncodedNumber)val).Number;
+                _localPort = (int) ((BEncodedNumber) val).Number;
 
-            LoadSupports((BEncodedDictionary)d[SupportsKey]);
+            LoadSupports((BEncodedDictionary) d[SupportsKey]);
 
             if (d.TryGetValue(MetadataSizeKey, out val))
-                metadataSize = (int)((BEncodedNumber)val).Number;
+                _metadataSize = (int) ((BEncodedNumber) val).Number;
         }
 
         private void LoadSupports(BEncodedDictionary supports)
         {
-            ExtensionSupports list = new ExtensionSupports();
-            foreach (KeyValuePair<BEncodedString, BEncodedValue> k in supports)
-                list.Add(new ExtensionSupport(k.Key.Text, (byte)((BEncodedNumber)k.Value).Number));
+            var extensionSupports = supports
+                .Select(k => new ExtensionSupport(k.Key.Text, (byte) ((BEncodedNumber) k.Value).Number));
 
-            this.supports = list;
+            _supports = new ExtensionSupports(extensionSupports);
         }
 
         public override int Encode(byte[] buffer, int offset)
         {
-            int written = offset;
-            BEncodedDictionary dict = Create();
+            var written = offset;
+            var dict = Create();
 
             written += Write(buffer, written, dict.LengthInBytes() + 1 + 1);
-            written += Write(buffer, written, ExtensionMessage.MessageId);
-            written += Write(buffer, written, ExtendedHandshakeMessage.Support.MessageId);
+            written += Write(buffer, written, MessageId);
+            written += Write(buffer, written, Support.MessageId);
             written += dict.Encode(buffer, written);
 
             CheckWritten(written - offset);
@@ -151,20 +146,21 @@ namespace MonoTorrent.Client.Messages.Libtorrent
             if (!ClientEngine.SupportsExtended)
                 throw new MessageException("Libtorrent extension messages not supported");
 
-            BEncodedDictionary mainDict = new BEncodedDictionary();
-            BEncodedDictionary supportsDict = new BEncodedDictionary();
+            var mainDict = new BEncodedDictionary();
+            var supportsDict = new BEncodedDictionary();
 
-            mainDict.Add(MaxRequestKey, (BEncodedNumber)maxRequests);
-            mainDict.Add(VersionKey, (BEncodedString)Version);
-            mainDict.Add(PortKey, (BEncodedNumber)localPort);
+            mainDict.Add(MaxRequestKey, (BEncodedNumber) _maxRequests);
+            mainDict.Add(VersionKey, (BEncodedString) Version);
+            mainDict.Add(PortKey, (BEncodedNumber) _localPort);
 
-            SupportedMessages.ForEach(delegate(ExtensionSupport s) { supportsDict.Add(s.Name, (BEncodedNumber)s.MessageId); });
+            SupportedMessages.ForEach(s => supportsDict.Add(s.Name, (BEncodedNumber) s.MessageId));
             mainDict.Add(SupportsKey, supportsDict);
 
-            mainDict.Add(MetadataSizeKey, (BEncodedNumber)metadataSize);
+            mainDict.Add(MetadataSizeKey, (BEncodedNumber) _metadataSize);
 
             return mainDict;
         }
+
         #endregion
     }
 }

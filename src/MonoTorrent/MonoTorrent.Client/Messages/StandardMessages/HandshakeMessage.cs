@@ -26,110 +26,80 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using MonoTorrent.Common;
-using System.Net;
-
 namespace MonoTorrent.Client.Messages.Standard
 {
+    using System.Text;
+    using Common;
+
     /// <summary>
-    /// 
     /// </summary>
     public class HandshakeMessage : PeerMessage
     {
         internal const int HandshakeLength = 68;
-        private readonly static byte[] ZeroedBits = new byte[8];
         private const byte ExtendedMessagingFlag = 0x10;
         private const byte FastPeersFlag = 0x04;
-
+        private static readonly byte[] ZeroedBits = new byte[8];
 
         #region Member Variables
+
         /// <summary>
-        /// The length of the protocol string
+        ///   The length of the protocol string
         /// </summary>
-        public int ProtocolStringLength
-        {
-            get { return this.protocolStringLength; }
-        }
-        private int protocolStringLength;
+        public int ProtocolStringLength { get; private set; }
 
 
         /// <summary>
-        /// The protocol string to send
+        ///   The protocol string to send
         /// </summary>
-        public string ProtocolString
-        {
-            get { return this.protocolString; }
-        }
-        private string protocolString;
+        public string ProtocolString { get; private set; }
 
 
         /// <summary>
-        /// The infohash of the torrent
+        ///   The infohash of the torrent
         /// </summary>
-        public InfoHash InfoHash
-        {
-            get { return this.infoHash; }
-        }
-        internal InfoHash infoHash;
-
+        public InfoHash InfoHash { get; internal set; }
 
         /// <summary>
-        /// The ID of the peer
+        ///   The ID of the peer
         /// </summary>
-        public string PeerId
-        {
-            get { return this.peerId; }
-        }
-        private string peerId;
+        public string PeerId { get; private set; }
 
-        public bool SupportsExtendedMessaging
-        {
-            get { return extended; }
-        }
-        private bool extended;
+        public bool SupportsExtendedMessaging { get; private set; }
 
         /// <summary>
-        /// True if the peer supports the Bittorrent FastPeerExtensions
+        ///   True if the peer supports the Bittorrent FastPeerExtensions
         /// </summary>
-        public bool SupportsFastPeer
-        {
-            get { return this.supportsFastPeer; }
-        }
-        private bool supportsFastPeer;
+        public bool SupportsFastPeer { get; private set; }
+
         #endregion
 
-
         #region Constructors
+
         public HandshakeMessage()
             : this(ClientEngine.SupportsFastPeer)
         {
-
         }
+
         /// <summary>
-        /// Creates a new HandshakeMessage
+        ///   Creates a new HandshakeMessage
         /// </summary>
         public HandshakeMessage(bool enableFastPeer)
-            : this(new InfoHash (new byte[20]), "", VersionInfo.ProtocolStringV100, enableFastPeer)
+            : this(new InfoHash(new byte[20]), "", VersionInfo.ProtocolStringV100, enableFastPeer)
         {
-            
         }
 
         public HandshakeMessage(InfoHash infoHash, string peerId, string protocolString)
             : this(infoHash, peerId, protocolString, ClientEngine.SupportsFastPeer, ClientEngine.SupportsExtended)
         {
-
         }
 
         public HandshakeMessage(InfoHash infoHash, string peerId, string protocolString, bool enableFastPeer)
             : this(infoHash, peerId, protocolString, enableFastPeer, ClientEngine.SupportsExtended)
         {
-
         }
 
-        public HandshakeMessage(InfoHash infoHash, string peerId, string protocolString, bool enableFastPeer, bool enableExtended)
+        public HandshakeMessage(InfoHash infoHash, string peerId, string protocolString, bool enableFastPeer,
+                                bool enableExtended)
         {
             if (!ClientEngine.SupportsFastPeer && enableFastPeer)
                 throw new ProtocolException("The engine does not support fast peer, but fast peer was requested");
@@ -137,23 +107,29 @@ namespace MonoTorrent.Client.Messages.Standard
             if (!ClientEngine.SupportsExtended && enableExtended)
                 throw new ProtocolException("The engine does not support extended, but extended was requested");
 
-            this.infoHash = infoHash;
-            this.peerId = peerId;
-            this.protocolString = protocolString;
-            this.protocolStringLength = protocolString.Length;
-            this.supportsFastPeer = enableFastPeer;
-            this.extended = enableExtended;
+            this.InfoHash = infoHash;
+            PeerId = peerId;
+            ProtocolString = protocolString;
+            ProtocolStringLength = protocolString.Length;
+            SupportsFastPeer = enableFastPeer;
+            SupportsExtendedMessaging = enableExtended;
         }
+
         #endregion
 
-
         #region Methods
+
+        public override int ByteLength
+        {
+            get { return 68; }
+        }
+
         public override int Encode(byte[] buffer, int offset)
         {
-            int written = offset;
+            var written = offset;
 
-            written += Write(buffer, written, (byte)protocolString.Length);
-            written += WriteAscii(buffer, written, protocolString);
+            written += Write(buffer, written, (byte) ProtocolString.Length);
+            written += WriteAscii(buffer, written, ProtocolString);
             written += Write(buffer, written, ZeroedBits);
 
             if (SupportsExtendedMessaging)
@@ -161,78 +137,72 @@ namespace MonoTorrent.Client.Messages.Standard
             if (SupportsFastPeer)
                 buffer[written - 1] |= FastPeersFlag;
 
-            written += Write(buffer, written, infoHash.Hash); 
-            written += WriteAscii(buffer, written, peerId);
+            written += Write(buffer, written, InfoHash.Hash);
+            written += WriteAscii(buffer, written, PeerId);
 
             return CheckWritten(written - offset);
         }
 
         public override void Decode(byte[] buffer, int offset, int length)
         {
-            protocolStringLength = ReadByte(buffer, ref offset);                  // First byte is length
+            ProtocolStringLength = ReadByte(buffer, ref offset); // First byte is length
 
             // #warning Fix this hack - is there a better way of verifying the protocol string? Hack
-            if (protocolStringLength != VersionInfo.ProtocolStringV100.Length)
-                protocolStringLength = VersionInfo.ProtocolStringV100.Length;
+            if (ProtocolStringLength != VersionInfo.ProtocolStringV100.Length)
+                ProtocolStringLength = VersionInfo.ProtocolStringV100.Length;
 
-            protocolString = ReadString(buffer, ref offset, protocolStringLength);
+            ProtocolString = ReadString(buffer, ref offset, ProtocolStringLength);
             CheckForSupports(buffer, ref offset);
-            infoHash = new InfoHash(ReadBytes(buffer, ref offset, 20));
-            peerId = ReadString(buffer, ref offset, 20);
+            InfoHash = new InfoHash(ReadBytes(buffer, ref offset, 20));
+            PeerId = ReadString(buffer, ref offset, 20);
         }
 
         private void CheckForSupports(byte[] buffer, ref int offset)
         {
             // Increment offset first so that the indices are consistent between Encoding and Decoding
             offset += 8;
-            this.extended = (ExtendedMessagingFlag & buffer[offset - 3]) != 0;
-            this.supportsFastPeer = (FastPeersFlag & buffer[offset - 1]) != 0;
+            SupportsExtendedMessaging = (ExtendedMessagingFlag & buffer[offset - 3]) != 0;
+            SupportsFastPeer = (FastPeersFlag & buffer[offset - 1]) != 0;
         }
 
-        public override int ByteLength
-        {
-            get { return 68; }
-        }
         #endregion
 
-
         #region Overridden Methods
+
         /// <summary>
-        /// 
         /// </summary>
-        /// <returns></returns>
+        /// <returns> </returns>
         public override string ToString()
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            var sb = new StringBuilder();
             sb.Append("HandshakeMessage ");
             sb.Append(" PeerID ");
-            sb.Append(this.peerId);
+            sb.Append(PeerId);
             sb.Append(" FastPeer ");
-            sb.Append(this.supportsFastPeer);
+            sb.Append(SupportsFastPeer);
             return sb.ToString();
         }
 
-
         public override bool Equals(object obj)
         {
-            HandshakeMessage msg = obj as HandshakeMessage;
+            var msg = obj as HandshakeMessage;
 
             if (msg == null)
                 return false;
 
-            if (this.infoHash != msg.infoHash)
+            if (InfoHash != msg.InfoHash)
                 return false;
 
-            return (this.peerId == msg.peerId
-                    && this.protocolString == msg.protocolString
-                    && this.supportsFastPeer == msg.supportsFastPeer);
+            return (PeerId == msg.PeerId
+                    && ProtocolString == msg.ProtocolString
+                    && SupportsFastPeer == msg.SupportsFastPeer);
         }
-
 
         public override int GetHashCode()
         {
-            return (this.infoHash.GetHashCode() ^ this.peerId.GetHashCode() ^ this.protocolString.GetHashCode());
+            return (InfoHash.GetHashCode() ^ PeerId.GetHashCode() ^ ProtocolString.GetHashCode());
         }
+
         #endregion
     }
 }

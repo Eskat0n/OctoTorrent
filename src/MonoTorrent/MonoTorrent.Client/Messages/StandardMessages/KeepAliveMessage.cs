@@ -1,4 +1,3 @@
-/*
 // KeepAliveMessage.cs
 //
 // Authors:
@@ -25,10 +24,6 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-*/
-
-
-using System;
 
 namespace MonoTorrent.Client.Messages.Standard
 {
@@ -37,26 +32,15 @@ namespace MonoTorrent.Client.Messages.Standard
     /// </summary>
     public class KeepAliveMessage : PeerMessage
     {
-        private const int messageLength = 0;   // has no payload
-        internal static readonly byte MessageId = 0;
-		private static readonly byte[] payload = new byte[] { 0, 0, 0, 0 };
-
-        #region Constructors
-        /// <summary>
-        /// Creates a new KeepAliveMessage
-        /// </summary>
-        public KeepAliveMessage()
-        {
-        }
-        #endregion
-
+        private static readonly byte[] Payload = new byte[] { 0, 0, 0, 0 };
 
         #region Methods
+
         public override int Encode(byte[] buffer, int offset)
         {
-			int written = offset;
+			var written = offset;
 
-            written += Write(buffer, written, payload);
+            written += Write(buffer, written, Payload);
 
             return CheckWritten(written - offset);
         }
@@ -73,14 +57,11 @@ namespace MonoTorrent.Client.Messages.Standard
         {
             get { return (4); }
         }
+
         #endregion
 
-
         #region Overridden Methods
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+
         public override string ToString()
         {
             return "KeepAliveMessage";
@@ -88,14 +69,14 @@ namespace MonoTorrent.Client.Messages.Standard
 
         public override bool Equals(object obj)
         {
-            return (obj is KeepAliveMessage);
+            return obj is KeepAliveMessage;
         }
-
 
         public override int GetHashCode()
         {
-            return this.ToString().GetHashCode();
+            return ToString().GetHashCode();
         }
+
         #endregion
     }
 }

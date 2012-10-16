@@ -26,39 +26,33 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.Client.Messages;
-
 namespace MonoTorrent.Client.Messages.UdpTracker
 {
-    class ScrapeResponseMessage : UdpTrackerMessage
+    using System.Collections.Generic;
+
+    internal class ScrapeResponseMessage : UdpTrackerMessage
     {
-        private List<ScrapeDetails> scrapes;
-
-        public override int ByteLength
-        {
-            get { return 8 + (scrapes.Count * 12); }
-        }
-
-        public List<ScrapeDetails> Scrapes
-        {
-            get { return scrapes; }
-        }
+        private readonly List<ScrapeDetails> _scrapes;
 
         public ScrapeResponseMessage()
             : this(0, new List<ScrapeDetails>())
         {
-
         }
 
         public ScrapeResponseMessage(int transactionId, List<ScrapeDetails> scrapes)
-            :base(2, transactionId)
+            : base(2, transactionId)
         {
-            this.scrapes = scrapes;
+            _scrapes = scrapes;
+        }
+
+        public override int ByteLength
+        {
+            get { return 8 + (_scrapes.Count*12); }
+        }
+
+        public List<ScrapeDetails> Scrapes
+        {
+            get { return _scrapes; }
         }
 
         public override void Decode(byte[] buffer, int offset, int length)
@@ -68,26 +62,27 @@ namespace MonoTorrent.Client.Messages.UdpTracker
             TransactionId = ReadInt(buffer, ref offset);
             while (offset <= (buffer.Length - 12))
             {
-                int seeds = ReadInt(buffer, ref offset);
-                int complete = ReadInt(buffer, ref offset);
-                int leeches = ReadInt(buffer, ref offset);
-                scrapes.Add(new ScrapeDetails(seeds, leeches, complete));
+                var seeds = ReadInt(buffer, ref offset);
+                var complete = ReadInt(buffer, ref offset);
+                var leeches = ReadInt(buffer, ref offset);
+                _scrapes.Add(new ScrapeDetails(seeds, leeches, complete));
             }
         }
 
         public override int Encode(byte[] buffer, int offset)
         {
-            int written = offset;
+            var written = offset;
 
-            written+=Write(buffer, written, Action);
-            written+=Write(buffer, written, TransactionId);
-            for(int i=0; i < scrapes.Count; i++)
+            written += Write(buffer, written, Action);
+            written += Write(buffer, written, TransactionId);
+
+            foreach (var scrapeDetails in _scrapes)
             {
-                written += Write(buffer, written, scrapes[i].Seeds);
-                written += Write(buffer, written, scrapes[i].Complete);
-                written += Write(buffer, written, scrapes[i].Leeches);
+                written += Write(buffer, written, scrapeDetails.Seeds);
+                written += Write(buffer, written, scrapeDetails.Complete);
+                written += Write(buffer, written, scrapeDetails.Leeches);
             }
-            
+
             return written - offset;
         }
     }

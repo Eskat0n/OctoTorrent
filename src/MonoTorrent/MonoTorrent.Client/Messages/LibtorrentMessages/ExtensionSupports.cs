@@ -26,13 +26,11 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.Client.Messages.Libtorrent;
-
 namespace MonoTorrent.Client
 {
+    using System.Collections.Generic;
+    using Messages.Libtorrent;
+
     public class ExtensionSupports : List<ExtensionSupport>
     {
         public ExtensionSupports()
@@ -42,12 +40,11 @@ namespace MonoTorrent.Client
         public ExtensionSupports(IEnumerable<ExtensionSupport> collection)
             : base(collection)
         {
-
         }
 
         public bool Supports(string name)
         {
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
                 if (this[i].Name == name)
                     return true;
             return false;
@@ -55,7 +52,7 @@ namespace MonoTorrent.Client
 
         internal byte MessageId(ExtensionSupport support)
         {
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
                 if (this[i].Name == support.Name)
                     return this[i].MessageId;
 

@@ -26,11 +26,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Net;
-
 namespace MonoTorrent.Client.Messages.Standard
 {
     /// <summary>
@@ -38,32 +33,20 @@ namespace MonoTorrent.Client.Messages.Standard
     /// </summary>
     public class NotInterestedMessage : PeerMessage
     {
-        private const int messageLength = 1;
-        internal static readonly byte MessageId = 3;
-
-        #region Constructors
-        /// <summary>
-        /// Creates a new NotInterestedMessage
-        /// </summary>
-        public NotInterestedMessage()
-        {
-        }
-        #endregion
-
+        private const int MessageLength = 1;
+        internal const byte MessageId = 3;
 
         #region Methods
         
         public override int Encode(byte[] buffer, int offset)
         {
-			int written = offset;
+			var written = offset;
 
-            written += Write(buffer, written, messageLength);
+            written += Write(buffer, written, MessageLength);
             written += Write(buffer, written, MessageId);
 
             return CheckWritten(written - offset);
         }
-
-
 
         public override void Decode(byte[] buffer, int offset, int length)
         {
@@ -75,16 +58,13 @@ namespace MonoTorrent.Client.Messages.Standard
         /// </summary>
         public override int ByteLength
         {
-            get { return (messageLength + 4); }
+            get { return (MessageLength + 4); }
         }
+
         #endregion
 
-
         #region Overridden Methods
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+
         public override string ToString()
         {
             return "NotInterestedMessage";
@@ -92,13 +72,14 @@ namespace MonoTorrent.Client.Messages.Standard
 
         public override bool Equals(object obj)
         {
-            return (obj is NotInterestedMessage);
+            return obj is NotInterestedMessage;
         }
 
         public override int GetHashCode()
         {
-            return (this.ToString().GetHashCode());
+            return ToString().GetHashCode();
         }
+
         #endregion
     }
 }

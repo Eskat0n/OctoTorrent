@@ -144,7 +144,7 @@ namespace MonoTorrent.Client
 
             ClientEngine.MainLoop.QueueWait(() =>
                                                 {
-                                                    foreach (var torrentManager in _engine.Torrents.Where(tm => message.infoHash == tm.InfoHash))
+                                                    foreach (var torrentManager in _engine.Torrents.Where(tm => message.InfoHash == tm.InfoHash))
                                                         man = torrentManager;
                                                 });
 

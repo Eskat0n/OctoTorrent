@@ -1,26 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.BEncoding;
-
 namespace MonoTorrent.Client.Messages.Libtorrent
 {
+    using BEncoding;
+
     public class LTChat : ExtensionMessage
     {
         public static readonly ExtensionSupport Support = CreateSupport("LT_chat");
 
         private static readonly BEncodedString MessageKey = "msg";
-        private BEncodedDictionary messageDict = new BEncodedDictionary();
-        public string Message
-        {
-            set { messageDict[MessageKey] = (BEncodedString)(value ?? ""); }
-            get { return ((BEncodedString)messageDict[MessageKey]).Text; }
-        }
+        private BEncodedDictionary _messageDict = new BEncodedDictionary();
 
         public LTChat()
             : base(Support.MessageId)
         {
-
         }
 
         internal LTChat(byte messageId, string message)
@@ -37,14 +28,20 @@ namespace MonoTorrent.Client.Messages.Libtorrent
             Message = message;
         }
 
+        public string Message
+        {
+            set { _messageDict[MessageKey] = (BEncodedString) (value ?? ""); }
+            get { return ((BEncodedString) _messageDict[MessageKey]).Text; }
+        }
+
         public override int ByteLength
         {
-            get { return 4 + 1 + 1 + messageDict.LengthInBytes(); }
+            get { return 4 + 1 + 1 + _messageDict.LengthInBytes(); }
         }
 
         public override void Decode(byte[] buffer, int offset, int length)
         {
-            messageDict = BEncodedValue.Decode<BEncodedDictionary>(buffer, offset, length, false);
+            _messageDict = BEncodedValue.Decode<BEncodedDictionary>(buffer, offset, length, false);
         }
 
         public override int Encode(byte[] buffer, int offset)
@@ -52,15 +49,16 @@ namespace MonoTorrent.Client.Messages.Libtorrent
             if (!ClientEngine.SupportsFastPeer)
                 throw new MessageException("Libtorrent extension messages not supported");
 
-            int written = offset;
+            var written = offset;
 
             written += Write(buffer, offset, ByteLength - 4);
-            written += Write(buffer, written, ExtensionMessage.MessageId);
+            written += Write(buffer, written, MessageId);
             written += Write(buffer, written, ExtensionId);
-            written += messageDict.Encode(buffer, written);
-            
+            written += _messageDict.Encode(buffer, written);
+
             CheckWritten(written - offset);
-            return written - offset; ;
+            return written - offset;
+            ;
         }
     }
 }

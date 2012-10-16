@@ -26,146 +26,127 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Net;
-using MonoTorrent.Client.Messages;
-
 namespace MonoTorrent.Client.Messages.Standard
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    using System.Text;
+
     public class CancelMessage : PeerMessage
     {
-        private const int messageLength = 13;
-        internal static readonly byte MessageId = 8;
-
+        private const int MessageLength = 13;
+        internal const byte MessageId = 8;
 
         #region Member Variables
-        /// <summary>
-        /// The index of the piece
-        /// </summary>
-        public int PieceIndex
-        {
-            get { return this.pieceIndex; }
-        }
-        private int pieceIndex;
-
 
         /// <summary>
-        /// The offset in bytes of the block of data
+        ///   The index of the piece
         /// </summary>
-        public int StartOffset
-        {
-            get { return this.startOffset; }
-        }
-        private int startOffset;
-
+        public int PieceIndex { get; private set; }
 
         /// <summary>
-        /// The length in bytes of the block of data
+        ///   The offset in bytes of the block of data
         /// </summary>
-        public int RequestLength
-        {
-            get { return this.requestLength; }
-        }
-        private int requestLength;
+        public int StartOffset { get; private set; }
+
+        /// <summary>
+        ///   The length in bytes of the block of data
+        /// </summary>
+        public int RequestLength { get; private set; }
+
         #endregion
 
-
         #region Constructors
+
         /// <summary>
-        /// Creates a new CancelMessage
+        ///   Creates a new CancelMessage
         /// </summary>
         public CancelMessage()
         {
         }
 
-
         /// <summary>
-        /// Creates a new CancelMessage
+        ///   Creates a new CancelMessage
         /// </summary>
-        /// <param name="pieceIndex">The index of the piece to cancel</param>
-        /// <param name="startOffset">The offset in bytes of the block of data to cancel</param>
-        /// <param name="requestLength">The length in bytes of the block of data to cancel</param>
+        /// <param name="pieceIndex"> The index of the piece to cancel </param>
+        /// <param name="startOffset"> The offset in bytes of the block of data to cancel </param>
+        /// <param name="requestLength"> The length in bytes of the block of data to cancel </param>
         public CancelMessage(int pieceIndex, int startOffset, int requestLength)
         {
-            this.pieceIndex = pieceIndex;
-            this.startOffset = startOffset;
-            this.requestLength = requestLength;
+            PieceIndex = pieceIndex;
+            StartOffset = startOffset;
+            RequestLength = requestLength;
         }
+
         #endregion
 
-
         #region Methods
+
+        /// <summary>
+        ///   Returns the length of the message in bytes
+        /// </summary>
+        public override int ByteLength
+        {
+            get { return (MessageLength + 4); }
+        }
+
         public override int Encode(byte[] buffer, int offset)
         {
-			int written = offset;
+            var written = offset;
 
-            written += Write(buffer, written, messageLength);
+            written += Write(buffer, written, MessageLength);
             written += Write(buffer, written, MessageId);
-            written += Write(buffer, written, pieceIndex);
-            written += Write(buffer, written, startOffset);
-            written += Write(buffer, written, requestLength);
+            written += Write(buffer, written, PieceIndex);
+            written += Write(buffer, written, StartOffset);
+            written += Write(buffer, written, RequestLength);
 
             return CheckWritten(written - offset);
         }
 
         public override void Decode(byte[] buffer, int offset, int length)
         {
-            pieceIndex = ReadInt(buffer, ref offset);
-            startOffset = ReadInt(buffer, ref offset);
-            requestLength = ReadInt(buffer, ref offset);
+            PieceIndex = ReadInt(buffer, ref offset);
+            StartOffset = ReadInt(buffer, ref offset);
+            RequestLength = ReadInt(buffer, ref offset);
         }
 
-        /// <summary>
-        /// Returns the length of the message in bytes
-        /// </summary>
-        public override int ByteLength
-        {
-            get { return (messageLength + 4); }
-        }
         #endregion
 
-
         #region Overridden Methods
+
         /// <summary>
-        /// 
         /// </summary>
-        /// <returns></returns>
+        /// <returns> </returns>
         public override string ToString()
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            var sb = new StringBuilder();
             sb.Append("CancelMessage ");
             sb.Append(" Index ");
-            sb.Append(this.pieceIndex);
+            sb.Append(PieceIndex);
             sb.Append(" Offset ");
-            sb.Append(this.startOffset);
+            sb.Append(StartOffset);
             sb.Append(" Length ");
-            sb.Append(this.requestLength);
+            sb.Append(RequestLength);
             return sb.ToString();
         }
 
         public override bool Equals(object obj)
         {
-            CancelMessage msg = obj as CancelMessage;
+            var msg = obj as CancelMessage;
 
             if (msg == null)
                 return false;
 
-            return (this.pieceIndex == msg.pieceIndex
-                    && this.startOffset == msg.startOffset
-                    && this.requestLength == msg.requestLength);
+            return (PieceIndex == msg.PieceIndex
+                    && StartOffset == msg.StartOffset
+                    && RequestLength == msg.RequestLength);
         }
 
         public override int GetHashCode()
         {
-            return (this.pieceIndex.GetHashCode()
-                ^ this.requestLength.GetHashCode()
-                ^ this.startOffset.GetHashCode());
+            return (PieceIndex.GetHashCode()
+                    ^ RequestLength.GetHashCode()
+                    ^ StartOffset.GetHashCode());
         }
+
         #endregion
     }
 }

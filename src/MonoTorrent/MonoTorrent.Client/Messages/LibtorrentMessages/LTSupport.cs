@@ -1,33 +1,29 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MonoTorrent.Client.Messages.Libtorrent
 {
     public struct ExtensionSupport
     {
-        private byte messageId;
-        private string name;
+        private readonly byte _messageId;
+        private readonly string _name;
+
+        public ExtensionSupport(string name, byte messageId)
+        {
+            _messageId = messageId;
+            _name = name;
+        }
 
         public byte MessageId
         {
-            get { return messageId; }
+            get { return _messageId; }
         }
 
         public string Name
         {
-            get { return name; }
-        }
-
-        public ExtensionSupport(string name, byte messageId)
-        {
-            this.messageId = messageId;
-            this.name = name;
+            get { return _name; }
         }
 
         public override string ToString()
         {
-            return string.Format("{1}: {0}", name, messageId);
+            return string.Format("{1}: {0}", _name, _messageId);
         }
     }
 }

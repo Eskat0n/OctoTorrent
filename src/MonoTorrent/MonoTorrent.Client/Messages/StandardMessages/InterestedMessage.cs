@@ -26,39 +26,36 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Net;
-
 namespace MonoTorrent.Client.Messages.Standard
 {
     /// <summary>
-    /// Represents an "Interested" message
+    ///   Represents an "Interested" message
     /// </summary>
     public class InterestedMessage : PeerMessage
     {
-        internal static readonly byte MessageId = 2;
-        private const int messageLength = 1;
-
+        private const int MessageLength = 1;
+        internal const byte MessageId = 2;
 
         #region Constructors
-        /// <summary>
-        /// Creates a new InterestedMessage
-        /// </summary>
-        public InterestedMessage()
-        {
-        }
+
         #endregion
 
-
         #region Methods
+
+        /// <summary>
+        ///   Returns the length of the message in bytes
+        /// </summary>
+        public override int ByteLength
+        {
+            get { return (MessageLength + 4); }
+        }
+
         public override int Encode(byte[] buffer, int offset)
         {
-			int written = offset;
+            var written = offset;
 
-            written += Write(buffer, written, messageLength);
-			written += Write(buffer, written, MessageId);
+            written += Write(buffer, written, MessageLength);
+            written += Write(buffer, written, MessageId);
 
             return CheckWritten(written - offset);
         }
@@ -68,21 +65,13 @@ namespace MonoTorrent.Client.Messages.Standard
             // No decoding needed.
         }
 
-        /// <summary>
-        /// Returns the length of the message in bytes
-        /// </summary>
-        public override int ByteLength
-        {
-            get { return (messageLength + 4); }
-        }
         #endregion
 
-
         #region Overridden Methods
+
         /// <summary>
-        /// 
         /// </summary>
-        /// <returns></returns>
+        /// <returns> </returns>
         public override string ToString()
         {
             return "InterestedMessage";
@@ -95,8 +84,9 @@ namespace MonoTorrent.Client.Messages.Standard
 
         public override int GetHashCode()
         {
-            return this.ToString().GetHashCode();
+            return ToString().GetHashCode();
         }
+
         #endregion
     }
 }

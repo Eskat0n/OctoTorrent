@@ -26,62 +26,56 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.Client.Messages;
-
 namespace MonoTorrent.Client.Messages.UdpTracker
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
     public class ScrapeMessage : UdpTrackerMessage
     {
-        long connectionId;
-        List<byte[]> infohashes;
-
-        public override int ByteLength
-        {
-            get { return 8 + 4 + 4 + infohashes.Count * 20; }
-        }
-
-        public List<byte[]> InfoHashes
-        {
-            get { return infohashes; }
-        }
+        private readonly List<byte[]> _infoHashes;
+        private long _connectionId;
 
         public ScrapeMessage()
             : this(0, 0, new List<byte[]>())
         {
-
         }
 
-        public ScrapeMessage(int transactionId, long connectionId, List<byte[]> infohashes)
-            : base (2, transactionId)
+        public ScrapeMessage(int transactionId, long connectionId, List<byte[]> infoHashes)
+            : base(2, transactionId)
         {
-            this.connectionId = connectionId;
-            this.infohashes = infohashes;
+            _connectionId = connectionId;
+            _infoHashes = infoHashes;
+        }
+
+        public override int ByteLength
+        {
+            get { return 8 + 4 + 4 + _infoHashes.Count*20; }
+        }
+
+        public List<byte[]> InfoHashes
+        {
+            get { return _infoHashes; }
         }
 
         public override void Decode(byte[] buffer, int offset, int length)
         {
-            connectionId = ReadLong(buffer, ref offset);
+            _connectionId = ReadLong(buffer, ref offset);
             if (Action != ReadInt(buffer, ref offset))
                 throw new MessageException("Udp message decoded incorrectly");
             TransactionId = ReadInt(buffer, ref offset);
-            while(offset <= (length - 20))
-                infohashes.Add(ReadBytes(buffer, ref offset, 20));
+            while (offset <= (length - 20))
+                _infoHashes.Add(ReadBytes(buffer, ref offset, 20));
         }
 
         public override int Encode(byte[] buffer, int offset)
         {
-            int written = offset;
+            var written = offset;
 
-            written += Write(buffer, written, connectionId);
+            written += Write(buffer, written, _connectionId);
             written += Write(buffer, written, Action);
             written += Write(buffer, written, TransactionId);
-            for (int i = 0; i < infohashes.Count; i++)
-                written += Write(buffer, written, infohashes[i]);
+            written = _infoHashes.Aggregate(written, (current, t) => current + Write(buffer, current, t));
 
             return written - offset;
         }

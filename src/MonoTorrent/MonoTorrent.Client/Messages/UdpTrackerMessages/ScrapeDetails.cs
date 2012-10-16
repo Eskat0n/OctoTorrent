@@ -26,40 +26,21 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MonoTorrent.Client.Messages.UdpTracker
 {
     public class ScrapeDetails
     {
-        private int complete;
-        private int leeches;
-        private int seeds;
-
-        public int Complete
-        {
-            get { return complete; }
-        }
-
-        public int Leeches
-        {
-            get { return leeches; }
-        }
-
-        public int Seeds
-        {
-            get { return seeds; }
-        }
-
         public ScrapeDetails(int seeds, int leeches, int complete)
         {
-            this.complete = complete;
-            this.leeches = leeches;
-            this.seeds = seeds;
+            Complete = complete;
+            Leeches = leeches;
+            Seeds = seeds;
         }
+
+        public int Complete { get; private set; }
+
+        public int Leeches { get; private set; }
+
+        public int Seeds { get; private set; }
     }
 }

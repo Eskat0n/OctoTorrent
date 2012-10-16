@@ -26,38 +26,35 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Net;
-
 namespace MonoTorrent.Client.Messages.Standard
 {
     /// <summary>
-    /// 
     /// </summary>
     public class ChokeMessage : PeerMessage
     {
-        private const int messageLength = 1;
-        internal static readonly byte MessageId = 0;
+        private const int MessageLength = 1;
+        internal const byte MessageId = 0;
 
         #region Constructors
-        /// <summary>
-        /// Creates a new ChokeMessage
-        /// </summary>
-        public ChokeMessage()
-        {
-        }
+
         #endregion
 
-
         #region Methods
+
+        /// <summary>
+        ///   Returns the length of the message in bytes
+        /// </summary>
+        public override int ByteLength
+        {
+            get { return (MessageLength + 4); }
+        }
+
         public override int Encode(byte[] buffer, int offset)
         {
-			int written = offset;
+            var written = offset;
 
-			written += Write(buffer, written, messageLength);
-			written += Write(buffer, written, MessageId);
+            written += Write(buffer, written, MessageLength);
+            written += Write(buffer, written, MessageId);
 
             return CheckWritten(written - offset);
         }
@@ -67,21 +64,13 @@ namespace MonoTorrent.Client.Messages.Standard
             // No decoding needed
         }
 
-        /// <summary>
-        /// Returns the length of the message in bytes
-        /// </summary>
-        public override int ByteLength
-        {
-            get { return (messageLength + 4); }
-        }
         #endregion
 
-
         #region Overridden Methods
+
         /// <summary>
-        /// 
         /// </summary>
-        /// <returns></returns>
+        /// <returns> </returns>
         public override string ToString()
         {
             return "ChokeMessage";
@@ -94,8 +83,9 @@ namespace MonoTorrent.Client.Messages.Standard
 
         public override int GetHashCode()
         {
-            return this.ToString().GetHashCode();
+            return ToString().GetHashCode();
         }
+
         #endregion
     }
 }

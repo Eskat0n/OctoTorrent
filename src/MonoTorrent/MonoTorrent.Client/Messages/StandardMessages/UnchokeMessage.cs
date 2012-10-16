@@ -26,36 +26,30 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Net;
-
 namespace MonoTorrent.Client.Messages.Standard
 {
     public class UnchokeMessage : PeerMessage
     {
-        internal static readonly byte MessageId = 1;
-        private const int messageLength = 1;
-
+        private const int MessageLength = 1;
+        internal const byte MessageId = 1;
 
         #region Constructors
-        
-        public UnchokeMessage()
-        {
-        }
 
         #endregion
 
-
         #region Methods
+
+        public override int ByteLength
+        {
+            get { return 5; }
+        }
 
         public override int Encode(byte[] buffer, int offset)
         {
-			int written = offset;
+            var written = offset;
 
-			written += Write(buffer, written, messageLength);
-			written += Write(buffer, written, MessageId);
+            written += Write(buffer, written, MessageLength);
+            written += Write(buffer, written, MessageId);
 
             return CheckWritten(written - offset);
         }
@@ -65,15 +59,10 @@ namespace MonoTorrent.Client.Messages.Standard
             // No decoding needed
         }
 
-        public override int ByteLength
-        {
-            get { return (messageLength + 4); }
-        }
         #endregion
 
-
         #region Overridden Methods
-        
+
         public override string ToString()
         {
             return "UnChokeMessage";
@@ -81,12 +70,12 @@ namespace MonoTorrent.Client.Messages.Standard
 
         public override bool Equals(object obj)
         {
-            return (obj is UnchokeMessage);
+            return obj is UnchokeMessage;
         }
 
         public override int GetHashCode()
         {
-            return this.ToString().GetHashCode();
+            return ToString().GetHashCode();
         }
 
         #endregion
