@@ -1,23 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.BEncoding;
-
 namespace MonoTorrent.Client.Messages.Libtorrent
 {
+    using System;
+    using BEncoding;
+
     public class PeerExchangeMessage : ExtensionMessage
     {
         public static readonly ExtensionSupport Support = CreateSupport("ut_pex");
 
-        private BEncodedDictionary peerDict;
         private static readonly BEncodedString AddedKey = "added";
         private static readonly BEncodedString AddedDotFKey = "added.f";
-        private static readonly BEncodedString DroppedKey = "dropped";        
+        private static readonly BEncodedString DroppedKey = "dropped";
+        private BEncodedDictionary _peerDict;
 
-        public PeerExchangeMessage ()
+        public PeerExchangeMessage()
             : base(Support.MessageId)
         {
-            peerDict = new BEncodedDictionary();
+            _peerDict = new BEncodedDictionary();
         }
 
         internal PeerExchangeMessage(byte messageId, byte[] added, byte[] addedDotF, byte[] dropped)
@@ -34,65 +32,65 @@ namespace MonoTorrent.Client.Messages.Libtorrent
             Initialise(added, addedDotF, dropped);
         }
 
-        void Initialise(byte[] added, byte[] addedDotF, byte[] dropped)
-        {
-            peerDict[AddedKey] = (BEncodedString)(added ?? BufferManager.EmptyBuffer);
-            peerDict[AddedDotFKey] = (BEncodedString)(addedDotF ?? BufferManager.EmptyBuffer);
-            peerDict[DroppedKey] = (BEncodedString)(dropped ?? BufferManager.EmptyBuffer);
-        }
-
         public byte[] Added
         {
-            set { peerDict[AddedKey] = (BEncodedString)(value ?? BufferManager.EmptyBuffer); }
-            get { return ((BEncodedString)peerDict[AddedKey]).TextBytes; }
+            set { _peerDict[AddedKey] = (BEncodedString) (value ?? BufferManager.EmptyBuffer); }
+            get { return ((BEncodedString) _peerDict[AddedKey]).TextBytes; }
         }
 
         public byte[] AddedDotF
         {
-            set { peerDict[AddedDotFKey] = (BEncodedString)(value ?? BufferManager.EmptyBuffer); }
-            get { return ((BEncodedString)peerDict[AddedDotFKey]).TextBytes; }
+            set { _peerDict[AddedDotFKey] = (BEncodedString) (value ?? BufferManager.EmptyBuffer); }
+            get { return ((BEncodedString) _peerDict[AddedDotFKey]).TextBytes; }
         }
 
         public byte[] Dropped
         {
-            set { peerDict[DroppedKey] = (BEncodedString)(value ?? BufferManager.EmptyBuffer); }
-            get { return ((BEncodedString)peerDict[DroppedKey]).TextBytes; }
+            set { _peerDict[DroppedKey] = (BEncodedString) (value ?? BufferManager.EmptyBuffer); }
+            get { return ((BEncodedString) _peerDict[DroppedKey]).TextBytes; }
         }
 
         public override int ByteLength
         {
-            get { return 4 + 1 + 1 + peerDict.LengthInBytes(); }
+            get { return 4 + 1 + 1 + _peerDict.LengthInBytes(); }
+        }
+
+        private void Initialise(byte[] added, byte[] addedDotF, byte[] dropped)
+        {
+            _peerDict[AddedKey] = (BEncodedString) (added ?? BufferManager.EmptyBuffer);
+            _peerDict[AddedDotFKey] = (BEncodedString) (addedDotF ?? BufferManager.EmptyBuffer);
+            _peerDict[DroppedKey] = (BEncodedString) (dropped ?? BufferManager.EmptyBuffer);
         }
 
         public override void Decode(byte[] buffer, int offset, int length)
         {
-            peerDict = BEncodedValue.Decode<BEncodedDictionary>(buffer, offset, length, false);
-            if (!peerDict.ContainsKey(AddedKey))
-                peerDict.Add(AddedKey, (BEncodedString)"");
-            if (!peerDict.ContainsKey(AddedDotFKey))
-                peerDict.Add(AddedDotFKey, (BEncodedString)"");
-            if (!peerDict.ContainsKey(DroppedKey))
-                peerDict.Add(DroppedKey, (BEncodedString)"");
+            _peerDict = BEncodedValue.Decode<BEncodedDictionary>(buffer, offset, length, false);
+            if (!_peerDict.ContainsKey(AddedKey))
+                _peerDict.Add(AddedKey, (BEncodedString) "");
+            if (!_peerDict.ContainsKey(AddedDotFKey))
+                _peerDict.Add(AddedDotFKey, (BEncodedString) "");
+            if (!_peerDict.ContainsKey(DroppedKey))
+                _peerDict.Add(DroppedKey, (BEncodedString) "");
         }
 
         public override int Encode(byte[] buffer, int offset)
         {
-            int written = offset;
+            var written = offset;
 
             written += Write(buffer, offset, ByteLength - 4);
-            written += Write(buffer, written, ExtensionMessage.MessageId);
+            written += Write(buffer, written, MessageId);
             written += Write(buffer, written, ExtensionId);
-            written += peerDict.Encode(buffer, written);
+            written += _peerDict.Encode(buffer, written);
 
             return CheckWritten(written - offset);
         }
 
-        public override string ToString( )
+        public override string ToString()
         {
-            BEncodedString added = (BEncodedString)peerDict[AddedKey];
-            int numPeers = added.TextBytes.Length / 6;
+            var added = (BEncodedString) _peerDict[AddedKey];
+            var numPeers = added.TextBytes.Length/6;
 
-            return String.Format( "PeerExchangeMessage: {0} peers", numPeers );
+            return String.Format("PeerExchangeMessage: {0} peers", numPeers);
         }
     }
 }

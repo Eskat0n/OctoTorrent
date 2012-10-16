@@ -1,37 +1,34 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MonoTorrent.Client.Messages
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public class MessageBundle : PeerMessage
     {
-        private List<PeerMessage> messages;
-
-        public List<PeerMessage> Messages
-        {
-            get { return messages; }
-        }
+        private readonly List<PeerMessage> _messages;
 
         public MessageBundle()
         {
-            messages = new List<PeerMessage>();
+            _messages = new List<PeerMessage>();
         }
 
         public MessageBundle(PeerMessage message)
             : this()
         {
-            messages.Add(message);
+            _messages.Add(message);
+        }
+
+        public List<PeerMessage> Messages
+        {
+            get { return _messages; }
         }
 
         public override int ByteLength
         {
             get
             {
-                int total = 0;
-                for (int i = 0; i < messages.Count; i++)
-                    total += messages[i].ByteLength;
-                return total;
+                return _messages.Sum(pm => pm.ByteLength);
             }
         }
 
@@ -42,10 +39,7 @@ namespace MonoTorrent.Client.Messages
 
         public override int Encode(byte[] buffer, int offset)
         {
-            int written = offset;
-            
-            for (int i = 0; i < messages.Count; i++)
-                written += messages[i].Encode(buffer, written);
+            var written = _messages.Aggregate(offset, (current, t) => current + t.Encode(buffer, current));
 
             return CheckWritten(written - offset);
         }

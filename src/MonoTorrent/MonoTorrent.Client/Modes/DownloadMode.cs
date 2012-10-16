@@ -1,25 +1,24 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.Common;
-
 namespace MonoTorrent.Client
 {
-    class DownloadMode : Mode
+    using System.Linq;
+    using Common;
+
+    internal class DownloadMode : Mode
     {
-        TorrentState state;
-		public override TorrentState State
-		{
-			get { return state; }
-		}
+        private TorrentState _state;
 
         public DownloadMode(TorrentManager manager)
             : base(manager)
         {
-            state = manager.Complete ? TorrentState.Seeding : TorrentState.Downloading;
+            _state = manager.Complete ? TorrentState.Seeding : TorrentState.Downloading;
         }
 
-        public override void HandlePeerConnected(PeerId id, MonoTorrent.Common.Direction direction)
+        public override TorrentState State
+        {
+            get { return _state; }
+        }
+
+        public override void HandlePeerConnected(PeerId id, Direction direction)
         {
             if (!ShouldConnect(id))
                 id.CloseConnection();
@@ -34,15 +33,17 @@ namespace MonoTorrent.Client
         public override void Tick(int counter)
         {
             //If download is complete, set state to 'Seeding'
-            if (Manager.Complete && state == TorrentState.Downloading)
+            if (Manager.Complete && _state == TorrentState.Downloading)
             {
-                state = TorrentState.Seeding;
-                Manager.RaiseTorrentStateChanged(new TorrentStateChangedEventArgs(Manager, TorrentState.Downloading, TorrentState.Seeding));
+                _state = TorrentState.Seeding;
+                Manager.RaiseTorrentStateChanged(new TorrentStateChangedEventArgs(Manager, TorrentState.Downloading,
+                                                                                  TorrentState.Seeding));
                 Manager.TrackerManager.Announce(TorrentEvent.Completed);
             }
-            for (int i = 0; i < Manager.Peers.ConnectedPeers.Count; i++)
-                if (!ShouldConnect(Manager.Peers.ConnectedPeers[i]))
-                    Manager.Peers.ConnectedPeers[i].CloseConnection();
+            var peersToClose = Manager.Peers.ConnectedPeers
+                .Where(peer => !ShouldConnect(peer));
+            foreach (var peer in peersToClose)
+                peer.CloseConnection();
             base.Tick(counter);
         }
     }

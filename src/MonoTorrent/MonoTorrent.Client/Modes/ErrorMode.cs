@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MonoTorrent.Common;
-
 namespace MonoTorrent.Client
 {
+    using System;
+    using Common;
+
     // In the error mode, we just disable all connections
     // Usually we enter this because the HD is full
     public enum Reason
@@ -12,37 +10,32 @@ namespace MonoTorrent.Client
         ReadFailure,
         WriteFailure
     }
+
     public class Error
     {
-        Exception exception;
-        Reason reason;
         public Error(Reason reason, Exception exception)
         {
-            this.reason = reason;
-            this.exception = exception;
+            Reason = reason;
+            Exception = exception;
         }
-        public Exception Exception
-        {
-            get { return exception; }
-        }
-        public Reason Reason
-        {
-            get { return reason; }
-        }
+
+        public Exception Exception { get; private set; }
+
+        public Reason Reason { get; private set; }
     }
 
-    class ErrorMode : Mode
+    internal class ErrorMode : Mode
     {
-        public override TorrentState State
-        {
-            get { return TorrentState.Error; }
-        }
-
         public ErrorMode(TorrentManager manager)
             : base(manager)
         {
             CanAcceptConnections = false;
             CloseConnections();
+        }
+
+        public override TorrentState State
+        {
+            get { return TorrentState.Error; }
         }
 
         public override void Tick(int counter)
@@ -51,9 +44,9 @@ namespace MonoTorrent.Client
             CloseConnections();
         }
 
-        void CloseConnections()
+        private void CloseConnections()
         {
-            foreach (PeerId peer in Manager.Peers.ConnectedPeers)
+            foreach (var peer in Manager.Peers.ConnectedPeers)
                 peer.CloseConnection();
         }
     }

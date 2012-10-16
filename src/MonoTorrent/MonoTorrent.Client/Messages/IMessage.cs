@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MonoTorrent.Client.Messages
 {
-    interface IMessage
+    internal interface IMessage
     {
-        int ByteLength { get;}
+        int ByteLength { get; }
 
         byte[] Encode();
         int Encode(byte[] buffer, int offset);
