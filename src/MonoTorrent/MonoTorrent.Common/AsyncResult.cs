@@ -26,77 +26,50 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-
 namespace MonoTorrent.Common
 {
+    using System;
+    using System.Threading;
+
     public class AsyncResult : IAsyncResult
     {
         #region Member Variables
 
-        private object asyncState;
-        private AsyncCallback callback;
-        private bool completedSyncronously;
-        private bool isCompleted;
-        private Exception savedException;
-        private ManualResetEvent waitHandle;
+        private readonly AsyncCallback _callback;
 
         #endregion Member Variables
 
-
         #region Properties
 
-        public object AsyncState
-        {
-            get { return asyncState; }
-        }
-
-        WaitHandle IAsyncResult.AsyncWaitHandle
-        {
-            get { return waitHandle; }
-        }
-
-        protected internal ManualResetEvent AsyncWaitHandle
-        {
-            get { return waitHandle; }
-        }
+        protected internal ManualResetEvent AsyncWaitHandle { get; private set; }
 
         internal AsyncCallback Callback
         {
-            get { return callback; }
+            get { return _callback; }
         }
 
-        public bool CompletedSynchronously
+        protected internal Exception SavedException { get; set; }
+
+        public object AsyncState { get; private set; }
+
+        WaitHandle IAsyncResult.AsyncWaitHandle
         {
-            get { return completedSyncronously; }
-            protected internal set { completedSyncronously = value; }
+            get { return AsyncWaitHandle; }
         }
 
-        public bool IsCompleted
-        {
-            get { return isCompleted; }
-            protected internal set { isCompleted = value; }
-        }
+        public bool CompletedSynchronously { get; private set; }
 
-        protected internal Exception SavedException
-        {
-            get { return this.savedException; }
-            set { this.savedException = value; }
-        }
+        public bool IsCompleted { get; private set; }
 
         #endregion Properties
-
 
         #region Constructors
 
         public AsyncResult(AsyncCallback callback, object asyncState)
         {
-            this.asyncState = asyncState;
-            this.callback = callback;
-            this.waitHandle = new ManualResetEvent(false);
+            AsyncState = asyncState;
+            _callback = callback;
+            AsyncWaitHandle = new ManualResetEvent(false);
         }
 
         #endregion Constructors
@@ -105,23 +78,24 @@ namespace MonoTorrent.Common
 
         protected internal void Complete()
         {
-            Complete(savedException);
+            Complete(SavedException);
         }
+
         protected internal void Complete(Exception ex)
         {
             // Ensure we only complete once - Needed because in encryption there could be
             // both a pending send and pending receive so if there is an error, both will
             // attempt to complete the encryption handshake meaning this is called twice.
-            if (isCompleted)
+            if (IsCompleted)
                 return;
 
-            savedException = ex;
-            completedSyncronously = false;
-            isCompleted = true;
-            waitHandle.Set();
+            SavedException = ex;
+            CompletedSynchronously = false;
+            IsCompleted = true;
+            AsyncWaitHandle.Set();
 
-            if (callback != null)
-                callback(this);
+            if (_callback != null)
+                _callback(this);
         }
 
         #endregion Methods
