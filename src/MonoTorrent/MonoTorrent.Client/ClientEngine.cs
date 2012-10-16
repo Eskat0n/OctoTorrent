@@ -31,9 +31,11 @@ namespace MonoTorrent.Client
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.IO;
     using System.Linq;
     using System.Net;
     using System.Text;
+    using BEncoding;
     using Common;
     using PieceWriters;
 
@@ -51,17 +53,17 @@ namespace MonoTorrent.Client
         // To support this I need to ensure that the transition from
         // InitialSeeding -> Regular seeding either closes all existing
         // connections or sends HaveAll messages, or sends HaveMessages.
-        public static readonly bool SupportsInitialSeed = true;
-        public static readonly bool SupportsLocalPeerDiscovery = true;
-        public static readonly bool SupportsWebSeed = true;
-        public static readonly bool SupportsExtended = true;
-        public static readonly bool SupportsFastPeer = true;
-        public static readonly bool SupportsEncryption = true;
-        public static readonly bool SupportsEndgameMode = true;
+        public const bool SupportsInitialSeed = true;
+        public const bool SupportsLocalPeerDiscovery = true;
+        public const bool SupportsWebSeed = true;
+        public const bool SupportsExtended = true;
+        public const bool SupportsFastPeer = true;
+        public const bool SupportsEncryption = true;
+        public const bool SupportsEndgameMode = true;
 #if !DISABLE_DHT
-        public static readonly bool SupportsDht = true;
-#else
-        public static readonly bool SupportsDht = false;
+        public const bool SupportsDht = true;
+#else          
+        public const bool SupportsDht = false;
 #endif
         internal const int TickLength = 500; // A logic tick will be performed every TickLength miliseconds
 
@@ -100,6 +102,7 @@ namespace MonoTorrent.Client
         private readonly ReadOnlyCollection<TorrentManager> torrentsReadonly;
         private RateLimiterGroup uploadLimiter;
         private RateLimiterGroup downloadLimiter;
+        private readonly IEnumerable<FastResume> _fastResume;
 
         #endregion
 
@@ -193,11 +196,20 @@ namespace MonoTorrent.Client
             this.listener = listener;
             this.settings = settings;
 
+            if (settings.FastResumePath != null && File.Exists(settings.FastResumePath))
+            {
+                var encodedListData = File.ReadAllBytes(settings.FastResumePath);
+                var encodedList = (BEncodedList) BEncodedValue.Decode(encodedListData);
+
+                _fastResume = encodedList.Cast<BEncodedDictionary>()
+                    .Select(x => new FastResume(x));
+            }
+
             connectionManager = new ConnectionManager(this);
             RegisterDht(new NullDhtEngine());
             diskManager = new DiskManager(this, writer);
             listenManager = new ListenManager(this);
-            MainLoop.QueueTimeout(TimeSpan.FromMilliseconds(TickLength), delegate
+            MainLoop.QueueTimeout(TimeSpan.FromMilliseconds(TickLength), () =>
                                                                              {
                                                                                  if (IsRunning && !disposed)
                                                                                      LogicTick();
@@ -229,7 +241,7 @@ namespace MonoTorrent.Client
             downloadLimiter.Add(new DiskWriterLimiter(DiskManager));
             uploadLimiter.Add(uploader);
 
-            MainLoop.QueueTimeout(TimeSpan.FromSeconds(1), delegate
+            MainLoop.QueueTimeout(TimeSpan.FromSeconds(1), () =>
                                                                {
                                                                    downloader.UpdateChunks(
                                                                        Settings.GlobalMaxDownloadSpeed,
@@ -264,7 +276,7 @@ namespace MonoTorrent.Client
             if (infoHash == null)
                 return false;
 
-            return torrents.Exists(delegate(TorrentManager m) { return m.InfoHash.Equals(infoHash); });
+            return torrents.Exists(m => m.InfoHash.Equals(infoHash));
         }
 
         public bool Contains(Torrent torrent)
@@ -291,8 +303,8 @@ namespace MonoTorrent.Client
                 return;
 
             disposed = true;
-            MainLoop.QueueWait(delegate
-                                   {
+            MainLoop.QueueWait(() =>
+                                   {                                      
                                        dhtEngine.Dispose();
                                        diskManager.Dispose();
                                        listenManager.Dispose();
@@ -316,11 +328,23 @@ namespace MonoTorrent.Client
         public void PauseAll()
         {
             CheckDisposed();
-            MainLoop.QueueWait(delegate
+            MainLoop.QueueWait(() =>
                                    {
                                        foreach (var manager in torrents)
                                            manager.Pause();
                                    });
+        }
+
+        public void SaveFastResume()
+        {
+            if (string.IsNullOrWhiteSpace(settings.FastResumePath)) 
+                return;
+
+            var encodedList = new BEncodedList();
+            foreach (var data in torrentsReadonly.Select(tm => tm.SaveFastResume().Encode()))
+                encodedList.Add(data);
+
+            File.WriteAllBytes(settings.FastResumePath, encodedList.Encode());
         }
 
         public void Register(TorrentManager manager)
@@ -328,7 +352,7 @@ namespace MonoTorrent.Client
             CheckDisposed();
             Check.Manager(manager);
 
-            MainLoop.QueueWait(delegate
+            MainLoop.QueueWait(() =>
                                    {
                                        if (manager.Engine != null)
                                            throw new TorrentException("This manager has already been registered");
@@ -337,10 +361,20 @@ namespace MonoTorrent.Client
                                            throw new TorrentException(
                                                "A manager for this torrent has already been registered");
                                        torrents.Add(manager);
+
                                        manager.PieceHashed += PieceHashed;
                                        manager.Engine = this;
                                        manager.DownloadLimiter.Add(downloadLimiter);
                                        manager.UploadLimiter.Add(uploadLimiter);
+
+                                       if (_fastResume != null)
+                                       {
+                                           var fastResume = _fastResume
+                                               .SingleOrDefault(fr => manager.InfoHash == fr.Infohash);
+                                           if (fastResume != null)
+                                               manager.LoadFastResume(fastResume);
+                                       }
+
                                        if (dhtEngine != null && manager.Torrent != null && manager.Torrent.Nodes != null &&
                                            dhtEngine.State != DhtState.Ready)
                                        {
@@ -361,7 +395,7 @@ namespace MonoTorrent.Client
 
         public void RegisterDht(IDhtEngine engine)
         {
-            MainLoop.QueueWait(delegate
+            MainLoop.QueueWait(() =>
                                    {
                                        if (dhtEngine != null)
                                        {
@@ -426,7 +460,7 @@ namespace MonoTorrent.Client
             CheckDisposed();
             Check.Manager(manager);
 
-            MainLoop.QueueWait(delegate
+            MainLoop.QueueWait(() =>
                                    {
                                        if (manager.Engine != this)
                                            throw new TorrentException(

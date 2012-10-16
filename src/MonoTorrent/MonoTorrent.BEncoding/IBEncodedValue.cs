@@ -70,19 +70,13 @@ namespace MonoTorrent.BEncoding
         ///   Interface for all BEncoded values
         /// </summary>
         /// <param name="data"> The byte array containing the BEncoded data </param>
-        /// <returns> </returns>
         public static BEncodedValue Decode(byte[] data)
         {
             if (data == null)
                 throw new ArgumentNullException("data");
 
             using (var stream = new RawReader(new MemoryStream(data)))
-                return (Decode(stream));
-        }
-
-        internal static BEncodedValue Decode(byte[] buffer, bool strictDecoding)
-        {
-            return Decode(buffer, 0, buffer.Length, strictDecoding);
+                return Decode(stream);
         }
 
         /// <summary>
