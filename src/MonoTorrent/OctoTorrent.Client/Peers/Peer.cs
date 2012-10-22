@@ -42,14 +42,9 @@ namespace OctoTorrent.Client
 
         private int _cleanedUpCount;
         private readonly Uri _connectionUri;
-        private EncryptionTypes _encryption;
-        private int _failedConnectionAttempts;
         private int _localPort;
         private int _totalHashFails;
-        private bool _isSeeder;
-        private string _peerId;
         private int _repeatedHashFails;
-        private DateTime _lastConnectionAttempt;
 
         #endregion Private Fields
 
@@ -66,45 +61,25 @@ namespace OctoTorrent.Client
             set { _cleanedUpCount = value; }
         }
 
-        public EncryptionTypes Encryption
-        {
-            get { return _encryption; }
-            set { _encryption = value; }
-        }
+        public EncryptionTypes Encryption { get; internal set; }
 
         internal int TotalHashFails
         {
-            get { return this._totalHashFails; }
+            get { return _totalHashFails; }
         }
 
-        internal string PeerId
-        {
-            get { return _peerId; }
-            set { _peerId = value; }
-        }
+        public string PeerId { get; internal set; }
 
-        internal bool IsSeeder
-        {
-            get { return this._isSeeder; }
-            set { this._isSeeder = value; }
-        }
+        public bool IsSeeder { get; internal set; }
 
-        internal int FailedConnectionAttempts
-        {
-            get { return this._failedConnectionAttempts; }
-            set { this._failedConnectionAttempts = value; }
-        }
+        public int FailedConnectionAttempts { get; internal set; }
+
+        public DateTime LastConnectionAttempt { get; internal set; }
 
         internal int LocalPort
         {
             get { return _localPort; }
             set { _localPort = value; }
-        }
-
-        internal DateTime LastConnectionAttempt
-        {
-            get { return this._lastConnectionAttempt; }
-            set { this._lastConnectionAttempt = value; }
         }
 
         internal int RepeatedHashFails
@@ -129,8 +104,8 @@ namespace OctoTorrent.Client
                 throw new ArgumentNullException("connectionUri");
 
             this._connectionUri = connectionUri;
-            this._encryption = encryption;
-            this._peerId = peerId;
+            this.Encryption = encryption;
+            this.PeerId = peerId;
         }
 
         #endregion
@@ -146,10 +121,10 @@ namespace OctoTorrent.Client
                 return false;
 
             // FIXME: Don't compare the port, just compare the IP
-            if (string.IsNullOrEmpty(_peerId) && string.IsNullOrEmpty(other._peerId))
+            if (string.IsNullOrEmpty(PeerId) && string.IsNullOrEmpty(other.PeerId))
                 return _connectionUri.Host.Equals(other._connectionUri.Host);
 
-            return _peerId == other._peerId;
+            return PeerId == other.PeerId;
         }
 
         public override int GetHashCode()
