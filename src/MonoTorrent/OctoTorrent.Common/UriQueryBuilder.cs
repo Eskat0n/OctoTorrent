@@ -54,11 +54,11 @@ namespace OctoTorrent.Common {
             set { queryParams [key] = value; }
         }
 
-        public UriQueryBuilder (Uri uri)
+        public UriQueryBuilder(Uri uri)
         {
-            builder = new System.UriBuilder (uri);
-            queryParams = new Dictionary<string, string> (StringComparer.OrdinalIgnoreCase);
-            ParseParameters ();
+            builder = new UriBuilder(uri);
+            queryParams = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            ParseParameters();
         }
 
         public UriQueryBuilder Add (string key, object value)
@@ -81,8 +81,9 @@ namespace OctoTorrent.Common {
                 return;
 
             string [] strs = builder.Query.Remove (0, 1).Split ('&');
-            for (int i = 0; i < strs.Length; i++) {
-                string [] kv = strs [i].Split ('=');
+            foreach (string str in strs)
+            {
+                string [] kv = str.Split ('=');
                 if (kv.Length == 2)
                     queryParams.Add (kv [0].Trim (), kv [1].Trim ());
             }

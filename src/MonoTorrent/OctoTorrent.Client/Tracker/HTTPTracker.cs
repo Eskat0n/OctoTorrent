@@ -27,55 +27,47 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using OctoTorrent.BEncoding;
-using System.Threading;
-using System.Text.RegularExpressions;
-using System.Net;
-using System.Web;
-using OctoTorrent.Common;
-using System.IO;
-
 namespace OctoTorrent.Client.Tracker
 {
+    using System;
+    using System.Collections.Generic;
+    using BEncoding;
+    using System.Text.RegularExpressions;
+    using System.Net;
+    using Common;
+    using System.IO;
+
     public class HTTPTracker : Tracker
     {
-        static Random random = new Random();
-        static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(10);
+        private static readonly Random Random = new Random();
+        private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(10);
 
-        Uri scrapeUrl;
-        string key;
-        string TrackerId;
+        private readonly Uri _scrapeUrl;
+        private string _trackerId;
 
-        public string Key
-        {
-            get { return key; }
-            private set { key = value; }
-        }
+        public string Key { get; private set; }
 
         public Uri ScrapeUri
         {
-            get { return scrapeUrl; }
+            get { return _scrapeUrl; }
         }
 
         public HTTPTracker(Uri announceUrl)
             : base(announceUrl)
         {
             CanAnnounce = true;
-            int index = announceUrl.OriginalString.LastIndexOf('/');
-            string part = (index + 9 <= announceUrl.OriginalString.Length) ? announceUrl.OriginalString.Substring(index + 1, 8) : "";
+            var index = announceUrl.OriginalString.LastIndexOf('/');
+            var part = (index + 9 <= announceUrl.OriginalString.Length) ? announceUrl.OriginalString.Substring(index + 1, 8) : "";
             if (part.Equals("announce", StringComparison.OrdinalIgnoreCase))
             {
                 CanScrape = true;
-                Regex r = new Regex("announce");
-                this.scrapeUrl = new Uri(r.Replace(announceUrl.OriginalString, "scrape", 1, index));
+                var r = new Regex("announce");
+                _scrapeUrl = new Uri(r.Replace(announceUrl.OriginalString, "scrape", 1, index));
             }
 
-            byte[] passwordKey = new byte[8];
-            lock (random)
-                random.NextBytes(passwordKey);
+            var passwordKey = new byte[8];
+            lock (Random)
+                Random.NextBytes(passwordKey);
             Key = UriHelper.UrlEncode(passwordKey);
         }
 
@@ -83,12 +75,12 @@ namespace OctoTorrent.Client.Tracker
         {
             try
             {
-                Uri announceString = CreateAnnounceString(parameters);
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(announceString);
+                var announceString = CreateAnnounceString(parameters);
+                var request = (HttpWebRequest) WebRequest.Create(announceString);
                 request.UserAgent = VersionInfo.ClientVersion;
                 request.Proxy = new WebProxy();   // If i don't do this, i can't run the webrequest. It's wierd.
                 RaiseBeforeAnnounce();
-                BeginRequest(request, AnnounceReceived, new object[] { request, state });
+                BeginRequest(request, AnnounceReceived, new[] { request, state });
             }
             catch (Exception ex)
             {
@@ -98,28 +90,28 @@ namespace OctoTorrent.Client.Tracker
             }
         }
 
-        void BeginRequest(WebRequest request, AsyncCallback callback, object state)
+        private void BeginRequest(WebRequest request, AsyncCallback callback, object state)
         {
-            IAsyncResult result = request.BeginGetResponse(callback, state);
-            ClientEngine.MainLoop.QueueTimeout(RequestTimeout, delegate
-            {
-                if (!result.IsCompleted)
-                    request.Abort();
-                return false;
-            });
+            var result = request.BeginGetResponse(callback, state);
+            ClientEngine.MainLoop.QueueTimeout(RequestTimeout, () =>
+                                                                   {
+                                                                       if (!result.IsCompleted)
+                                                                           request.Abort();
+                                                                       return false;
+                                                                   });
         }
 
         void AnnounceReceived(IAsyncResult result)
         {
-            FailureMessage = "";
-            WarningMessage = "";
-            object[] stateOb = (object[])result.AsyncState;
-            WebRequest request = (WebRequest)stateOb[0];
-            object state = stateOb[1];
-            List<Peer> peers = new List<Peer>();
+            FailureMessage = string.Empty;
+            WarningMessage = string.Empty;
+            var stateOb = (object[])result.AsyncState;
+            var request = (WebRequest)stateOb[0];
+            var state = stateOb[1];
+            var peers = new List<Peer>();
             try
             {
-                BEncodedDictionary dict = DecodeResponse(request, result);
+                var dict = DecodeResponse(request, result);
                 HandleAnnounce(dict, peers);
                 Status = TrackerState.Ok;
             }
@@ -139,26 +131,26 @@ namespace OctoTorrent.Client.Tracker
             }
         }
 
-        Uri CreateAnnounceString (AnnounceParameters parameters)
+        private Uri CreateAnnounceString(AnnounceParameters parameters)
         {
-            UriQueryBuilder b = new UriQueryBuilder (Uri);
-            b.Add ("info_hash", parameters.InfoHash.UrlEncode ())
-             .Add ("peer_id", parameters.PeerId)
-             .Add ("port", parameters.Port)
-             .Add ("uploaded", parameters.BytesUploaded)
-             .Add ("downloaded", parameters.BytesDownloaded)
-             .Add ("left", parameters.BytesLeft)
-             .Add ("compact", 1)
-             .Add ("numwant", 100);
+            var builder = new UriQueryBuilder(Uri);
+            builder.Add("info_hash", parameters.InfoHash.UrlEncode())
+                .Add("peer_id", parameters.PeerId)
+                .Add("port", parameters.Port)
+                .Add("uploaded", parameters.BytesUploaded)
+                .Add("downloaded", parameters.BytesDownloaded)
+                .Add("left", parameters.BytesLeft)
+                .Add("compact", 1)
+                .Add("numwant", 100);
 
             if (parameters.SupportsEncryption)
-                b.Add ("supportcrypto", 1);
+                builder.Add("supportcrypto", 1);
             if (parameters.RequireEncryption)
-                b.Add ("requirecrypto", 1);
-            if (!b.Contains ("key"))
-                b.Add ("key", Key);
-            if (!string.IsNullOrEmpty (parameters.Ipaddress))
-                b.Add ("ip", parameters.Ipaddress);
+                builder.Add("requirecrypto", 1);
+            if (!builder.Contains("key"))
+                builder.Add("key", Key);
+            if (!string.IsNullOrEmpty(parameters.Ipaddress))
+                builder.Add("ip", parameters.Ipaddress);
 
             // If we have not successfully sent the started event to this tier, override the passed in started event
             // Otherwise append the event if it is not "none"
@@ -168,27 +160,26 @@ namespace OctoTorrent.Client.Tracker
             //    parameters.Id.Tracker.Tier.SendingStartedEvent = true;
             //}
             if (parameters.ClientEvent != TorrentEvent.None)
-                b.Add ("event", parameters.ClientEvent.ToString ().ToLower ());
+                builder.Add("event", parameters.ClientEvent.ToString().ToLower());
 
-            if (!string.IsNullOrEmpty (TrackerId))
-                b.Add ("trackerid", TrackerId);
+            if (!string.IsNullOrEmpty(_trackerId))
+                builder.Add("trackerid", _trackerId);
 
-            return b.ToUri ();
+            return builder.ToUri();
         }
 
-        BEncodedDictionary DecodeResponse(WebRequest request, IAsyncResult result)
+        private BEncodedDictionary DecodeResponse(WebRequest request, IAsyncResult result)
         {
-            int bytesRead = 0;
-            int totalRead = 0;
-            byte[] buffer = new byte[2048];
+            var totalRead = 0;
+            var buffer = new byte[2048];
 
-            WebResponse response = request.EndGetResponse(result);
-            using (MemoryStream dataStream = new MemoryStream(response.ContentLength > 0 ? (int)response.ContentLength : 256))
+            var response = request.EndGetResponse(result);
+            using (var dataStream = new MemoryStream(response.ContentLength > 0 ? (int)response.ContentLength : 256))
             {
-
-                using (BinaryReader reader = new BinaryReader(response.GetResponseStream()))
+                using (var reader = new BinaryReader(response.GetResponseStream()))
                 {
                     // If there is a ContentLength, use that to decide how much we read.
+                    int bytesRead;
                     if (response.ContentLength > 0)
                     {
                         while (totalRead < response.ContentLength)
@@ -198,9 +189,6 @@ namespace OctoTorrent.Client.Tracker
                             totalRead += bytesRead;
                         }
                     }
-
-
-
                     else    // A compact response doesn't always have a content length, so we
                     {       // just have to keep reading until we think we have everything.
                         while ((bytesRead = reader.Read(buffer, 0, buffer.Length)) > 0)
@@ -215,12 +203,10 @@ namespace OctoTorrent.Client.Tracker
 
         public override bool Equals(object obj)
         {
-            HTTPTracker tracker = obj as HTTPTracker;
-            if (tracker == null)
-                return false;
+            var tracker = obj as HTTPTracker;
+            return tracker != null && (Uri.Equals(tracker.Uri));
 
             // If the announce URL matches, then CanScrape and the scrape URL must match too
-            return (Uri.Equals(tracker.Uri));
         }
 
         public override int GetHashCode()
@@ -230,7 +216,7 @@ namespace OctoTorrent.Client.Tracker
 
         void HandleAnnounce(BEncodedDictionary dict, List<Peer> peers)
         {
-            foreach (KeyValuePair<BEncodedString, BEncodedValue> keypair in dict)
+            foreach (var keypair in dict)
             {
                 switch (keypair.Key.Text)
                 {
@@ -247,7 +233,7 @@ namespace OctoTorrent.Client.Tracker
                         break;
 
                     case ("tracker id"):
-                        TrackerId = keypair.Value.ToString();
+                        _trackerId = keypair.Value.ToString();
                         break;
 
                     case ("min interval"):
@@ -284,7 +270,7 @@ namespace OctoTorrent.Client.Tracker
         {
             try
             {
-                string url = scrapeUrl.OriginalString;
+                var url = _scrapeUrl.OriginalString;
 
                 // If you want to scrape the tracker for *all* torrents, don't append the info_hash.
                 if (url.IndexOf('?') == -1)
@@ -292,7 +278,7 @@ namespace OctoTorrent.Client.Tracker
                 else
                     url += "&info_hash=" + parameters.InfoHash.UrlEncode ();
 
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                var request = (HttpWebRequest)WebRequest.Create(url);
                 request.UserAgent = VersionInfo.ClientVersion;
                 BeginRequest(request, ScrapeReceived, new[] { request, state });
             }
@@ -304,15 +290,14 @@ namespace OctoTorrent.Client.Tracker
 
         void ScrapeReceived(IAsyncResult result)
         {
-            var message = "";
+            var message = string.Empty;
             var stateOb = (object[])result.AsyncState;
             var request = (WebRequest)stateOb[0];
             var state = stateOb[1];
 
             try
             {
-                BEncodedDictionary d;
-                BEncodedDictionary dict = DecodeResponse(request, result);
+                var dict = DecodeResponse(request, result);
 
                 // FIXME: Log the failure?
                 if (!dict.ContainsKey("files"))
@@ -320,11 +305,11 @@ namespace OctoTorrent.Client.Tracker
                     message = "Response contained no data";
                     return;
                 }
-                BEncodedDictionary files = (BEncodedDictionary)dict["files"];
-                foreach (KeyValuePair<BEncodedString, BEncodedValue> keypair in files)
+                var files = (BEncodedDictionary)dict["files"];
+                foreach (var keypair in files)
                 {
-                    d = (BEncodedDictionary)keypair.Value;
-                    foreach (KeyValuePair<BEncodedString, BEncodedValue> kp in d)
+                    var d = (BEncodedDictionary) keypair.Value;
+                    foreach (var kp in d)
                     {
                         switch (kp.Key.ToString())
                         {

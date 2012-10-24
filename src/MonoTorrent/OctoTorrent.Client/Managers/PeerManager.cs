@@ -57,7 +57,7 @@ namespace OctoTorrent.Client
 
         #region Methods
 
-        internal IEnumerable<Peer> AllPeers()
+        public IEnumerable<Peer> AllPeers()
         {
             foreach (var peer in AvailablePeers)
                 yield return peer;
