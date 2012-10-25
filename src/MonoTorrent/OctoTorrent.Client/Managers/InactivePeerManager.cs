@@ -57,7 +57,7 @@ namespace OctoTorrent.Client
                 return;
 
             // If there are no available peers, there's nothing for us to do
-            if (_owningTorrent.Peers.Available < 0)
+            if (_owningTorrent.Peers.AvailableCount < 0)
                 return;
 
             // Look for a peer that has not given us any data and that is eligible for being marked inactive
@@ -105,7 +105,7 @@ namespace OctoTorrent.Client
                     if (indexOfFirstInterestingCandidate < 0
                         && _owningTorrent.Settings.ConnectionRetentionFactor > 0
                         && nextPeer.Monitor.DataBytesDownloaded > 0
-                        && _owningTorrent.Peers.Available >= _owningTorrent.Settings.MaxConnections)
+                        && _owningTorrent.Peers.AvailableCount >= _owningTorrent.Settings.MaxConnections)
                     {
                         // Calculate an inactive time.
                         // Base time is time since the last message (in seconds)

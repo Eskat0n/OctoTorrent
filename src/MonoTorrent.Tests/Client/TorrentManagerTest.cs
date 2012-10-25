@@ -73,9 +73,9 @@ namespace OctoTorrent.Client
         {
             rig.Engine.Unregister(rig.Manager);
             rig.Tracker.AddPeer(new Peer("", new Uri("tcp://myCustomTcpSocket")));
-            Assert.AreEqual(0, rig.Manager.Peers.Available, "#1");
+            Assert.AreEqual(0, rig.Manager.Peers.AvailableCount, "#1");
             rig.Tracker.AddFailedPeer(new Peer("", new Uri("tcp://myCustomTcpSocket")));
-            Assert.AreEqual(0, rig.Manager.Peers.Available, "#2");
+            Assert.AreEqual(0, rig.Manager.Peers.AvailableCount, "#2");
         }
 
         [Test]

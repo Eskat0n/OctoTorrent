@@ -183,7 +183,7 @@ namespace OctoTorrent.Client
                 return;
 
             // If we already have lots of peers, don't process the messages anymore.
-            if ((Manager.Peers.Available + Manager.OpenConnections) >= _manager.Settings.MaxConnections)
+            if ((Manager.Peers.AvailableCount + Manager.OpenConnections) >= _manager.Settings.MaxConnections)
                 return;
 
             IList<Peer> peers = Peer.Decode(message.Added);
