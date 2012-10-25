@@ -42,7 +42,7 @@ namespace OctoTorrent.Client
             : base(manager)
         {
             _unchoker = new InitialSeedUnchoker(manager);
-            manager.chokeUnchoker = _unchoker;
+            manager.ChokeUnchoker = _unchoker;
             _zero = new BitField(manager.Bitfield.Length);
         }
 

@@ -48,7 +48,7 @@ namespace OctoTorrent.Client
         {
             CanAcceptConnections = true;
             _manager = manager;
-            manager.chokeUnchoker = new ChokeUnchokeManager(manager, manager.Settings.MinimumTimeBetweenReviews,
+            manager.ChokeUnchoker = new ChokeUnchokeManager(manager, manager.Settings.MinimumTimeBetweenReviews,
                                                             manager.Settings.PercentOfMaxRateToSkipReview);
         }
 
@@ -463,7 +463,7 @@ namespace OctoTorrent.Client
                 _manager.UpdateLimiters();
             }
 
-            if (_manager.finishedPieces.Count > 0)
+            if (_manager.FinishedPieces.Count > 0)
                 SendHaveMessagesToAll();
 
             foreach (var peerId in _manager.Peers.ConnectedPeers)
@@ -568,27 +568,27 @@ namespace OctoTorrent.Client
 
             // Remove inactive peers we haven't heard from if we're downloading
             if (_manager.State == TorrentState.Downloading &&
-                _manager.lastCalledInactivePeerManager + TimeSpan.FromSeconds(5) < DateTime.Now)
+                _manager.LastCalledInactivePeerManager + TimeSpan.FromSeconds(5) < DateTime.Now)
             {
                 _manager.InactivePeerManager.TimePassed();
-                _manager.lastCalledInactivePeerManager = DateTime.Now;
+                _manager.LastCalledInactivePeerManager = DateTime.Now;
             }
 
             // Now choke/unchoke peers; first instantiate the choke/unchoke manager if we haven't done so already
-            if (_manager.chokeUnchoker == null)
-                _manager.chokeUnchoker = new ChokeUnchokeManager(_manager, _manager.Settings.MinimumTimeBetweenReviews,
+            if (_manager.ChokeUnchoker == null)
+                _manager.ChokeUnchoker = new ChokeUnchokeManager(_manager, _manager.Settings.MinimumTimeBetweenReviews,
                                                                 _manager.Settings.PercentOfMaxRateToSkipReview);
-            _manager.chokeUnchoker.UnchokeReview();
+            _manager.ChokeUnchoker.UnchokeReview();
         }
 
         private void SeedingLogic(int counter)
         {
             //Choke/unchoke peers; first instantiate the choke/unchoke manager if we haven't done so already
-            if (_manager.chokeUnchoker == null)
-                _manager.chokeUnchoker = new ChokeUnchokeManager(_manager, _manager.Settings.MinimumTimeBetweenReviews,
+            if (_manager.ChokeUnchoker == null)
+                _manager.ChokeUnchoker = new ChokeUnchokeManager(_manager, _manager.Settings.MinimumTimeBetweenReviews,
                                                                 _manager.Settings.PercentOfMaxRateToSkipReview);
 
-            _manager.chokeUnchoker.UnchokeReview();
+            _manager.ChokeUnchoker.UnchokeReview();
         }
 
         protected virtual void SetAmInterestedStatus(PeerId id, bool interesting)
@@ -617,7 +617,7 @@ namespace OctoTorrent.Client
 
                 var bundle = new MessageBundle();
 
-                foreach (var pieceIndex in _manager.finishedPieces)
+                foreach (var pieceIndex in _manager.FinishedPieces)
                 {
                     // If the peer has the piece already, we need to recalculate his "interesting" status.
                     var hasPiece = peerId.BitField[pieceIndex];
@@ -634,7 +634,7 @@ namespace OctoTorrent.Client
 
                 peerId.Enqueue(bundle);
             }
-            _manager.finishedPieces.Clear();
+            _manager.FinishedPieces.Clear();
         }
     }
 }

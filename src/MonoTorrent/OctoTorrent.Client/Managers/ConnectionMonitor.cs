@@ -86,7 +86,7 @@ namespace OctoTorrent.Client
         {
         }
 
-        internal ConnectionMonitor(int averagingPeriod)
+        private ConnectionMonitor(int averagingPeriod)
         {
             _dataDown = new SpeedMonitor(averagingPeriod);
             _dataUp = new SpeedMonitor(averagingPeriod);

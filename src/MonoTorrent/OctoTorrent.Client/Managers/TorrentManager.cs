@@ -26,25 +26,15 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Net;
-using OctoTorrent.Common;
-using System.Threading;
-using System.IO;
-using System.Diagnostics;
-using OctoTorrent.BEncoding;
-using OctoTorrent.Client.Tracker;
-using OctoTorrent.Client.Messages;
-using OctoTorrent.Client.Messages.Standard;
-using OctoTorrent.Client.Connections;
-using OctoTorrent.Client.Encryption;
-
 namespace OctoTorrent.Client
 {
+    using System;
+    using System.Collections.Generic;    
+    using System.Threading;
+    using System.IO;
+    using Common;
+    using Tracker;
+
     public class TorrentManager : IDisposable, IEquatable<TorrentManager>
     {
         #region Events
@@ -65,84 +55,83 @@ namespace OctoTorrent.Client
 
         #endregion
 
-
         #region Member Variables
 
-        private BitField bitfield;              // The bitfield representing the pieces we've downloaded and have to download
-        private bool disposed;
-        private ClientEngine engine;            // The engine that this torrent is registered with
-        private Error error;
-        internal Queue<int> finishedPieces;     // The list of pieces which we should send "have" messages for
-        private bool hashChecked;               // True if the manager has been hash checked
-        private int hashFails;                  // The total number of pieces receieved which failed the hashcheck
-        private InfoHash infohash;
-		internal bool isInEndGame = false;       // Set true when the torrent enters end game processing
-        private Mode mode;
-        private ConnectionMonitor monitor;      // Calculates download/upload speed
-        private PeerManager peers;              // Stores all the peers we know of in a list
-        private PieceManager pieceManager;      // Tracks all the piece requests we've made and decides what pieces we can request off each peer
-        private string savePath;
-        private RateLimiterGroup uploadLimiter;     // Contains the logic to decide how many chunks we can download
-        private RateLimiterGroup downloadLimiter;   // Contains the logic to decide how many chunks we can download
-        private TorrentSettings settings;       // The settings for this torrent
-        private DateTime startTime;             // The time at which the torrent was started at.
-        private Torrent torrent;                // All the information from the physical torrent that was loaded
-        private string torrentSave;             // The path where the .torrent data will be saved when in metadata mode
-        private TrackerManager trackerManager;  // The class used to control all access to the tracker
-        private int uploadingTo;                // The number of peers which we're currently uploading to
-        internal IUnchoker chokeUnchoker; // Used to choke and unchoke peers
-		private InactivePeerManager inactivePeerManager; // Used to identify inactive peers we don't want to connect to
-		internal DateTime lastCalledInactivePeerManager = DateTime.Now;
+        internal Queue<int> FinishedPieces;         // The list of pieces which we should send "have" messages for
+        internal IUnchoker ChokeUnchoker;           // Used to choke and unchoke peers
+        internal DateTime LastCalledInactivePeerManager = DateTime.Now;
+
+        private BitField _bitfield;              // The bitfield representing the pieces we've downloaded and have to download
+        private bool _disposed;
+        private ClientEngine _engine;            // The engine that this torrent is registered with
+        private Error _error;
+        private bool _hashChecked;               // True if the manager has been hash checked
+        private int _hashFails;                  // The total number of pieces receieved which failed the hashcheck
+        private readonly InfoHash _infohash;
+        internal bool isInEndGame;               // Set true when the torrent enters end game processing
+        private Mode _mode;
+        private ConnectionMonitor _monitor;      // Calculates download/upload speed
+        private PeerManager _peers;               // Stores all the peers we know of in a list
+        private PieceManager _pieceManager;       // Tracks all the piece requests we've made and decides what pieces we can request off each peer
+        private string _savePath;
+        private RateLimiterGroup _uploadLimiter;     // Contains the logic to decide how many chunks we can download
+        private RateLimiterGroup _downloadLimiter;   // Contains the logic to decide how many chunks we can download
+        private readonly TorrentSettings _settings;       // The settings for this torrent
+        private DateTime _startTime;             // The time at which the torrent was started at.
+        private Torrent _torrent;                // All the information from the physical torrent that was loaded
+        private readonly string _torrentSave;             // The path where the .torrent data will be saved when in metadata mode
+        private TrackerManager _trackerManager;  // The class used to control all access to the tracker
+        private int _uploadingTo;                // The number of peers which we're currently uploading to
+        private InactivePeerManager _inactivePeerManager; // Used to identify inactive peers we don't want to connect to
 #if !DISABLE_DHT	
-		private bool dhtInitialised;
+		private bool _dhtInitialised;
 #endif		
         #endregion Member Variables
-
 
         #region Properties
 
         public BitField Bitfield
         {
-            get { return this.bitfield; }
-            internal set { bitfield = value; }
+            get { return _bitfield; }
+            internal set { _bitfield = value; }
         }
 
         public bool CanUseDht
         {
-            get { return settings.UseDht && (torrent == null || !torrent.IsPrivate); }
+            get { return _settings.UseDht && (_torrent == null || !_torrent.IsPrivate); }
         }
 
         public bool Complete
         {
-            get { return this.bitfield.AllTrue; }
+            get { return _bitfield.AllTrue; }
         }
 
         internal RateLimiterGroup DownloadLimiter
         {
-            get { return downloadLimiter; }
+            get { return _downloadLimiter; }
         }
 
         public ClientEngine Engine
         {
-            get { return this.engine; }
-            internal set { this.engine = value; }
+            get { return _engine; }
+            internal set { _engine = value; }
         }
 
         public Error Error
         {
-            get { return error; }
-            internal set { error = value; }
+            get { return _error; }
+            internal set { _error = value; }
         }
 
         internal Mode Mode
         {
-            get { return mode; }
+            get { return _mode; }
             set {
-                Mode oldMode = mode;
-                mode = value;
+                var oldMode = _mode;
+                _mode = value;
                 if (oldMode != null)
-                    RaiseTorrentStateChanged(new TorrentStateChangedEventArgs(this, oldMode.State, mode.State));
-                mode.Tick(0);
+                    RaiseTorrentStateChanged(new TorrentStateChangedEventArgs(this, oldMode.State, _mode.State));
+                _mode.Tick(0);
 			}
         }
 
@@ -150,8 +139,8 @@ namespace OctoTorrent.Client
         {
             get
             {
-                if (this.chokeUnchoker is ChokeUnchokeManager)
-                    return ((ChokeUnchokeManager)this.chokeUnchoker).ReviewsExecuted;
+                if (this.ChokeUnchoker is ChokeUnchokeManager)
+                    return ((ChokeUnchokeManager)this.ChokeUnchoker).ReviewsExecuted;
                 else
                     return 0;
             }
@@ -160,18 +149,18 @@ namespace OctoTorrent.Client
 
         public bool HashChecked
         {
-            get { return this.hashChecked; }
-            internal set { this.hashChecked = value; }
+            get { return _hashChecked; }
+            internal set { _hashChecked = value; }
         }
 
         public int HashFails
         {
-            get { return this.hashFails; }
+            get { return this._hashFails; }
         }
 
         public bool HasMetadata
         {
-            get { return torrent != null; }
+            get { return _torrent != null; }
         }
 
 		/// <summary>
@@ -179,30 +168,25 @@ namespace OctoTorrent.Client
 		/// </summary>
 		public bool IsInEndGame
 		{
-			get { return State == TorrentState.Downloading && this.isInEndGame; }
+			get { return State == TorrentState.Downloading && isInEndGame; }
 		}
 
         public ConnectionMonitor Monitor
         {
-            get { return this.monitor; }
+            get { return _monitor; }
         }
-
 
         /// <summary>
         /// The number of peers that this torrent instance is connected to
         /// </summary>
         public int OpenConnections
         {
-            get { return this.Peers.ConnectedPeers.Count; }
+            get { return Peers.ConnectedPeers.Count; }
         }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
         public PeerManager Peers
         {
-            get { return this.peers; }
+            get { return _peers; }
         }
 
 
@@ -211,96 +195,87 @@ namespace OctoTorrent.Client
 		/// </summary>
 		public PieceManager PieceManager
 		{
-			get { return this.pieceManager; }
-            internal set { pieceManager = value; }
+			get { return _pieceManager; }
+            internal set { _pieceManager = value; }
 		}
-
 
 		/// <summary>
 		/// The inactive peer manager for this TorrentManager
 		/// </summary>
 		internal InactivePeerManager InactivePeerManager
 		{
-			get { return this.inactivePeerManager; }
+			get { return _inactivePeerManager; }
 		}
-
 
         /// <summary>
         /// The current progress of the torrent in percent
         /// </summary>
         public double Progress
         {
-            get { return (this.bitfield.PercentComplete); }
+            get { return _bitfield.PercentComplete; }
         }
-
 
         /// <summary>
         /// The directory to download the files to
         /// </summary>
         public string SavePath
         {
-            get { return this.savePath; }
+            get { return _savePath; }
         }
-
 
         /// <summary>
         /// The settings for with this TorrentManager
         /// </summary>
         public TorrentSettings Settings
         {
-            get { return this.settings; }
+            get { return _settings; }
         }
-
 
         /// <summary>
         /// The current state of the TorrentManager
         /// </summary>
         public TorrentState State
         {
-            get { return mode.State; }
+            get { return _mode.State; }
         }
-
 
         /// <summary>
         /// The time the torrent manager was started at
         /// </summary>
         public DateTime StartTime
         {
-            get { return this.startTime; }
+            get { return _startTime; }
         }
-
 
         /// <summary>
         /// The tracker connection associated with this TorrentManager
         /// </summary>
         public TrackerManager TrackerManager
         {
-            get { return this.trackerManager; }
+            get { return _trackerManager; }
         }
-
 
         /// <summary>
         /// The Torrent contained within this TorrentManager
         /// </summary>
         public Torrent Torrent
         {
-            get { return this.torrent; }
-            internal set { torrent = value; }
+            get { return _torrent; }
+            internal set { _torrent = value; }
         }
-
 
         /// <summary>
         /// The number of peers that we are currently uploading to
         /// </summary>
         public int UploadingTo
         {
-            get { return this.uploadingTo; }
-            internal set { this.uploadingTo = value; }
+            get { return this._uploadingTo; }
+            internal set { this._uploadingTo = value; }
         }
 
         internal RateLimiterGroup UploadLimiter
         {
-            get { return uploadLimiter; }
+            get { return _uploadLimiter; }
         }
 
         public bool IsInitialSeeding
@@ -313,12 +288,12 @@ namespace OctoTorrent.Client
 		/// </summary>
 		public int InactivePeers
 		{
-			get { return inactivePeerManager.InactivePeers; }
+			get { return _inactivePeerManager.InactivePeers; }
 		}
 
         public InfoHash InfoHash
         {
-            get { return infohash; }
+            get { return _infohash; }
         }
 
 		/// <summary>
@@ -326,7 +301,7 @@ namespace OctoTorrent.Client
 		/// </summary>
 		public List<Uri> InactivePeerList
 		{
-			get { return inactivePeerManager.InactivePeerList; }
+			get { return _inactivePeerManager.InactivePeerList; }
 		}
 
         #endregion
@@ -359,9 +334,9 @@ namespace OctoTorrent.Client
             Check.Settings(settings);
             Check.BaseDirectory(baseDirectory);
 
-            this.torrent = torrent;
-            this.infohash = torrent.infoHash;
-            this.settings = settings;
+            this._torrent = torrent;
+            this._infohash = torrent.infoHash;
+            this._settings = settings;
 
             Initialise(savePath, baseDirectory, torrent.AnnounceUrls);
             ChangePicker(CreateStandardPicker());
@@ -376,9 +351,9 @@ namespace OctoTorrent.Client
             Check.TorrentSave(torrentSave);
             Check.Announces(announces);
 
-            this.infohash = infoHash;
-            this.settings = settings;
-            this.torrentSave = torrentSave;
+            this._infohash = infoHash;
+            this._settings = settings;
+            this._torrentSave = torrentSave;
 
             Initialise(savePath, "", announces);
         }
@@ -391,9 +366,9 @@ namespace OctoTorrent.Client
             Check.Settings(settings);
             Check.TorrentSave(torrentSave);
 
-            this.infohash = magnetLink.InfoHash;
-            this.settings = settings;
-            this.torrentSave = torrentSave;
+            this._infohash = magnetLink.InfoHash;
+            this._settings = settings;
+            this._torrentSave = torrentSave;
             IList<RawTrackerTier> announces = new RawTrackerTiers ();
             if (magnetLink.AnnounceUrls != null)
                 announces.Add (magnetLink.AnnounceUrls);
@@ -402,14 +377,14 @@ namespace OctoTorrent.Client
 
         void Initialise(string savePath, string baseDirectory, IList<RawTrackerTier> announces)
         {
-            bitfield = new BitField(HasMetadata ? torrent.Pieces.Count : 1);
-            this.savePath = Path.Combine(savePath, baseDirectory);
-            finishedPieces = new Queue<int>();
-            monitor = new ConnectionMonitor();
-            inactivePeerManager = new InactivePeerManager(this);
-            peers = new PeerManager();
-            pieceManager = new PieceManager();
-            trackerManager = new TrackerManager(this, InfoHash, announces);
+            _bitfield = new BitField(HasMetadata ? _torrent.Pieces.Count : 1);
+            this._savePath = Path.Combine(savePath, baseDirectory);
+            FinishedPieces = new Queue<int>();
+            _monitor = new ConnectionMonitor();
+            _inactivePeerManager = new InactivePeerManager(this);
+            _peers = new PeerManager();
+            _pieceManager = new PieceManager();
+            _trackerManager = new TrackerManager(this, InfoHash, announces);
 
             Mode = new StoppedMode(this);            
             CreateRateLimiters();
@@ -417,7 +392,7 @@ namespace OctoTorrent.Client
             PieceHashed += (o, e) => PieceManager.UnhashedPieces[e.PieceIndex] = false;
 
             if (HasMetadata) {
-                foreach (var file in torrent.Files)
+                foreach (var file in _torrent.Files)
                     file.FullPath = Path.Combine(SavePath, file.Path);
             }
         }
@@ -425,14 +400,14 @@ namespace OctoTorrent.Client
         void CreateRateLimiters()
         {
             RateLimiter downloader = new RateLimiter();
-            downloadLimiter = new RateLimiterGroup();
-            downloadLimiter.Add(new PauseLimiter(this));
-            downloadLimiter.Add(downloader);
+            _downloadLimiter = new RateLimiterGroup();
+            _downloadLimiter.Add(new PauseLimiter(this));
+            _downloadLimiter.Add(downloader);
 
             RateLimiter uploader = new RateLimiter();
-            uploadLimiter = new RateLimiterGroup();
-            uploadLimiter.Add(new PauseLimiter(this));
-            uploadLimiter.Add(uploader);
+            _uploadLimiter = new RateLimiterGroup();
+            _uploadLimiter.Add(new PauseLimiter(this));
+            _uploadLimiter.Add(uploader);
         }
 
         #endregion
@@ -445,13 +420,13 @@ namespace OctoTorrent.Client
             Check.Picker(picker);
 
             ClientEngine.MainLoop.QueueWait((MainLoopTask)delegate {
-                this.pieceManager.ChangePicker(picker, bitfield, torrent.Files);
+                this._pieceManager.ChangePicker(picker, _bitfield, _torrent.Files);
             });
         }
 
         public void Dispose()
         {
-            disposed = true;
+            _disposed = true;
         }
 
 
@@ -484,7 +459,7 @@ namespace OctoTorrent.Client
         /// <returns></returns>
         public bool Equals(TorrentManager other)
         {
-            return (other == null) ? false : infohash == other.infohash;
+            return (other == null) ? false : _infohash == other._infohash;
         }
 
         public List<Piece> GetActiveRequests()
@@ -500,13 +475,13 @@ namespace OctoTorrent.Client
         /// <returns></returns>
         public override int GetHashCode()
         {
-            return infohash.GetHashCode();
+            return _infohash.GetHashCode();
         }
 
         public List<PeerId> GetPeers()
         {
             return (List<PeerId>)ClientEngine.MainLoop.QueueWait((MainLoopJob)delegate {
-                return new List<PeerId>(peers.ConnectedPeers);
+                return new List<PeerId>(_peers.ConnectedPeers);
             });
         }
 
@@ -522,7 +497,7 @@ namespace OctoTorrent.Client
                     throw new TorrentException(string.Format("A hashcheck can only be performed when the manager is stopped. State is: {0}", State));
 
                 CheckRegisteredAndDisposed();
-                this.startTime = DateTime.Now;
+                this._startTime = DateTime.Now;
                 Mode = new HashingMode(this, autoStart);
                 Engine.Start();
             });
@@ -550,7 +525,7 @@ namespace OctoTorrent.Client
                 throw new TorrentException("Cannot move files when the torrent is active");
 
             Engine.DiskManager.MoveFiles(this, newRoot, overWriteExisting);
-            savePath = newRoot;
+            _savePath = newRoot;
         }
 
         /// <summary>
@@ -579,7 +554,7 @@ namespace OctoTorrent.Client
             ClientEngine.MainLoop.QueueWait((MainLoopTask)delegate {
                 CheckRegisteredAndDisposed();
 
-                this.engine.Start();
+                this._engine.Start();
                 // If the torrent was "paused", then just update the state to Downloading and forcefully
                 // make sure the peers begin sending/receiving again
                 if (this.State == TorrentState.Paused)
@@ -590,7 +565,7 @@ namespace OctoTorrent.Client
 
                 if (!HasMetadata)
                 {
-                    Mode = new MetadataMode(this, torrentSave);
+                    Mode = new MetadataMode(this, _torrentSave);
 #if !DISABLE_DHT
                     StartDHT();
 #endif                    
@@ -600,7 +575,7 @@ namespace OctoTorrent.Client
                 VerifyHashState ();
                 // If the torrent has not been hashed, we start the hashing process then we wait for it to finish
                 // before attempting to start again
-                if (!hashChecked)
+                if (!_hashChecked)
                 {
                     if (State != TorrentState.Hashing)
                         HashCheck(true);
@@ -612,29 +587,29 @@ namespace OctoTorrent.Client
 
                 if (TrackerManager.CurrentTracker != null)
                 {
-                    if (this.trackerManager.CurrentTracker.CanScrape)
+                    if (this._trackerManager.CurrentTracker.CanScrape)
                         this.TrackerManager.Scrape();
-                    this.trackerManager.Announce(TorrentEvent.Started); // Tell server we're starting
+                    this._trackerManager.Announce(TorrentEvent.Started); // Tell server we're starting
                 }
 
-                if (this.Complete && this.settings.InitialSeedingEnabled && ClientEngine.SupportsInitialSeed) {
+                if (this.Complete && this._settings.InitialSeedingEnabled && ClientEngine.SupportsInitialSeed) {
 					Mode = new InitialSeedingMode(this);
                 }
                 else {
                     Mode = new DownloadMode(this);
                 }
-                engine.Broadcast(this);
+                _engine.Broadcast(this);
 
 #if !DISABLE_DHT
                 StartDHT();
 #endif
-                this.startTime = DateTime.Now;
-                this.pieceManager.Reset();
+                this._startTime = DateTime.Now;
+                this._pieceManager.Reset();
 
                 ClientEngine.MainLoop.QueueTimeout(TimeSpan.FromSeconds(2), delegate {
                     if (State != TorrentState.Downloading && State != TorrentState.Seeding)
                         return false;
-                    pieceManager.Picker.CancelTimedOutRequests();
+                    _pieceManager.Picker.CancelTimedOutRequests();
                     return true;
                 });
             });
@@ -643,13 +618,13 @@ namespace OctoTorrent.Client
 #if !DISABLE_DHT
         private void StartDHT()
         {
-			if (dhtInitialised)
+			if (_dhtInitialised)
 				return;
-			dhtInitialised = true;
-            engine.DhtEngine.PeersFound += delegate (object o, PeersFoundEventArgs e) { DhtPeersFound(o, e);};
+			_dhtInitialised = true;
+            _engine.DhtEngine.PeersFound += delegate (object o, PeersFoundEventArgs e) { DhtPeersFound(o, e);};
  
             // First get some peers
-            engine.DhtEngine.GetPeers(InfoHash);
+            _engine.DhtEngine.GetPeers(InfoHash);
 
             // Second, get peers every 10 minutes (if we need them)
             ClientEngine.MainLoop.QueueTimeout(TimeSpan.FromMinutes(10), delegate {
@@ -660,7 +635,7 @@ namespace OctoTorrent.Client
                 // Only use DHT if it hasn't been (temporarily?) disabled in settings
                 if (CanUseDht && Peers.AvailablePeers.Count < Settings.MaxConnections)
                 {
-                    engine.DhtEngine.Announce(InfoHash, engine.Settings.ListenPort);
+                    _engine.DhtEngine.Announce(InfoHash, _engine.Settings.ListenPort);
                     //announce ever done a get peers task
                     //engine.DhtEngine.GetPeers(InfoHash);
                 }
@@ -676,7 +651,7 @@ namespace OctoTorrent.Client
         {
             if (State == TorrentState.Error)
             {
-                error = null;
+                _error = null;
 				Mode = new StoppedMode(this);
                 return;
             }
@@ -687,7 +662,7 @@ namespace OctoTorrent.Client
             ClientEngine.MainLoop.QueueWait(delegate {
                 if (State != TorrentState.Stopped) {
 #if !DISABLE_DHT
-                    engine.DhtEngine.PeersFound -= DhtPeersFound;
+                    _engine.DhtEngine.PeersFound -= DhtPeersFound;
 #endif
 					Mode = new StoppingMode(this);
                 }
@@ -723,14 +698,14 @@ namespace OctoTorrent.Client
 
         internal int AddPeersCore(Peer peer)
         {
-            if (this.peers.Contains(peer))
+            if (this._peers.Contains(peer))
                 return 0;
 
             // Ignore peers in the inactive list
-            if (this.inactivePeerManager.InactivePeerList.Contains(peer.ConnectionUri))
+            if (this._inactivePeerManager.InactivePeerList.Contains(peer.ConnectionUri))
                 return 0;
 
-            this.peers.AvailablePeers.Add(peer);
+            this._peers.AvailablePeers.Add(peer);
             if (OnPeerFound != null)
                 OnPeerFound(this, new PeerAddedEventArgs(this, peer));
             // When we successfully add a peer we try to connect to the next available peer
@@ -748,7 +723,7 @@ namespace OctoTorrent.Client
         internal void HashedPiece(PieceHashedEventArgs pieceHashedEventArgs)
         {
             if (!pieceHashedEventArgs.HashPassed)
-                Interlocked.Increment(ref this.hashFails);
+                Interlocked.Increment(ref this._hashFails);
 
             RaisePieceHashed(pieceHashedEventArgs);
         }
@@ -772,7 +747,7 @@ namespace OctoTorrent.Client
         internal void RaisePieceHashed(PieceHashedEventArgs args)
         {
             int index = args.PieceIndex;
-            TorrentFile[] files = this.torrent.Files;
+            TorrentFile[] files = this._torrent.Files;
             
             for (int i = 0; i < files.Length; i++)
                 if (index >= files[i].StartPieceIndex && index <= files[i].EndPieceIndex)
@@ -823,9 +798,9 @@ namespace OctoTorrent.Client
 
         private void CheckRegisteredAndDisposed()
         {
-            if (engine == null)
+            if (_engine == null)
                 throw new TorrentException("This manager has not been registed with an Engine");
-            if (engine.Disposed)
+            if (_engine.Disposed)
                 throw new InvalidOperationException("The registered engine has been disposed");
         }
 
@@ -833,7 +808,7 @@ namespace OctoTorrent.Client
         {
             PiecePicker picker;
             if (ClientEngine.SupportsEndgameMode)
-                picker = new EndGameSwitcher(new StandardPicker(), new EndGamePicker(), torrent.PieceLength / Piece.BlockSize, this);
+                picker = new EndGameSwitcher(new StandardPicker(), new EndGamePicker(), _torrent.PieceLength / Piece.BlockSize, this);
             else
                 picker = new StandardPicker();
             picker = new RandomisedPicker(picker);
@@ -861,14 +836,14 @@ namespace OctoTorrent.Client
             CheckMetadata();
             if (State != TorrentState.Stopped)
                 throw new InvalidOperationException("Can only load FastResume when the torrent is stopped");
-            if (InfoHash != data.Infohash || torrent.Pieces.Count != data.Bitfield.Length)
+            if (InfoHash != data.Infohash || _torrent.Pieces.Count != data.Bitfield.Length)
                 throw new ArgumentException("The fast resume data does not match this torrent", "fastResumeData");
 
-            bitfield.From(data.Bitfield);
-            for (var i = 0; i < torrent.Pieces.Count; i++)
-                RaisePieceHashed (new PieceHashedEventArgs (this, i, bitfield[i]));
+            _bitfield.From(data.Bitfield);
+            for (var i = 0; i < _torrent.Pieces.Count; i++)
+                RaisePieceHashed (new PieceHashedEventArgs (this, i, _bitfield[i]));
 
-            hashChecked = true;
+            _hashChecked = true;
         }
 
         public FastResume SaveFastResume()
@@ -876,7 +851,7 @@ namespace OctoTorrent.Client
             CheckMetadata();
             if (!HashChecked)
                 throw new InvalidOperationException ("Fast resume data cannot be created when the TorrentManager has not been hash checked");
-            return new FastResume(InfoHash, bitfield);
+            return new FastResume(InfoHash, _bitfield);
         }
 
         void VerifyHashState ()
@@ -886,8 +861,8 @@ namespace OctoTorrent.Client
             // never be recreated. If the downloaded data requires this file to exist, we have an issue.
             if (HasMetadata) {
                 foreach (var file in Torrent.Files)
-                    if (!file.BitField.AllFalse && hashChecked && file.Length > 0)
-                        hashChecked &= Engine.DiskManager.CheckFileExists (this, file);
+                    if (!file.BitField.AllFalse && _hashChecked && file.Length > 0)
+                        _hashChecked &= Engine.DiskManager.CheckFileExists (this, file);
             }
         }
 

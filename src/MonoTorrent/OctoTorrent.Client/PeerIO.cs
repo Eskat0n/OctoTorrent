@@ -75,29 +75,34 @@ namespace OctoTorrent.Client
             NetworkIO.EnqueueReceive (connection, buffer, 0, HandshakeMessage.HandshakeLength, null, null, null, HandshakeReceivedCallback, data);
         }
 
-        static void HandshakeReceived (bool successful, int transferred, object state)
+        private static void HandshakeReceived(bool successful, int transferred, object state)
         {
             var data = (ReceiveMessageState) state;
             PeerMessage message = null;
 
-            if (successful) {
-                data.Decryptor.Decrypt (data.Buffer, 0, transferred);
-                message = new HandshakeMessage ();
-                message.Decode (data.Buffer, 0, transferred);
+            if (successful)
+            {
+                data.Decryptor.Decrypt(data.Buffer, 0, transferred);
+                message = new HandshakeMessage();
+                message.Decode(data.Buffer, 0, transferred);
             }
 
-            data.Callback (successful, message, data.State);
-            ClientEngine.BufferManager.FreeBuffer (data.Buffer);
-            receiveCache.Enqueue (data);
+            data.Callback(successful, message, data.State);
+            ClientEngine.BufferManager.FreeBuffer(data.Buffer);
+            receiveCache.Enqueue(data);
         }
 
-        public static void EnqueueReceiveMessage (IConnection connection, IEncryption decryptor, IRateLimiter rateLimiter, ConnectionMonitor monitor, TorrentManager manager, AsyncMessageReceivedCallback callback, object state)
+        public static void EnqueueReceiveMessage(IConnection connection, IEncryption decryptor, IRateLimiter rateLimiter,
+                                                 ConnectionMonitor peerMonitor, TorrentManager manager,
+                                                 AsyncMessageReceivedCallback callback, object state)
         {
             // FIXME: Hardcoded number
-            int count = 4;
-            var buffer = ClientEngine.BufferManager.GetBuffer (count);
-            var data = receiveCache.Dequeue ().Initialise (connection, decryptor, rateLimiter, monitor, manager, buffer, callback, state);
-            NetworkIO.EnqueueReceive (connection, buffer, 0, count, rateLimiter, monitor, data.ManagerMonitor, MessageLengthReceivedCallback, data);
+            const int count = 4;
+            var buffer = ClientEngine.BufferManager.GetBuffer(count);
+            var data = receiveCache.Dequeue().Initialise(connection, decryptor, rateLimiter,
+                                                         peerMonitor, manager, buffer, callback, state);
+            NetworkIO.EnqueueReceive(connection, buffer, 0, count, rateLimiter,
+                                     peerMonitor, data.ManagerMonitor, MessageLengthReceivedCallback, data);
         }
 
         static void MessageLengthReceived (bool successful, int transferred, object state)

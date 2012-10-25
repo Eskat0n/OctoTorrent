@@ -26,17 +26,15 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-
-using OctoTorrent.Client;
-using OctoTorrent.Client.Connections;
-using OctoTorrent.Client.Messages;
-using OctoTorrent.Common;
-
 namespace OctoTorrent.Client
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using Connections;
+    using Messages;
+    using Common;
+
     public delegate void AsyncIOCallback (bool succeeded, int transferred, object state);
     public delegate void AsyncMessageReceivedCallback (bool succeeded, PeerMessage message, object state);
 
@@ -58,32 +56,32 @@ namespace OctoTorrent.Client
     {
         // The biggest message is a PieceMessage which is 16kB + some overhead
         // so send in chunks of 2kB + a little so we do 8 transfers per piece.
-        const int ChunkLength = 2048 + 32;
+        private const int ChunkLength = 2048 + 32;
 
-        static Queue<AsyncIOState> receiveQueue = new Queue<AsyncIOState> ();
-        static Queue<AsyncIOState> sendQueue = new Queue<AsyncIOState> ();
+        private static readonly Queue<AsyncIOState> ReceiveQueue = new Queue<AsyncIOState>();
+        private static readonly Queue<AsyncIOState> SendQueue = new Queue<AsyncIOState>();
 
-        static ICache <AsyncConnectState> connectCache = new Cache <AsyncConnectState> (true).Synchronize ();
-        static ICache <AsyncIOState> transferCache = new Cache <AsyncIOState> (true).Synchronize ();
+        private static readonly ICache<AsyncConnectState> ConnectCache = new Cache<AsyncConnectState>(true).Synchronize();
+        private static readonly ICache<AsyncIOState> TransferCache = new Cache<AsyncIOState>(true).Synchronize();
 
-        static AsyncCallback EndConnectCallback = EndConnect;
-        static AsyncCallback EndReceiveCallback = EndReceive;
-        static AsyncCallback EndSendCallback = EndSend;
+        private static readonly AsyncCallback EndConnectCallback = EndConnect;
+        private static readonly AsyncCallback EndReceiveCallback = EndReceive;
+        private static readonly AsyncCallback EndSendCallback = EndSend;
 
         static NetworkIO()
         {
             ClientEngine.MainLoop.QueueTimeout(TimeSpan.FromMilliseconds(100), delegate {
-                lock (sendQueue)
+                lock (SendQueue)
                 {
-                    int count = sendQueue.Count;
+                    int count = SendQueue.Count;
                     for (int i = 0; i < count; i++)
-                         SendOrEnqueue (sendQueue.Dequeue ());
+                         SendOrEnqueue (SendQueue.Dequeue ());
                 }
-                lock (receiveQueue)
+                lock (ReceiveQueue)
                 {
-                    int count = receiveQueue.Count;
+                    int count = ReceiveQueue.Count;
                     for (int i = 0; i < count; i++)
-                        ReceiveOrEnqueue (receiveQueue.Dequeue ());
+                        ReceiveOrEnqueue (ReceiveQueue.Dequeue ());
                 }
                 return true;
             });
@@ -96,7 +94,7 @@ namespace OctoTorrent.Client
 
         public static void EnqueueConnect (IConnection connection, AsyncIOCallback callback, object state)
         {
-            var data = connectCache.Dequeue ().Initialise (connection, callback, state);
+            var data = ConnectCache.Dequeue ().Initialise (connection, callback, state);
 
             try {
                 var result = connection.BeginConnect (EndConnectCallback, data);
@@ -108,21 +106,21 @@ namespace OctoTorrent.Client
                 });
             } catch {
                 callback (false, 0, state);
-                connectCache.Enqueue (data);
+                ConnectCache.Enqueue (data);
             }
         }
 
         public static void EnqueueReceive (IConnection connection, byte[] buffer, int offset, int count, IRateLimiter rateLimiter, ConnectionMonitor peerMonitor, ConnectionMonitor managerMonitor, AsyncIOCallback callback, object state)
         {
-            var data = transferCache.Dequeue ().Initialise (connection, buffer, offset, count, callback, state, rateLimiter, peerMonitor, managerMonitor);
-            lock (receiveQueue)
+            var data = TransferCache.Dequeue ().Initialise (connection, buffer, offset, count, callback, state, rateLimiter, peerMonitor, managerMonitor);
+            lock (ReceiveQueue)
                 ReceiveOrEnqueue (data);
         }
 
         public static void EnqueueSend (IConnection connection, byte[] buffer, int offset, int count, IRateLimiter rateLimiter, ConnectionMonitor peerMonitor, ConnectionMonitor managerMonitor, AsyncIOCallback callback, object state)
         {
-            var data = transferCache.Dequeue ().Initialise (connection, buffer, offset, count, callback, state, rateLimiter, peerMonitor, managerMonitor);
-            lock (sendQueue)
+            var data = TransferCache.Dequeue ().Initialise (connection, buffer, offset, count, callback, state, rateLimiter, peerMonitor, managerMonitor);
+            lock (SendQueue)
                 SendOrEnqueue (data);
         }
 
@@ -136,7 +134,7 @@ namespace OctoTorrent.Client
             } catch {
                 data.Callback (false, 0, data.State);
             } finally {
-                connectCache.Enqueue (data);
+                ConnectCache.Enqueue (data);
             }
         }
 
@@ -147,7 +145,7 @@ namespace OctoTorrent.Client
                 int transferred = data.Connection.EndReceive (result);
                 if (transferred == 0) {
                     data.Callback (false, 0, data.State);
-                    transferCache.Enqueue (data);
+                    TransferCache.Enqueue (data);
                 } else {
                     if (data.PeerMonitor != null)
                         data.PeerMonitor.BytesReceived (transferred, data.TransferType);
@@ -158,45 +156,54 @@ namespace OctoTorrent.Client
                     data.Remaining -= transferred;
                     if (data.Remaining == 0) {
                         data.Callback (true, data.Count, data.State);
-                        transferCache.Enqueue (data);
+                        TransferCache.Enqueue (data);
                     } else {
-                        lock (receiveQueue)
+                        lock (ReceiveQueue)
                             ReceiveOrEnqueue (data);
                     }
                 }
             } catch {
                 data.Callback (false, 0, data.State);
-                transferCache.Enqueue (data);
+                TransferCache.Enqueue (data);
             }
         }
 
-        static void EndSend (IAsyncResult result)
+        private static void EndSend(IAsyncResult result)
         {
             var data = (AsyncIOState) result.AsyncState;
-            try {
-                int transferred = data.Connection.EndSend (result);
-                if (transferred == 0) {
-                    data.Callback (false, 0, data.State);
-                    transferCache.Enqueue (data);
-                } else {
+            try
+            {
+                var transferred = data.Connection.EndSend(result);
+                if (transferred == 0)
+                {
+                    data.Callback(false, 0, data.State);
+                    TransferCache.Enqueue(data);
+                }
+                else
+                {
                     if (data.PeerMonitor != null)
-                        data.PeerMonitor.BytesSent (transferred, data.TransferType);
+                        data.PeerMonitor.BytesSent(transferred, data.TransferType);
                     if (data.ManagerMonitor != null)
-                        data.ManagerMonitor.BytesSent (transferred, data.TransferType);
+                        data.ManagerMonitor.BytesSent(transferred, data.TransferType);
 
                     data.Offset += transferred;
                     data.Remaining -= transferred;
-                    if (data.Remaining == 0) {
-                        data.Callback (true, data.Count, data.State);
-                        transferCache.Enqueue (data);
-                    } else {
-                        lock (sendQueue)
-                            SendOrEnqueue (data);
+                    if (data.Remaining == 0)
+                    {
+                        data.Callback(true, data.Count, data.State);
+                        TransferCache.Enqueue(data);
+                    }
+                    else
+                    {
+                        lock (SendQueue)
+                            SendOrEnqueue(data);
                     }
                 }
-            } catch {
-                data.Callback (false, 0, data.State);
-                transferCache.Enqueue (data);
+            }
+            catch
+            {
+                data.Callback(false, 0, data.State);
+                TransferCache.Enqueue(data);
             }
         }
 
@@ -208,25 +215,31 @@ namespace OctoTorrent.Client
                     data.Connection.BeginReceive (data.Buffer, data.Offset, count, EndReceiveCallback, data);
                 } catch {
                     data.Callback (false, 0, data.State);
-                    transferCache.Enqueue (data);
+                    TransferCache.Enqueue (data);
                 }
             } else {
-                receiveQueue.Enqueue (data);
+                ReceiveQueue.Enqueue (data);
             }
         }
 
-        static void SendOrEnqueue (AsyncIOState data)
+        private static void SendOrEnqueue(AsyncIOState data)
         {
-            int count = Math.Min (ChunkLength, data.Remaining);
-            if (data.RateLimiter == null || data.RateLimiter.TryProcess (1)) {
-                try {
-                    data.Connection.BeginSend (data.Buffer, data.Offset, count, EndSendCallback, data);
-                } catch {
-                    data.Callback (false, 0, data.State);
-                    transferCache.Enqueue (data);
+            var count = Math.Min(ChunkLength, data.Remaining);
+            if (data.RateLimiter == null || data.RateLimiter.TryProcess(1))
+            {
+                try
+                {
+                    data.Connection.BeginSend(data.Buffer, data.Offset, count, EndSendCallback, data);
                 }
-            } else {
-                sendQueue.Enqueue (data);
+                catch
+                {
+                    data.Callback(false, 0, data.State);
+                    TransferCache.Enqueue(data);
+                }
+            }
+            else
+            {
+                SendQueue.Enqueue(data);
             }
         }
     }

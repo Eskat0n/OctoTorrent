@@ -27,24 +27,10 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
-using System.Text.RegularExpressions;
-
 namespace OctoTorrent.Common
 {
-    /// <summary>
-    /// BitTorrrent 
-    /// </summary>
-    /// <remarks>
-    /// Good place for information about BT peer ID conventions:
-    ///     http://wiki.theory.org/BitTorrentSpecification
-    ///     http://transmission.m0k.org/trac/browser/trunk/libtransmission/clients.c (hello Transmission authors!) :)
-    ///     http://rufus.cvs.sourceforge.net/rufus/Rufus/g3peerid.py?view=log (for older clients)
-    ///     http://shareaza.svn.sourceforge.net/viewvc/shareaza/trunk/shareaza/BTClient.cpp?view=markup
-    ///     http://libtorrent.rakshasa.no/browser/trunk/libtorrent/src/torrent/peer/client_list.cc
-    /// </remarks>
+    using System.Text.RegularExpressions;
+
     public enum Client
     {
         ABC,
@@ -176,138 +162,138 @@ namespace OctoTorrent.Common
                 {
                     case ("AG"):
                     case ("A~"):
-                        this.client = Common.Client.Ares;
+                        this.client = Client.Ares;
                         break;
                     case ("AR"):
-                        this.client = Common.Client.Artic;
+                        this.client = Client.Artic;
                         break;
                     case ("AT"):
-                        this.client = Common.Client.Artemis;
+                        this.client = Client.Artemis;
                         break;
                     case ("AX"):
-                        this.client = Common.Client.BitPump;
+                        this.client = Client.BitPump;
                         break;
                     case ("AV"):
-                        this.client = Common.Client.Avicora;
+                        this.client = Client.Avicora;
                         break;
                     case ("AZ"):
-                        this.client = Common.Client.Azureus;
+                        this.client = Client.Azureus;
                         break;
                     case ("BB"):
-                        this.client = Common.Client.BitBuddy;
+                        this.client = Client.BitBuddy;
                         break;
 
                     case ("BC"):
-                        this.client = Common.Client.BitComet;
+                        this.client = Client.BitComet;
                         break;
 
                     case ("BF"):
-                        this.client = Common.Client.Bitflu;
+                        this.client = Client.Bitflu;
                         break;
 
                     case ("BS"):
-                        this.client = Common.Client.BTSlave;
+                        this.client = Client.BTSlave;
                         break;
 
                     case ("BX"):
-                        this.client = Common.Client.BitTorrentX;
+                        this.client = Client.BitTorrentX;
                         break;
 
                     case ("CD"):
-                        this.client = Common.Client.EnhancedCTorrent;
+                        this.client = Client.EnhancedCTorrent;
                         break;
 
                     case ("CT"):
-                        this.client = Common.Client.CTorrent;
+                        this.client = Client.CTorrent;
                         break;
 
                     case ("DE"):
-                        this.client = Common.Client.DelugeTorrent;
+                        this.client = Client.DelugeTorrent;
                         break;
 
                     case ("EB"):
-                        this.client = Common.Client.EBit;
+                        this.client = Client.EBit;
                         break;
 
                     case ("ES"):
-                        this.client = Common.Client.ElectricSheep;
+                        this.client = Client.ElectricSheep;
                         break;
 
                     case ("KT"):
-                        this.client = Common.Client.KTorrent;
+                        this.client = Client.KTorrent;
                         break;
 
                     case ("LP"):
-                        this.client = Common.Client.Lphant;
+                        this.client = Client.Lphant;
                         break;
 
                     case ("lt"):
                     case ("LT"):
-                        this.client = Common.Client.LibTorrent;
+                        this.client = Client.LibTorrent;
                         break;
 
                     case ("MP"):
-                        this.client = Common.Client.MooPolice;
+                        this.client = Client.MooPolice;
                         break;
 
                     case ("MO"):
-                        this.client = Common.Client.MonoTorrent;
+                        this.client = Client.MonoTorrent;
                         break;
 
                     case ("MT"):
-                        this.client = Common.Client.MoonlightTorrent;
+                        this.client = Client.MoonlightTorrent;
                         break;
 
                     case ("qB"):
-                        this.client = Common.Client.qBittorrent;
+                        this.client = Client.qBittorrent;
                         break;
 
                     case ("QT"):
-                        this.client = Common.Client.Qt4Torrent;
+                        this.client = Client.Qt4Torrent;
                         break;
 
                     case ("RT"):
-                        this.client = Common.Client.Retriever;
+                        this.client = Client.Retriever;
                         break;
 
                     case ("SB"):
-                        this.client = Common.Client.Swiftbit;
+                        this.client = Client.Swiftbit;
                         break;
 
                     case ("SS"):
-                        this.client = Common.Client.SwarmScope;
+                        this.client = Client.SwarmScope;
                         break;
 
                     case ("SZ"):
-                        this.client = Common.Client.Shareaza;
+                        this.client = Client.Shareaza;
                         break;
 
                     case ("TN"):
-                        this.client = Common.Client.TorrentDotNET;
+                        this.client = Client.TorrentDotNET;
                         break;
 
                     case ("TR"):
-                        this.client = Common.Client.Transmission;
+                        this.client = Client.Transmission;
                         break;
 
                     case ("TS"):
-                        this.client = Common.Client.Torrentstorm;
+                        this.client = Client.Torrentstorm;
                         break;
 
                     case ("UL"):
-                        this.client = Common.Client.uLeecher;
+                        this.client = Client.uLeecher;
                         break;
 
                     case ("UT"):
-                        this.client = Common.Client.uTorrent;
+                        this.client = Client.uTorrent;
                         break;
 
                     case ("XT"):
-                        this.client = Common.Client.XanTorrent;
+                        this.client = Client.XanTorrent;
                         break;
 
                     case ("ZT"):
-                        this.client = Common.Client.ZipTorrent;
+                        this.client = Client.ZipTorrent;
                         break;
 
                     default:

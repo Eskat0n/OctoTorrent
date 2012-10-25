@@ -136,7 +136,7 @@ namespace OctoTorrent.Client
 
 						    // If the piece was successfully hashed, enqueue a new "have" message to be sent out
 						    if (result)
-							    id.TorrentManager.finishedPieces.Enqueue(piece.Index);
+							    id.TorrentManager.FinishedPieces.Enqueue(piece.Index);
 					    });
 					});
 				});
