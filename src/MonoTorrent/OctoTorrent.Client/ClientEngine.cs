@@ -341,7 +341,10 @@ namespace OctoTorrent.Client
                 return;
 
             var encodedList = new BEncodedList();
-            foreach (var data in torrentsReadonly.Select(tm => tm.SaveFastResume().Encode()))
+            var fastResumeData = torrentsReadonly
+                .Where(x => x.HashChecked)
+                .Select(tm => tm.SaveFastResume().Encode());
+            foreach (var data in fastResumeData)
                 encodedList.Add(data);
 
             File.WriteAllBytes(settings.FastResumePath, encodedList.Encode());
