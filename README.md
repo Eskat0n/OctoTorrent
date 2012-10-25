@@ -1,9 +1,9 @@
 BRIEF INTRODUCTION INTO HOW THE CODE SHOULD BE USED
 ------------------------------------------------------------------------------------------------------------
 
-[MonoTorrent Client]
+[OctoTorrent Client]
 To run the sample client you need to do the following:
-1) Make sure that MonoTorrent.dll and SampleClient.exe are in the same folder
+1) Make sure that OctoTorrent.dll and SampleClient.exe are in the same folder
 2) Create a folder in that directory called "Torrents".
 3) Put any number of .torrent files into the Torrents directory. This files will all be loaded by the sample client.
 5) Launch SampleClient.exe to begin downloading. All files will be downloaded to a directory called "Downloads".
@@ -21,8 +21,8 @@ make sure that you perform your actual GUI update in a threadsafe manner.
 [The Tracker]
 ============
 
-The code of the Tracker is located in MonoTorrent.Tracker. There is one sample Tracker implementation
-in MonoTorrent.TrackerApp. 
+The code of the Tracker is located in OctoTorrent.Tracker. There is one sample Tracker implementation
+in OctoTorrent.TrackerApp. 
 
 The Tracker is a piece of Software which listens for HttpRequests. Each Request can either be an Announce
 or Scrape request. Therefore the Tracker needs code which handles HttpRequests. The Tracker was programmed
