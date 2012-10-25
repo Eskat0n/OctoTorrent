@@ -40,11 +40,7 @@ namespace OctoTorrent.Client
     {
         #region Private Fields
 
-        private int _cleanedUpCount;
         private readonly Uri _connectionUri;
-        private int _localPort;
-        private int _totalHashFails;
-        private int _repeatedHashFails;
 
         #endregion Private Fields
 
@@ -55,18 +51,7 @@ namespace OctoTorrent.Client
             get { return _connectionUri; }
         }
 
-        internal int CleanedUpCount
-        {
-            get { return _cleanedUpCount; }
-            set { _cleanedUpCount = value; }
-        }
-
         public EncryptionTypes Encryption { get; internal set; }
-
-        internal int TotalHashFails
-        {
-            get { return _totalHashFails; }
-        }
 
         public string PeerId { get; internal set; }
 
@@ -76,36 +61,28 @@ namespace OctoTorrent.Client
 
         public DateTime LastConnectionAttempt { get; internal set; }
 
-        internal int LocalPort
-        {
-            get { return _localPort; }
-            set { _localPort = value; }
-        }
+        internal int CleanedUpCount { get; set; }
 
-        internal int RepeatedHashFails
-        {
-            get { return _repeatedHashFails; }
-        }
+        internal int TotalHashFails { get; private set; }
+
+        internal int LocalPort { get; set; }
+
+        internal int RepeatedHashFails { get; private set; }
 
         #endregion Properties
 
         #region Constructors
 
-        public Peer(string peerId, Uri connectionUri)
-            : this (peerId, connectionUri, EncryptionTypes.All)
-        {
-        }
-
-        public Peer(string peerId, Uri connectionUri, EncryptionTypes encryption)
+        public Peer(string peerId, Uri connectionUri, EncryptionTypes encryption = EncryptionTypes.All)
         {
             if (peerId == null)
                 throw new ArgumentNullException("peerId");
             if (connectionUri == null)
                 throw new ArgumentNullException("connectionUri");
 
-            this._connectionUri = connectionUri;
-            this.Encryption = encryption;
-            this.PeerId = peerId;
+            _connectionUri = connectionUri;
+            Encryption = encryption;
+            PeerId = peerId;
         }
 
         #endregion
@@ -146,20 +123,21 @@ namespace OctoTorrent.Client
 
         internal void CompactPeer(byte[] data, int offset)
         {
-            Buffer.BlockCopy(IPAddress.Parse(this._connectionUri.Host).GetAddressBytes(), 0, data, offset, 4);
-            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(((short)this._connectionUri.Port))), 0, data, offset + 4, 2);
+            Buffer.BlockCopy(IPAddress.Parse(_connectionUri.Host).GetAddressBytes(), 0, data, offset, 4);
+            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(((short) _connectionUri.Port))),
+                             0, data, offset + 4, 2);
         }
 
         internal void HashedPiece(bool succeeded)
         {
-            if (succeeded && _repeatedHashFails > 0)
-                _repeatedHashFails--;
+            if (succeeded && RepeatedHashFails > 0)
+                RepeatedHashFails--;
 
             if (succeeded) 
                 return;
 
-            _repeatedHashFails++;
-            _totalHashFails++;
+            RepeatedHashFails++;
+            TotalHashFails++;
         }
 
         public static MonoTorrentCollection<Peer> Decode(BEncodedList peers)
@@ -195,7 +173,7 @@ namespace OctoTorrent.Client
                 peerId = string.Empty;
 
             var connectionUri = new Uri(string.Format("tcp://{0}:{1}", dict["ip"], dict["port"]));
-            return new Peer(peerId, connectionUri, EncryptionTypes.All);
+            return new Peer(peerId, connectionUri);
         }
 
         public static MonoTorrentCollection<Peer> Decode(BEncodedString peers)
@@ -226,7 +204,7 @@ namespace OctoTorrent.Client
                 sb.Append(port);
 
                 var uri = new Uri(sb.ToString());
-                list.Add(new Peer("", uri, EncryptionTypes.All));
+                list.Add(new Peer(string.Empty, uri));
             }
 
             return list;

@@ -201,14 +201,14 @@ namespace OctoTorrent.Client
 
         internal IEncryption Decryptor
         {
-            get { return this.decryptor; }
-            set { this.decryptor = value; }
+            get { return decryptor; }
+            set { decryptor = value; }
         }
 
-        internal string DisconnectReason
+        public string DisconnectReason
         {
-            get { return this.disconnectReason; }
-            set { this.disconnectReason = value; }
+            get { return disconnectReason; }
+            set { disconnectReason = value; }
         }
 
         public IEncryption Encryptor
@@ -401,19 +401,19 @@ namespace OctoTorrent.Client
             if (peer == null)
                 throw new ArgumentNullException("peer");
 
-            this.suggestedPieces = new MonoTorrentCollection<int>();
-            this.amChoking = true;
-            this.isChoking = true;
+            suggestedPieces = new MonoTorrentCollection<int>();
+            amChoking = true;
+            isChoking = true;
 
-            this.isAllowedFastPieces = new MonoTorrentCollection<int>();
-            this.amAllowedFastPieces = new MonoTorrentCollection<int>();
-            this.lastMessageReceived = DateTime.Now;
-            this.lastMessageSent = DateTime.Now;
+            isAllowedFastPieces = new MonoTorrentCollection<int>();
+            amAllowedFastPieces = new MonoTorrentCollection<int>();
+            lastMessageReceived = DateTime.Now;
+            lastMessageSent = DateTime.Now;
             this.peer = peer;
-            this.maxPendingRequests = 2;
-            this.maxSupportedPendingRequests = 50;
-            this.monitor = new ConnectionMonitor();
-            this.sendQueue = new MonoTorrentCollection<PeerMessage>(12);
+            maxPendingRequests = 2;
+            maxSupportedPendingRequests = 50;
+            monitor = new ConnectionMonitor();
+            sendQueue = new MonoTorrentCollection<PeerMessage>(12);
             ExtensionSupports = new ExtensionSupports();
             TorrentManager = manager;
             InitializeTyrant();
