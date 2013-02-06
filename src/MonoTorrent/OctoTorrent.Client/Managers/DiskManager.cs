@@ -230,10 +230,7 @@ namespace OctoTorrent.Client
                              {
                                  try
                                  {
-                                     foreach (
-                                         var file in
-                                             manager.Torrent.Files.Where(
-                                                 file => file.StartPieceIndex >= index && file.EndPieceIndex <= index))
+                                     foreach (var file in manager.Torrent.Files.Where(file => file.StartPieceIndex >= index && file.EndPieceIndex <= index))
                                          _writer.Flush(file);
                                  }
                                  catch (Exception ex)
@@ -256,7 +253,7 @@ namespace OctoTorrent.Client
 			if (Thread.CurrentThread == IOLoop.thread) {
 				PerformRead(io);
 				_cache.Enqueue (io);
-			}
+			}                           
 			else
 				lock (_bufferLock)
 				{

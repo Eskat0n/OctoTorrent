@@ -19,6 +19,7 @@ namespace OctoTorrent.Client
 
         #region Properties
 
+        /// <!-- API Method -->
         public IEnumerable<PeerId> Connected
         {
             get { return ConnectedPeers.AsReadOnly(); }
@@ -27,6 +28,7 @@ namespace OctoTorrent.Client
         /// <summary>
         ///   Returns the iterator for all peers (available, active, banned and busy)
         /// </summary>
+        /// <!-- API Method -->
         public IEnumerable<Peer> All
         {
             get
@@ -48,6 +50,7 @@ namespace OctoTorrent.Client
         /// <summary>
         ///   Returns the number of peers available to connect
         /// </summary>
+        /// <!-- API Method -->
         public int AvailableCount
         {
             get { return AvailablePeers.Count; }
@@ -56,6 +59,7 @@ namespace OctoTorrent.Client
         /// <summary>
         ///   Returns the number of Leechs we are currently connected to
         /// </summary>
+        /// <!-- API Method -->
         public int LeechsCount
         {
             get { return (int) ClientEngine.MainLoop.QueueWait(() => ActivePeers.Count(p => !p.IsSeeder)); }
@@ -64,6 +68,7 @@ namespace OctoTorrent.Client
         /// <summary>
         ///   Returns the number of Seeds we are currently connected to
         /// </summary>
+        /// <!-- API Method -->
         public int SeedsCount
         {
             get { return (int) ClientEngine.MainLoop.QueueWait(() => ActivePeers.Count(p => p.IsSeeder)); }
@@ -87,9 +92,9 @@ namespace OctoTorrent.Client
 
         internal void ClearAll()
         {
+            _bannedPeers.Clear();
             ActivePeers.Clear();
             AvailablePeers.Clear();
-            _bannedPeers.Clear();
             BusyPeers.Clear();
         }
 

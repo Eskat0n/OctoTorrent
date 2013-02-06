@@ -26,127 +26,119 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-
-using System;
-using OctoTorrent.Client.Messages.Standard;
-
 namespace OctoTorrent.Client
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    using System;
+    using Messages.Standard;
+
     public struct Block
     {
         #region Private Fields
 
-        private Piece piece;
-        private int startOffset;
-        private PeerId requestedOff;
-        private int requestLength;
-        private bool requested;
-        private bool received;
-        private bool written;
+        private readonly Piece _piece;
+        private readonly int _startOffset;
+        private PeerId _requestedOff;
+        private readonly int _requestLength;
+        private bool _requested;
+        private bool _received;
+        private bool _written;
 
         #endregion Private Fields
-
 
         #region Properties
 
         public int PieceIndex
         {
-            get { return this.piece.Index; }
+            get { return _piece.Index; }
         }
 
         public bool Received
         {
-            get { return this.received; }
+            get { return _received; }
             internal set
             {
-                if (value && !received)
-                    piece.TotalReceived++;
+                if (value && !_received)
+                    _piece.TotalReceived++;
 
-                else if (!value && received)
-                    piece.TotalReceived--;
+                else if (!value && _received)
+                    _piece.TotalReceived--;
 
-                this.received = value;
+                _received = value;
             }
         }
 
         public bool Requested
         {
-            get { return this.requested; }
+            get { return _requested; }
             internal set
             {
-                if (value && !requested)
-                    piece.TotalRequested++;
+                if (value && !_requested)
+                    _piece.TotalRequested++;
 
-                else if (!value && requested)
-                    piece.TotalRequested--;
+                else if (!value && _requested)
+                    _piece.TotalRequested--;
 
-                this.requested = value;
+                _requested = value;
             }
         }
 
         public int RequestLength
         {
-            get { return this.requestLength; }
+            get { return _requestLength; }
         }
 
         public bool RequestTimedOut
         {
             get
-            { // 60 seconds timeout for a request to fulfill
-                return !Received && requestedOff != null &&
-                       (DateTime.Now - requestedOff.LastMessageReceived) > TimeSpan.FromMinutes(1);
+            {
+                // 60 seconds timeout for a request to fulfill
+                return !Received && _requestedOff != null &&
+                       (DateTime.Now - _requestedOff.LastMessageReceived) > TimeSpan.FromMinutes(1);
             }
         }
 
         internal PeerId RequestedOff
         {
-            get { return this.requestedOff; }
-            set { this.requestedOff = value; }
+            get { return _requestedOff; }
+            set { _requestedOff = value; }
         }
 
         public int StartOffset
         {
-            get { return this.startOffset; }
+            get { return _startOffset; }
         }
 
         public bool Written
         {
-            get { return this.written; }
+            get { return _written; }
             internal set
             {
-                if (value && !written)
-                    piece.TotalWritten++;
+                if (value && !_written)
+                    _piece.TotalWritten++;
 
-                else if (!value && written)
-                    piece.TotalWritten--;
+                else if (!value && _written)
+                    _piece.TotalWritten--;
 
-                this.written = value;
+                _written = value;
             }
         }
 
         #endregion Properties
 
-
         #region Constructors
 
         internal Block(Piece piece, int startOffset, int requestLength)
         {
-            this.requestedOff = null;
-            this.piece = piece;
-            this.received = false;
-            this.requested = false;
-            this.requestLength = requestLength;
-            this.startOffset = startOffset;
-            this.written = false;
+            _requestedOff = null;
+            this._piece = piece;
+            _received = false;
+            _requested = false;
+            this._requestLength = requestLength;
+            this._startOffset = startOffset;
+            _written = false;
         }
 
         #endregion
-
 
         #region Methods
 
@@ -155,7 +147,7 @@ namespace OctoTorrent.Client
             Requested = true;
             RequestedOff = id;
             RequestedOff.AmRequestingPiecesCount++;
-            return new RequestMessage(PieceIndex, this.startOffset, this.requestLength);
+            return new RequestMessage(PieceIndex, _startOffset, _requestLength);
         }
 
         internal void CancelRequest()
@@ -170,19 +162,20 @@ namespace OctoTorrent.Client
             if (!(obj is Block))
                 return false;
 
-            Block other = (Block)obj;
-            return this.PieceIndex == other.PieceIndex && this.startOffset == other.startOffset && this.requestLength == other.requestLength;
+            var other = (Block) obj;
+            return PieceIndex == other.PieceIndex && _startOffset == other._startOffset &&
+                   _requestLength == other._requestLength;
         }
 
         public override int GetHashCode()
         {
-            return this.PieceIndex ^ this.requestLength ^ this.startOffset;
+            return PieceIndex ^ _requestLength ^ _startOffset;
         }
 
         internal static int IndexOf(Block[] blocks, int startOffset, int blockLength)
         {
-            int index = startOffset / Piece.BlockSize;
-            if (blocks[index].startOffset != startOffset || blocks[index].RequestLength != blockLength)
+            var index = startOffset/Piece.BlockSize;
+            if (blocks[index]._startOffset != startOffset || blocks[index].RequestLength != blockLength)
                 return -1;
             return index;
         }
