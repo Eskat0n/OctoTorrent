@@ -412,7 +412,6 @@ namespace OctoTorrent.Client
 
         #endregion
 
-
         #region Public Methods
 
         public void ChangePicker(PiecePicker picker)
@@ -671,7 +670,6 @@ namespace OctoTorrent.Client
 
         #endregion
 
-
         #region Internal Methods
 
         public void AddPeers (Peer peer)
@@ -786,7 +784,6 @@ namespace OctoTorrent.Client
             UploadLimiter.UpdateChunks (Settings.MaxUploadSpeed, Monitor.UploadSpeed);
         }
         #endregion Internal Methods
-
 
         #region Private Methods
 

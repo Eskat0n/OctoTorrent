@@ -26,20 +26,17 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
 using System;
 using System.Collections.Generic;
 using OctoTorrent.Common;
-using OctoTorrent.Client;
-using System.Threading;
 using OctoTorrent.Client.Messages.Standard;
-using OctoTorrent.Client.Messages.FastPeer;
 using OctoTorrent.Client.Messages;
 using OctoTorrent.Client.Connections;
 
 namespace OctoTorrent.Client
 {
+    using System.Linq;
+
     /// <summary>
     /// Contains the logic for choosing what piece to download next
     /// </summary>
@@ -121,20 +118,18 @@ namespace OctoTorrent.Client
 						    id.TorrentManager.PieceManager.UnhashedPieces[piece.Index] = false;
 
 						    id.TorrentManager.HashedPiece(new PieceHashedEventArgs(id.TorrentManager, piece.Index, result));
-						    List<PeerId> peers = new List<PeerId>(piece.Blocks.Length);
-						    for (int i = 0; i < piece.Blocks.Length; i++)
-							    if (piece.Blocks[i].RequestedOff != null && !peers.Contains(piece.Blocks[i].RequestedOff))
-								    peers.Add(piece.Blocks[i].RequestedOff);
+						    var peers = new List<PeerId>(piece.Blocks.Length);
+						    foreach (var b in piece.Blocks.Where(b => b.RequestedOff != null && !peers.Contains(b.RequestedOff)))
+						        peers.Add(b.RequestedOff);
 
-						    for (int i = 0; i < peers.Count; i++) {
-							    if (peers[i].Connection != null) {
-								    peers[i].Peer.HashedPiece(result);
-									if (peers [i].Peer.TotalHashFails == 5)
-										peers[i].ConnectionManager.CleanupSocket (id, "Too many hash fails");
-								}
-							}
+					        foreach (var p in peers.Where(p => p.Connection != null))
+					        {
+					            p.Peer.HashedPiece(result);
+					            if (p.Peer.TotalHashFails == 5)
+					                p.ConnectionManager.CleanupSocket(id, "Too many hash fails");
+					        }
 
-						    // If the piece was successfully hashed, enqueue a new "have" message to be sent out
+					        // If the piece was successfully hashed, enqueue a new "have" message to be sent out
 						    if (result)
 							    id.TorrentManager.FinishedPieces.Enqueue(piece.Index);
 					    });
@@ -142,16 +137,13 @@ namespace OctoTorrent.Client
 				});
                 
                 if (piece.AllBlocksReceived)
-                    this.unhashedPieces[message.PieceIndex] = true;
-            }
-            else
-            {
+                    unhashedPieces[message.PieceIndex] = true;
             }
         }
 
         internal void AddPieceRequests(PeerId id)
         {
-            PeerMessage msg = null;
+            PeerMessage msg;
             int maxRequests = id.MaxPendingRequests;
 
             if (id.AmRequestingPiecesCount >= maxRequests)
