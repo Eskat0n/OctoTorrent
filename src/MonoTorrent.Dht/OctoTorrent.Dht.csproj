@@ -132,4 +132,7 @@
       <Name>OctoTorrent</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="OctoTorrent.Dht.nuspec" />
+  </ItemGroup>
 </Project>
