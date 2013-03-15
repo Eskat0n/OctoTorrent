@@ -99,7 +99,7 @@
     <Compile Include="OctoTorrent.Client\EventArgs\LocalPeersAdded.cs" />
     <Compile Include="OctoTorrent.Client\EventArgs\PeersFoundEventArgs.cs" />
     <Compile Include="OctoTorrent.Client\IDhtEngine.cs" />
-    <Compile Include="OctoTorrent.BEncoding\RawReader.cs" />
+    <Compile Include="BEncoding\RawReader.cs" />
     <Compile Include="OctoTorrent.Client\ConnectionListeners\IListener.cs" />
     <Compile Include="OctoTorrent.Client\ConnectionListeners\Listener.cs" />
     <Compile Include="OctoTorrent.Client\ConnectionListeners\PeerListener.cs" />
@@ -110,12 +110,12 @@
     <Compile Include="OctoTorrent.Client\EventArgs\PeerConnectionFailedEventArgs.cs" />
     <Compile Include="OctoTorrent.Client\EventArgs\PeerExchangePeersAdded.cs" />
     <Compile Include="OctoTorrent.Client\EventArgs\TrackerPeersAdded.cs" />
-    <Compile Include="OctoTorrent.BEncoding\BEncodedDictionary.cs" />
-    <Compile Include="OctoTorrent.BEncoding\BEncodedList.cs" />
-    <Compile Include="OctoTorrent.BEncoding\BEncodedNumber.cs" />
-    <Compile Include="OctoTorrent.BEncoding\BEncodedString.cs" />
-    <Compile Include="OctoTorrent.BEncoding\BEncodingException.cs" />
-    <Compile Include="OctoTorrent.BEncoding\IBEncodedValue.cs" />
+    <Compile Include="BEncoding\BEncodedDictionary.cs" />
+    <Compile Include="BEncoding\BEncodedList.cs" />
+    <Compile Include="BEncoding\BEncodedNumber.cs" />
+    <Compile Include="BEncoding\BEncodedString.cs" />
+    <Compile Include="BEncoding\BEncodingException.cs" />
+    <Compile Include="BEncoding\IBEncodedValue.cs" />
     <Compile Include="OctoTorrent.Client\AllowedFastAlgorithm.cs" />
     <Compile Include="OctoTorrent.Client\Block.cs" />
     <Compile Include="OctoTorrent.Client\ClientEngine.cs" />
