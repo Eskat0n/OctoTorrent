@@ -1,11 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-
-namespace MonoTorrent.Client.Tasks
+namespace OctoTorrent.Client.Tasks
 {
-    class DelegateTask : Task
+    using System.Threading;
+    using MonoTorrent.Client.Tasks;
+    using Client;
+
+    internal class DelegateTask : Task
     {
         public ManualResetEvent Handle;
         private object result;

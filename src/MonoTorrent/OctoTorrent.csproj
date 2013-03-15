@@ -166,6 +166,8 @@
     <Compile Include="Client\RateLimiters\IRateLimiter.cs" />
     <Compile Include="Client\RateLimiters\PauseLimiter.cs" />
     <Compile Include="Client\RateLimiters\RateLimiterGroup.cs" />
+    <Compile Include="Client\Tasks\DelegateTask.cs" />
+    <Compile Include="Client\Tasks\Task.cs" />
     <Compile Include="Client\TorrentFileStream.cs" />
     <Compile Include="Client\Tracker\ITracker.cs" />
     <Compile Include="Client\Tracker\ScrapeParameters.cs" />
