@@ -4,7 +4,7 @@
     <id>OctoTorrent</id>
     <version>$version$</version>
     <title>OctoTorrent</title>
-    <authors>Eskat0n</authors>
+    <authors>migueldeicaza, alanmcgovern, dufoli, kellyelton, peters, Olivier Dufour, Eskat0n</authors>
     <owners>Eskat0n</owners>
     <licenseUrl>http://www.opensource.org/licenses/mit-license.php</licenseUrl>
     <projectUrl>https://github.com/Eskat0n/octotorrent</projectUrl>
