@@ -1,35 +1,4 @@
-//
-// TorrentFile.cs
-//
-// Authors:
-//   Alan McGovern alan.mcgovern@gmail.com
-//
-// Copyright (C) 2006 Alan McGovern
-//
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-// 
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-
-
-
 using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace OctoTorrent.Common
@@ -42,20 +11,19 @@ namespace OctoTorrent.Common
     {
         #region Private Fields
 
-        private BitField bitfield;
+        private readonly BitField bitfield;
         private BitField selector;
-        private byte[] ed2k;
-        private int endPiece;
+        private readonly byte[] ed2k;
+        private readonly int endPiece;
         private string fullPath;
-        private long length;
+        private readonly long length;
         private byte[] md5;
-        private string path;
+        private readonly string path;
         private Priority priority;
-        private byte[] sha1;
-        private int startPiece;
+        private readonly byte[] sha1;
+        private readonly int startPiece;
 
         #endregion Private Fields
-
 
         #region Member Variables
 
@@ -64,7 +32,7 @@ namespace OctoTorrent.Common
         /// </summary>
         public BitField BitField
         {
-            get { return this.bitfield; }
+            get { return bitfield; }
         }
 
         public long BytesDownloaded
@@ -85,7 +53,7 @@ namespace OctoTorrent.Common
         /// </summary>
         public int EndPieceIndex
         {
-            get { return this.endPiece; }
+            get { return endPiece; }
         }
 
         public string FullPath
@@ -148,7 +116,6 @@ namespace OctoTorrent.Common
 
         #endregion
 
-
         #region Constructors
         public TorrentFile(string path, long length)
             : this(path, length, path)
@@ -189,7 +156,6 @@ namespace OctoTorrent.Common
         }
 
         #endregion
-
 
         #region Methods
 
