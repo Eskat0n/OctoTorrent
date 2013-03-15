@@ -15,6 +15,7 @@ using OctoTorrent.Dht.Listeners;
 namespace OctoTorrent
 {
     using System.Linq;
+    using SampleClient;
 
     class main
     {

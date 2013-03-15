@@ -35,7 +35,7 @@ using System.Threading;
 
 namespace OctoTorrent.Client.Tracker
 {
-    internal class TrackerConnectionID
+    public class TrackerConnectionID
     {
         TorrentEvent torrentEvent;
         Tracker tracker;
