@@ -1,12 +1,13 @@
-namespace OctoTorrent.Tracker
+namespace OctoTorrent.Tests.Tracker
 {
     using System;
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.Globalization;
     using System.Net;
-    using BEncoding;
-    using Listeners;
+    using OctoTorrent.BEncoding;
+    using OctoTorrent.Tracker;
+    using OctoTorrent.Tracker.Listeners;
 
     public class CustomComparer : IPeerComparer
     {

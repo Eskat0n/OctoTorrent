@@ -27,15 +27,11 @@
 //
 
 
-
-using System;
-using System.Collections.Generic;
-using System.Text;
-using OctoTorrent.Client.PieceWriters;
-using OctoTorrent.Common;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using OctoTorrent.Client.PieceWriters;
+    using OctoTorrent.Common;
+
     public class NullWriter : PieceWriter
     {
         public NullWriter()

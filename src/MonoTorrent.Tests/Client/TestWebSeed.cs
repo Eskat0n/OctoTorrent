@@ -1,18 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using OctoTorrent.Client.Connections;
-using System.Net;
-using OctoTorrent.Client.Messages.Standard;
-using OctoTorrent.Client;
-using System.Threading;
-using OctoTorrent.Client.Messages;
-using System.Text.RegularExpressions;
-using OctoTorrent.Common;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System;
+    using System.Collections.Generic;
+    using NUnit.Framework;
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.Connections;
+    using System.Net;
+    using OctoTorrent.Client.Messages.Standard;
+    using System.Threading;
+    using OctoTorrent.Client.Messages;
+    using System.Text.RegularExpressions;
+    using OctoTorrent.Common;
+
     [TestFixture]
     public class TestWebSeed
     {

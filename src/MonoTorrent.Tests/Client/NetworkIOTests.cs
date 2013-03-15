@@ -26,16 +26,17 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using NUnit.Framework;
-using System.Threading;
-using OctoTorrent.Common;
-using System.Net;
-using OctoTorrent.Client.Messages.Standard;
-using OctoTorrent.Client.Encryption;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System;
+    using NUnit.Framework;
+    using System.Threading;
+    using System.Net;
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.Messages.Standard;
+    using OctoTorrent.Client.Encryption;
+    using OctoTorrent.Common;
+
     [TestFixture]
     public class NetworkIOTests
     {

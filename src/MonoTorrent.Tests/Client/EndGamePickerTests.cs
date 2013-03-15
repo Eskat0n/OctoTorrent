@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using OctoTorrent.Client;
-using OctoTorrent.Common;
-using OctoTorrent.Client.Messages.Standard;
-using OctoTorrent.Client.Messages;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System;
+    using System.Collections.Generic;
+    using NUnit.Framework;
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.Messages.Standard;
+    using OctoTorrent.Common;
+
     [TestFixture]
     public class EndGamePickerTests
     {

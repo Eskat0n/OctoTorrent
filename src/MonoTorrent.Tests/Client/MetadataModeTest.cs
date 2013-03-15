@@ -1,17 +1,16 @@
-﻿using OctoTorrent.Client;
-using OctoTorrent.Client.Encryption;
-using OctoTorrent.Client.Messages;
-using OctoTorrent.Client.Messages.Libtorrent;
-using OctoTorrent.Client.Messages.Standard;
-using OctoTorrent.Common;
-using NUnit.Framework;
-using System;
-using System.IO;
-using System.Net;
-using System.Security.Cryptography;
-
-namespace OctoTorrent.Client
+﻿namespace OctoTorrent.Tests.Client
 {
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.Encryption;
+    using OctoTorrent.Client.Messages;
+    using OctoTorrent.Client.Messages.Libtorrent;
+    using OctoTorrent.Client.Messages.Standard;
+    using NUnit.Framework;
+    using System;
+    using System.IO;
+    using System.Security.Cryptography;
+    using OctoTorrent.Common;
+
     [TestFixture]
     public class MetadataModeTests
     {

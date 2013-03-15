@@ -1,10 +1,11 @@
 #if !DISABLE_DHT
-using System.Collections.Generic;
-using System.Net;
-
-namespace OctoTorrent.Dht
+namespace OctoTorrent.Tests.Dht
 {
-	static class TestHelper
+    using System.Collections.Generic;
+    using System.Net;
+    using OctoTorrent.Dht;
+
+    static class TestHelper
 	{
         internal static void ManyNodes(out RoutingTable routingTable, out List<NodeId> nodes)
         {

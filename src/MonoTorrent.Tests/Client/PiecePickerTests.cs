@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using OctoTorrent.Client;
-using OctoTorrent.Client.Messages.Standard;
-using OctoTorrent.Client.Messages.FastPeer;
-using OctoTorrent.Client.Messages;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System;
+    using System.Collections.Generic;
+    using NUnit.Framework;
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.Messages.Standard;
+    using OctoTorrent.Client.Messages;
+
     [TestFixture]
     public class PiecePickerTests
     {
@@ -325,7 +323,7 @@ namespace OctoTorrent.Client
             peer.BitField.SetAll(true);
             picker = new StandardPicker();
             picker.Initialise(rig.Manager.Bitfield, rig.Torrent.Files, new List<Piece>());
-            MessageBundle bundle = picker.PickPiece(peer, new Common.BitField(peer.BitField.Length), peers, 1, 0, peer.BitField.Length);
+            MessageBundle bundle = picker.PickPiece(peer, new OctoTorrent.Common.BitField(peer.BitField.Length), peers, 1, 0, peer.BitField.Length);
             Assert.IsNull(bundle);
         }
 
@@ -339,7 +337,7 @@ namespace OctoTorrent.Client
             peer.BitField.SetAll(true);
             picker = new StandardPicker();
             picker.Initialise(rig.Manager.Bitfield, rig.Torrent.Files, new List<Piece>());
-            MessageBundle bundle = picker.PickPiece(peer, new Common.BitField(peer.BitField.Length), peers, 1, 0, peer.BitField.Length);
+            MessageBundle bundle = picker.PickPiece(peer, new OctoTorrent.Common.BitField(peer.BitField.Length), peers, 1, 0, peer.BitField.Length);
             Assert.IsNull(bundle);
         }
 

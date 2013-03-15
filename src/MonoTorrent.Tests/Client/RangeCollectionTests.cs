@@ -1,10 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System.Collections.Generic;
+    using NUnit.Framework;
+    using OctoTorrent.Client;
+
     [TestFixture]
     public class RangeCollectionTests
     {

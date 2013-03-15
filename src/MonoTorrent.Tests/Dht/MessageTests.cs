@@ -1,16 +1,13 @@
 #if !DISABLE_DHT
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using OctoTorrent.Dht.Messages;
-using OctoTorrent.BEncoding;
-using OctoTorrent.Common;
-
-namespace OctoTorrent.Dht
+namespace OctoTorrent.Tests.Dht
 {
-    using Client.Messages;
-    using Message = Messages.Message;
+    using System.Text;
+    using NUnit.Framework;
+    using OctoTorrent.Dht;
+    using OctoTorrent.Dht.Messages;
+    using OctoTorrent.BEncoding;
+    using OctoTorrent.Client.Messages;
+    using Message = OctoTorrent.Dht.Messages.Message;
 
     [TestFixture]
     public class MessageTests

@@ -27,23 +27,18 @@
 //
 
 
-
-
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
-using System.Threading;
-using NUnit.Framework;
-using OctoTorrent.Client.Messages.Standard;
-using OctoTorrent.Common;
-using OctoTorrent.Client.Messages.FastPeer;
-using OctoTorrent.Client.Messages;
-using OctoTorrent.Client.Encryption;
-
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System;
+    using System.Net;
+    using NUnit.Framework;
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.Messages.Standard;
+    using OctoTorrent.Client.Messages.FastPeer;
+    using OctoTorrent.Client.Messages;
+    using OctoTorrent.Client.Encryption;
+    using OctoTorrent.Common;
+
     [TestFixture]
     public class TransferTest
     {

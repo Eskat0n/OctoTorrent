@@ -1,16 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using OctoTorrent.Common;
-using OctoTorrent.BEncoding;
-using OctoTorrent.Client;
-using System.IO;
-using OctoTorrent.Client.PieceWriters;
-using System.Security.Cryptography;
-
-namespace OctoTorrent.Common
+namespace OctoTorrent.Tests.Common
 {
+    using System;
+    using System.Collections.Generic;
+    using Client;
+    using NUnit.Framework;
+    using OctoTorrent.BEncoding;
+    using System.IO;
+    using OctoTorrent.Client.PieceWriters;
+    using System.Security.Cryptography;
+    using OctoTorrent.Common;
+
     public class TestTorrentCreator : TorrentCreator
     {
         protected override PieceWriter CreateReader()

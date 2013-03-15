@@ -27,16 +27,13 @@
 //
 
 
-
-using System;
-using System.IO;
-using OctoTorrent.Common;
-using NUnit.Framework;
-using System.Text;
-using OctoTorrent.BEncoding;
-
-namespace OctoTorrent.Common
+namespace OctoTorrent.Tests.Common
 {
+    using System.IO;
+    using NUnit.Framework;
+    using System.Text;
+    using OctoTorrent.BEncoding;
+    using OctoTorrent.Common;
 
     /// <summary>
     /// 

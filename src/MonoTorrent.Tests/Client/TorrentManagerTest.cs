@@ -1,17 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using OctoTorrent.Client.Connections;
-using OctoTorrent.Client.Messages.Standard;
-using OctoTorrent.Common;
-using OctoTorrent.Client.Messages;
-using System.Threading;
-using OctoTorrent.BEncoding;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
-    using Tracker;
+    using System;
+    using NUnit.Framework;
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.Messages.Standard;
+    using OctoTorrent.Client.Messages;
+    using System.Threading;
+    using OctoTorrent.BEncoding;
+    using OctoTorrent.Common;
 
     [TestFixture]
     public class TorrentManagerTest

@@ -1,8 +1,8 @@
-using System;
-using NUnit.Framework;
-
-namespace OctoTorrent.Common
+namespace OctoTorrent.Tests.Common
 {
+    using NUnit.Framework;
+    using OctoTorrent.Common;
+
     [TestFixture]
     public class SpeedMonitorTest
     {

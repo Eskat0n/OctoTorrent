@@ -27,13 +27,11 @@
 //
 
 
-
-using System.IO;
-using NUnit.Framework;
-using System.Text;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System.IO;
+    using NUnit.Framework;
+
     /// <summary>
     /// 
     /// </summary>

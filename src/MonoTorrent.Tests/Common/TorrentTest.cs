@@ -26,14 +26,15 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace OctoTorrent.Common
+namespace OctoTorrent.Tests.Common
 {
     using System;
     using System.IO;
     using System.Security.Cryptography;
-    using BEncoding;
-    using OctoTorrent.Client;
+    using Client;
+    using OctoTorrent.BEncoding;
     using NUnit.Framework;
+    using OctoTorrent.Common;
 
     [TestFixture]
     public class TorrentTest

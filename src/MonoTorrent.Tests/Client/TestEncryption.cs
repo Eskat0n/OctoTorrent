@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using System.Threading;
-using OctoTorrent.Client.Messages.Standard;
-using OctoTorrent.Common;
-using OctoTorrent.Client.Encryption;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System;
+    using NUnit.Framework;
+    using System.Threading;
+    using OctoTorrent.Client.Messages.Standard;
+    using OctoTorrent.Client.Encryption;
+    using OctoTorrent.Common;
+
     [TestFixture]
     public class TestEncryption
     {

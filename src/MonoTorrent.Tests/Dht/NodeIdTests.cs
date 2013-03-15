@@ -1,11 +1,9 @@
 #if !DISABLE_DHT
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-
-namespace OctoTorrent.Dht
+namespace OctoTorrent.Tests.Dht
 {
+    using NUnit.Framework;
+    using OctoTorrent.Dht;
+
     [TestFixture]
     public class NodeIdTests
     {

@@ -1,15 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using OctoTorrent.Client.Messages.FastPeer;
-using OctoTorrent.Client.Messages.Standard;
-using OctoTorrent.Common;
-using NUnit.Framework;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.Messages.FastPeer;
+    using OctoTorrent.Client.Messages.Standard;
+    using NUnit.Framework;
+    using OctoTorrent.Common;
+
     [TestFixture]
     public class InitialSeedingModeTest
     {

@@ -1,13 +1,11 @@
 #if !DISABLE_DHT
-using System;
-using System.Collections.Generic;
-using System.Text;
-using OctoTorrent.Dht;
-using NUnit.Framework;
-using System.Net;
-
-namespace OctoTorrent.Dht
+namespace OctoTorrent.Tests.Dht
 {
+    using System.Collections.Generic;
+    using NUnit.Framework;
+    using System.Net;
+    using OctoTorrent.Dht;
+
     [TestFixture]
     public class RoutingTableTests
     {

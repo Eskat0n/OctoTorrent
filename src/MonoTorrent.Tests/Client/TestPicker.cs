@@ -27,15 +27,13 @@
 //
 
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using OctoTorrent.Client;
-using OctoTorrent.Common;
-using OctoTorrent.Client.Messages;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System.Collections.Generic;
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.Messages;
+    using OctoTorrent.Common;
+
     class TestPicker : PiecePicker
     {
         public List<BitField> IsInterestingBitfield = new List<BitField>();

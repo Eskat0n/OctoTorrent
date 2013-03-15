@@ -1,20 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using OctoTorrent.Client.Connections;
-using OctoTorrent.BEncoding;
-using OctoTorrent.Client.Tracker;
-using OctoTorrent.Client.PieceWriters;
-using OctoTorrent.Client;
-using OctoTorrent.Common;
-using System.Net.Sockets;
-using System.Net;
-using OctoTorrent.Client.Encryption;
-using System.Threading;
-using NUnit.Framework;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.Connections;
+    using OctoTorrent.BEncoding;
+    using OctoTorrent.Client.Tracker;
+    using OctoTorrent.Client.PieceWriters;
+    using System.Net.Sockets;
+    using System.Net;
+    using OctoTorrent.Client.Encryption;
+    using System.Threading;
+    using NUnit.Framework;
+    using OctoTorrent.Common;
+
     public class TestWriter : PieceWriter
     {
         public List<TorrentFile> FilesThatExist = new List<TorrentFile>();

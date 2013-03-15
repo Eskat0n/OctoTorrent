@@ -1,10 +1,11 @@
 #if !DISABLE_DHT
-using OctoTorrent.Dht.Listeners;
-using OctoTorrent.Dht.Messages;
-using System.Net;
-
-namespace OctoTorrent.Dht
+namespace OctoTorrent.Tests.Dht
 {
+    using OctoTorrent.Dht;
+    using OctoTorrent.Dht.Listeners;
+    using OctoTorrent.Dht.Messages;
+    using System.Net;
+
     internal class TestListener : DhtListener
     {
         private bool started;

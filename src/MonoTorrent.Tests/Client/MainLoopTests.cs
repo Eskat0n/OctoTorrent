@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using OctoTorrent.Client;
-using System.Threading;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System;
+    using NUnit.Framework;
+    using System.Threading;
+    using OctoTorrent.Client;
+
     [TestFixture]
     public class MainLoopTests
     {

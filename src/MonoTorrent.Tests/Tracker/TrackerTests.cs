@@ -1,11 +1,12 @@
-namespace OctoTorrent.Tracker
+namespace OctoTorrent.Tests.Tracker
 {
     using System;
     using System.Threading;
-    using Client.Tracker;
-    using Common;
-    using Listeners;
+    using OctoTorrent.Client.Tracker;
+    using OctoTorrent.Common;
+    using OctoTorrent.Tracker.Listeners;
     using NUnit.Framework;
+    using Tracker = OctoTorrent.Tracker.Tracker;
 
     [TestFixture]
     public class TrackerTests
@@ -69,9 +70,9 @@ namespace OctoTorrent.Tracker
                                                          };
                 var id = new TrackerConnectionID(tier.Trackers[0], false, TorrentEvent.Started,
                                                  new ManualResetEvent(false));
-                var parameters = new OctoTorrent.Client.Tracker.AnnounceParameters(0, 0, 0, TorrentEvent.Started,
-                                                                                   infoHash, false, new string('1', 20),
-                                                                                   string.Empty, 1411);
+                var parameters = new AnnounceParameters(0, 0, 0, TorrentEvent.Started,
+                                                        infoHash, false, new string('1', 20),
+                                                        string.Empty, 1411);
                 tier.Trackers[0].Announce(parameters, id);
             }
 

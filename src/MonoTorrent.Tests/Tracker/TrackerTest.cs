@@ -1,13 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using OctoTorrent.Tracker;
-using OctoTorrent.BEncoding;
-using System.Net;
-
-namespace OctoTorrent.Tracker
+namespace OctoTorrent.Tests.Tracker
 {
+    using System.Collections.Generic;
+    using NUnit.Framework;
+    using OctoTorrent.BEncoding;
+    using System.Net;
+    using OctoTorrent.Tracker;
+
     [TestFixture]
     public class TrackerTest
     {

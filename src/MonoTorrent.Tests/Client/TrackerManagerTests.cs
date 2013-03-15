@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using OctoTorrent.Client.Tracker;
-using OctoTorrent.Client;
-using System.Threading;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
-    public class DefaultTracker : Tracker.Tracker
+    using System;
+    using System.Collections.Generic;
+    using NUnit.Framework;
+    using OctoTorrent.Client.Tracker;
+    using System.Threading;
+
+    public class DefaultTracker : Tracker
     {
         public DefaultTracker()
             :base(new Uri("http://tracker:5353/announce"))
@@ -75,7 +73,7 @@ namespace OctoTorrent.Client
             foreach (TrackerTier t in trackerManager)
             {
                 List<CustomTracker> list = new List<CustomTracker>();
-                foreach (Tracker.Tracker tracker in t)
+                foreach (OctoTorrent.Client.Tracker.Tracker tracker in t)
                     list.Add((CustomTracker)tracker);
                 this.trackers.Add(list);
             }

@@ -29,14 +29,13 @@
 //
 
 
-
-using System;
-using NUnit.Framework;
-using System.Web;
-
-namespace OctoTorrent.Common
+namespace OctoTorrent.Tests.Common
 {
-	[TestFixture]
+    using System;
+    using NUnit.Framework;
+    using OctoTorrent.Common;
+
+    [TestFixture]
 	public class UriQueryBuilderTest
 	{
 

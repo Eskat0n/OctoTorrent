@@ -1,12 +1,12 @@
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Common;
     using NUnit.Framework;
+    using OctoTorrent.Common;
     using OctoTorrent.Tracker.Listeners;
-    using Tracker;
+    using OctoTorrent.Client.Tracker;
 
     [TestFixture]
     public class HttpTrackerTests

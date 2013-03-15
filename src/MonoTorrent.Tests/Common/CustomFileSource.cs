@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
-
-namespace OctoTorrent.Common
+namespace OctoTorrent.Tests.Common
 {
+    using System.Collections.Generic;
+    using OctoTorrent.Common;
+
     public class CustomFileSource : ITorrentFileSource
     {
         public IEnumerable<FileMapping> Files {

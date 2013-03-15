@@ -1,10 +1,9 @@
-using System;
-
-using NUnit.Framework;
-using OctoTorrent.BEncoding;
-
-namespace OctoTorrent.Common
+namespace OctoTorrent.Tests.Common
 {
+    using System;
+    using NUnit.Framework;
+    using OctoTorrent.BEncoding;
+
     [TestFixture]
     public class TorrentEditorTests
     {

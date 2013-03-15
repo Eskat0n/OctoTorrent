@@ -1,10 +1,8 @@
-
-using System;
-using System.Collections.Generic;
-using NUnit.Framework;
-
-namespace OctoTorrent.Common
+namespace OctoTorrent.Tests.Common
 {
+    using System;
+    using NUnit.Framework;
+
     [TestFixture]
     public class MagnetLinkTest
     {

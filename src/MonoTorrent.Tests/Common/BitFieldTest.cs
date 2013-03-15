@@ -26,14 +26,15 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using NUnit.Framework;
-using OctoTorrent.Client;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace OctoTorrent.Common
+namespace OctoTorrent.Tests.Common
 {
+    using System;
+    using NUnit.Framework;
+    using System.Collections.Generic;
+    using System.Linq;
+    using OctoTorrent.Client;
+    using OctoTorrent.Common;
+
     [TestFixture]
     public class BitFieldTest
     {

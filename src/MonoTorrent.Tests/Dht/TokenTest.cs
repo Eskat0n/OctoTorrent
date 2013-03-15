@@ -27,17 +27,14 @@
 //
 //
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using System.Net;
-
-using OctoTorrent.Dht;
-using OctoTorrent.BEncoding;
-
-namespace OctoTorrent.Dht
+namespace OctoTorrent.Tests.Dht
 {
+    using System;
+    using NUnit.Framework;
+    using System.Net;
+    using OctoTorrent.BEncoding;
+    using OctoTorrent.Dht;
+
     [TestFixture]
     public class TokenTest
     {

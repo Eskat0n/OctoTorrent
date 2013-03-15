@@ -27,14 +27,12 @@
 //
 
 
-using System;
-using System.Net;
-using OctoTorrent.BEncoding;
-using OctoTorrent.Client;
-using NUnit.Framework;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System;
+    using NUnit.Framework;
+    using OctoTorrent.Client;
+
     [TestFixture]
     public class PeerTest
     {

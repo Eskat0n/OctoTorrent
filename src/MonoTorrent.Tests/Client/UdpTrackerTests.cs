@@ -26,17 +26,18 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Common;
-    using Messages;
-    using Messages.UdpTracker;
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.Messages;
+    using OctoTorrent.Client.Messages.UdpTracker;
+    using OctoTorrent.Common;
     using OctoTorrent.Tracker.Listeners;
     using NUnit.Framework;
-    using Tracker;
+    using OctoTorrent.Client.Tracker;
 
     [TestFixture]
     public class UdpTrackerTests

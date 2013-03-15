@@ -1,9 +1,10 @@
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
     using System.Linq;
-    using Common;
     using NUnit.Framework;
-    using PieceWriters;
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.PieceWriters;
+    using OctoTorrent.Common;
 
     public class MemoryWriterTests
     {

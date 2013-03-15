@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using OctoTorrent.BEncoding;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System;
+    using System.Collections.Generic;
+    using NUnit.Framework;
+    using OctoTorrent.BEncoding;
+    using OctoTorrent.Client;
+
     [TestFixture]
     public class PeerTests
     {

@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using OctoTorrent.Client.Messages;
-using OctoTorrent.Client.Messages.Standard;
-using OctoTorrent.Common;
-using OctoTorrent.Client.Connections;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System;
+    using OctoTorrent.Client;
+
     public class PerformanceTests
     {
         static void Time(MainLoopTask task, string title)

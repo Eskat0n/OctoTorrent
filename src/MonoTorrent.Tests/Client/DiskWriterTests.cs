@@ -27,18 +27,15 @@
 //
 
 
-
-using System;
-using System.Collections.Generic;
-using System.Text;
-using OctoTorrent.Client.PieceWriters;
-using OctoTorrent.Common;
-using NUnit.Framework;
-using System.IO;
-using System.Threading;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System;
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.PieceWriters;
+    using NUnit.Framework;
+    using System.Threading;
+    using OctoTorrent.Common;
+
     public class ExceptionWriter : PieceWriter
     {
         public bool exist, close, flush, move, read, write;

@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using OctoTorrent.Client;
-using System.Net;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using NUnit.Framework;
+    using System.Net;
+    using OctoTorrent.Client;
+
     [TestFixture]
     public class BanListTests
     {

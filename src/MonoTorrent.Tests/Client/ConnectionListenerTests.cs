@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using OctoTorrent.Client;
-using System.Net;
-using System.Net.Sockets;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using NUnit.Framework;
+    using System.Net;
+    using System.Net.Sockets;
+    using OctoTorrent.Client;
+
     [TestFixture]
     public class ConnectionListenerTests
     {

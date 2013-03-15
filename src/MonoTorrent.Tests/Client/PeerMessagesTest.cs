@@ -27,19 +27,18 @@
 //
 
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using OctoTorrent.Common;
-using System.Net;
-using OctoTorrent.Client.Messages;
-using OctoTorrent.Client.Messages.Standard;
-using OctoTorrent.BEncoding;
-using OctoTorrent.Client.Messages.Libtorrent;
-
-namespace OctoTorrent.Client
+namespace OctoTorrent.Tests.Client
 {
+    using System;
+    using System.Text;
+    using NUnit.Framework;
+    using OctoTorrent.Client;
+    using OctoTorrent.Client.Messages;
+    using OctoTorrent.Client.Messages.Standard;
+    using OctoTorrent.BEncoding;
+    using OctoTorrent.Client.Messages.Libtorrent;
+    using OctoTorrent.Common;
+
     [TestFixture]
     public class PeerMessagesTest
     {
