@@ -311,10 +311,10 @@
     <Compile Include="OctoTorrent.Tracker\Listeners\HttpListener.cs" />
     <Compile Include="OctoTorrent.Tracker\Listeners\ListenerBase.cs" />
     <Compile Include="OctoTorrent.Tracker\Listeners\ManualListener.cs" />
-    <Compile Include="OctoTorrent.TorrentWatchers\ITorrentWatcher.cs" />
-    <Compile Include="OctoTorrent.TorrentWatchers\TorrentFolderWatcher.cs" />
-    <Compile Include="OctoTorrent.TorrentWatchers\TorrentWatcherEventArgs.cs" />
-    <Compile Include="OctoTorrent.TorrentWatchers\TorrentWatchers.cs" />
+    <Compile Include="TorrentWatchers\ITorrentWatcher.cs" />
+    <Compile Include="TorrentWatchers\TorrentFolderWatcher.cs" />
+    <Compile Include="TorrentWatchers\TorrentWatcherEventArgs.cs" />
+    <Compile Include="TorrentWatchers\TorrentWatchers.cs" />
     <Compile Include="Client\Managers\PeerExchangeManager.cs" />
     <Compile Include="Client\Messages\uTorrent\PeerExchangeMessage.cs" />
     <Compile Include="OctoTorrent.Tracker\Listeners\UdpListener.cs" />
