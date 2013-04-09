@@ -534,37 +534,33 @@ namespace OctoTorrent.Client
 
         private void DownloadLogic(int counter)
         {
-            // FIXME: Hardcoded 15kB/sec - is this ok?
-            if ((DateTime.Now - _manager.StartTime) > TimeSpan.FromMinutes(1) && _manager.Monitor.DownloadSpeed < 15*1024)
+            foreach (var s in _manager.Torrent.GetRightHttpSeeds)
             {
-                foreach (var s in _manager.Torrent.GetRightHttpSeeds)
-                {
-                    var peerId = "-WebSeed-";
-                    peerId = peerId + (_webseedCount++).ToString().PadLeft(20 - peerId.Length, '0');
+                var peerId = "-WebSeed-";
+                peerId = peerId + (_webseedCount++).ToString().PadLeft(20 - peerId.Length, '0');
 
-                    var uri = new Uri(s);
-                    var peer = new Peer(peerId, uri);
-                    var id = new PeerId(peer, _manager);
-                    var connection = new HttpConnection(new Uri(s));
-                    connection.Manager = _manager;
-                    peer.IsSeeder = true;
-                    id.BitField.SetAll(true);
-                    id.Encryptor = new PlainTextEncryption();
-                    id.Decryptor = new PlainTextEncryption();
-                    id.IsChoking = false;
-                    id.AmInterested = !_manager.Complete;
-                    id.Connection = connection;
-                    id.ClientApp = new Software(id.PeerID);
-                    _manager.Peers.ConnectedPeers.Add(id);
-                    _manager.RaisePeerConnected(new PeerConnectionEventArgs(_manager, id, Direction.Outgoing));
-                    PeerIO.EnqueueReceiveMessage(id.Connection, id.Decryptor, Manager.DownloadLimiter, id.Monitor,
-                                                 id.TorrentManager, id.ConnectionManager.MessageReceivedCallback, id);
-                }
-
-                // FIXME: In future, don't clear out this list. It may be useful to keep the list of HTTP seeds
-                // Add a boolean or something so that we don't add them twice.
-                _manager.Torrent.GetRightHttpSeeds.Clear();
+                var uri = new Uri(s);
+                var peer = new Peer(peerId, uri);
+                var id = new PeerId(peer, _manager);
+                var connection = new HttpConnection(new Uri(s));
+                connection.Manager = _manager;
+                peer.IsSeeder = true;
+                id.BitField.SetAll(true);
+                id.Encryptor = new PlainTextEncryption();
+                id.Decryptor = new PlainTextEncryption();
+                id.IsChoking = false;
+                id.AmInterested = !_manager.Complete;
+                id.Connection = connection;
+                id.ClientApp = new Software(id.PeerID);
+                _manager.Peers.ConnectedPeers.Add(id);
+                _manager.RaisePeerConnected(new PeerConnectionEventArgs(_manager, id, Direction.Outgoing));
+                PeerIO.EnqueueReceiveMessage(id.Connection, id.Decryptor, Manager.DownloadLimiter, id.Monitor,
+                                             id.TorrentManager, id.ConnectionManager.MessageReceivedCallback, id);
             }
+
+            // FIXME: In future, don't clear out this list. It may be useful to keep the list of HTTP seeds
+            // Add a boolean or something so that we don't add them twice.
+            _manager.Torrent.GetRightHttpSeeds.Clear();
 
             // Remove inactive peers we haven't heard from if we're downloading
             if (_manager.State == TorrentState.Downloading &&
@@ -577,7 +573,7 @@ namespace OctoTorrent.Client
             // Now choke/unchoke peers; first instantiate the choke/unchoke manager if we haven't done so already
             if (_manager.ChokeUnchoker == null)
                 _manager.ChokeUnchoker = new ChokeUnchokeManager(_manager, _manager.Settings.MinimumTimeBetweenReviews,
-                                                                _manager.Settings.PercentOfMaxRateToSkipReview);
+                                                                 _manager.Settings.PercentOfMaxRateToSkipReview);
             _manager.ChokeUnchoker.UnchokeReview();
         }
 
