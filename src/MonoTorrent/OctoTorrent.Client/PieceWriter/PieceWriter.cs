@@ -56,8 +56,8 @@ namespace OctoTorrent.Client.PieceWriters
             if (offset < 0 || offset + count > torrentSize)
                 throw new ArgumentOutOfRangeException("offset");
 
-            int i = 0;
-            int totalRead = 0;
+            int i;
+            var totalRead = 0;
 
             for (i = 0; i < files.Count; i++)
             {
@@ -69,7 +69,7 @@ namespace OctoTorrent.Client.PieceWriters
 
             while (totalRead < count)
             {
-                int fileToRead = (int)Math.Min(files[i].Length - offset, count - totalRead);
+                var fileToRead = (int)Math.Min(files[i].Length - offset, count - totalRead);
                 fileToRead = Math.Min(fileToRead, Piece.BlockSize);
 
                 if (fileToRead != Read(files[i], offset, buffer, bufferOffset + totalRead, fileToRead))
