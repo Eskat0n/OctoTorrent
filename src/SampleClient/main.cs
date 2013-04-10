@@ -25,8 +25,8 @@ namespace OctoTorrent
         static string _fastResumeFile;
         static string _torrentsPath;
         static ClientEngine _engine;				// The engine used for downloading
-        static List<TorrentManager> torrents;	// The list where all the torrentManagers will be stored that the engine gives us
-        static Top10Listener listener;			// This is a subclass of TraceListener which remembers the last 20 statements sent to it
+        static List<TorrentManager> _torrents;	// The list where all the torrentManagers will be stored that the engine gives us
+        static Top10Listener _listener;			// This is a subclass of TraceListener which remembers the last 20 statements sent to it
 
         static void Main(string[] args)
         {
@@ -36,8 +36,8 @@ namespace OctoTorrent
             _downloadsPath = Path.Combine(_basePath, "Downloads");			// This is the directory we will save downloads to
             _fastResumeFile = Path.Combine(_torrentsPath, "fastresume.data");
             _dhtNodeFile = Path.Combine(_basePath, "DhtNodes");
-            torrents = new List<TorrentManager>();							// This is where we will store the torrentmanagers
-            listener = new Top10Listener(10);
+            _torrents = new List<TorrentManager>();							// This is where we will store the torrentmanagers
+            _listener = new Top10Listener(10);
 
             // We need to cleanup correctly when the user closes the window by using ctrl-c
             // or an unhandled exception happens
@@ -52,7 +52,7 @@ namespace OctoTorrent
         private static void StartEngine()
         {
             int port;
-            Torrent torrent = null;
+            Torrent torrent;
             // Ask the user what port they want to use for incoming connections
             Console.Write(Environment.NewLine + "Choose a listen port: ");
             while (!Int32.TryParse(Console.ReadLine(), out port)) { }
@@ -62,9 +62,11 @@ namespace OctoTorrent
             // Create the settings which the engine will use
             // downloadsPath - this is the path where we will save all the files to
             // port - this is the port we listen for connections on
-            EngineSettings engineSettings = new EngineSettings(_downloadsPath, port);
-            engineSettings.PreferEncryption = false;
-            engineSettings.AllowedEncryption = EncryptionTypes.All;
+            var engineSettings = new EngineSettings(_downloadsPath, port)
+                                     {
+                                         PreferEncryption = false,
+                                         AllowedEncryption = EncryptionTypes.All
+                                     };
 
             //engineSettings.GlobalMaxUploadSpeed = 30 * 1024;
             //engineSettings.GlobalMaxDownloadSpeed = 100 * 1024;
@@ -76,7 +78,7 @@ namespace OctoTorrent
             // 50 open connections - should never really need to be changed
             // Unlimited download speed - valid range from 0 -> int.Max
             // Unlimited upload speed - valid range from 0 -> int.Max
-            TorrentSettings torrentDefaults = new TorrentSettings(4, 150, 0, 0);
+            var torrentDefaults = new TorrentSettings(4, 150, 0, 0);
 
             // Create an instance of the engine.
             _engine = new ClientEngine(engineSettings);
@@ -135,20 +137,20 @@ namespace OctoTorrent
                     }
                     // When any preprocessing has been completed, you create a TorrentManager
                     // which you then register with the engine.
-                    TorrentManager manager = new TorrentManager(torrent, _downloadsPath, torrentDefaults);
+                    var manager = new TorrentManager(torrent, _downloadsPath, torrentDefaults);
                     if (fastResume.ContainsKey(torrent.InfoHash.ToHex ()))
                         manager.LoadFastResume(new FastResume ((BEncodedDictionary)fastResume[torrent.infoHash.ToHex ()]));
                     _engine.Register(manager);
 
                     // Store the torrent manager in our list so we can access it later
-                    torrents.Add(manager);
+                    _torrents.Add(manager);
                     manager.PeersFound += ManagerPeersFound;
                 }
             }
 
             // If we loaded no torrents, just exist. The user can put files in the torrents directory and start
             // the client again
-            if (torrents.Count == 0)
+            if (_torrents.Count == 0)
             {
                 Console.WriteLine("No torrents found in the Torrents directory");
                 Console.WriteLine("Exiting...");
@@ -158,24 +160,24 @@ namespace OctoTorrent
 
             // For each torrent manager we loaded and stored in our list, hook into the events
             // in the torrent manager and start the engine.
-            foreach (TorrentManager manager in torrents)
+            foreach (TorrentManager manager in _torrents)
             {
                 // Every time a piece is hashed, this is fired.
                 manager.PieceHashed += delegate(object o, PieceHashedEventArgs e) {
-                    lock (listener)
-                        listener.WriteLine(string.Format("Piece Hashed: {0} - {1}", e.PieceIndex, e.HashPassed ? "Pass" : "Fail"));
+                    lock (_listener)
+                        _listener.WriteLine(string.Format("Piece Hashed: {0} - {1}", e.PieceIndex, e.HashPassed ? "Pass" : "Fail"));
                 };
 
                 // Every time the state changes (Stopped -> Seeding -> Downloading -> Hashing) this is fired
                 manager.TorrentStateChanged += delegate (object o, TorrentStateChangedEventArgs e) {
-                    lock (listener)
-                        listener.WriteLine("OldState: " + e.OldState.ToString() + " NewState: " + e.NewState.ToString());
+                    lock (_listener)
+                        _listener.WriteLine("OldState: " + e.OldState.ToString() + " NewState: " + e.NewState.ToString());
                 };
 
                 // Every time the tracker's state changes, this is fired
                 foreach (var tracker in manager.TrackerManager.SelectMany(tier => tier.Trackers))
                 {
-                    tracker.AnnounceComplete += (sender, e) => listener.WriteLine(string.Format("{0}: {1}", e.Successful,
+                    tracker.AnnounceComplete += (sender, e) => _listener.WriteLine(string.Format("{0}: {1}", e.Successful,
                                                                                           e.Tracker.ToString()));
                 }
                 // Start the torrentmanager. The file will then hash (if required) and begin downloading/seeding
@@ -192,7 +194,7 @@ namespace OctoTorrent
                 if ((i++) % 10 == 0)
                 {
                     sb.Remove(0, sb.Length);
-                    running = torrents.Exists(delegate(TorrentManager m) { return m.State != TorrentState.Stopped; });
+                    running = _torrents.Exists(delegate(TorrentManager m) { return m.State != TorrentState.Stopped; });
 
                     AppendFormat(sb, "Total Download Rate: {0:0.00}kB/sec", _engine.TotalDownloadSpeed / 1024.0);
                     AppendFormat(sb, "Total Upload Rate:   {0:0.00}kB/sec", _engine.TotalUploadSpeed / 1024.0);
@@ -202,7 +204,7 @@ namespace OctoTorrent
                     AppendFormat(sb, "Total Written:      {0:0.00} kB", _engine.DiskManager.TotalWritten / 1024.0);
                     AppendFormat(sb, "Open Connections:    {0}", _engine.ConnectionManager.OpenConnections);
                     
-                    foreach (var manager in torrents)
+                    foreach (var manager in _torrents)
                     {
                         AppendSeperator(sb);
                         AppendFormat(sb, "State:           {0}", manager.State);
@@ -232,7 +234,7 @@ namespace OctoTorrent
                     }
                     Console.Clear();
                     Console.WriteLine(sb.ToString());
-                    listener.ExportTo(Console.Out);
+                    _listener.ExportTo(Console.Out);
                 }
 
                 Thread.Sleep(500);
@@ -241,8 +243,8 @@ namespace OctoTorrent
 
         static void ManagerPeersFound(object sender, PeersAddedEventArgs e)
         {
-            lock (listener)
-                listener.WriteLine(string.Format("Found {0} new peers and {1} existing peers", e.NewPeers, e.ExistingPeers ));//throw new Exception("The method or operation is not implemented.");
+            lock (_listener)
+                _listener.WriteLine(string.Format("Found {0} new peers and {1} existing peers", e.NewPeers, e.ExistingPeers ));//throw new Exception("The method or operation is not implemented.");
         }
 
         private static void AppendSeperator(StringBuilder sb)
@@ -263,7 +265,7 @@ namespace OctoTorrent
 		private static void Shutdown()
 		{
             var fastResume = new BEncodedDictionary();
-            foreach (var torrentManager in torrents)
+            foreach (var torrentManager in _torrents)
             {
                 torrentManager.Stop();
                 while (torrentManager.State != TorrentState.Stopped)

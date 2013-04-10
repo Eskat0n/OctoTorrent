@@ -1,87 +1,53 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Collections;
-using OctoTorrent.Common;
-
 namespace OctoTorrent.Client.Tracker
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+
     public class TrackerTier : IEnumerable<Tracker>
     {
-        #region Private Fields
+        private readonly List<Tracker> _trackers;
 
-        private bool sendingStartedEvent;
-        private bool sentStartedEvent;
-        private List<Tracker> trackers;
+        internal bool SendingStartedEvent { get; set; }
 
-        #endregion Private Fields
-
-
-        #region Properties
-
-        internal bool SendingStartedEvent
-        {
-            get { return this.sendingStartedEvent; }
-            set { this.sendingStartedEvent = value; }
-        }
-
-        internal bool SentStartedEvent
-        {
-            get { return this.sentStartedEvent; }
-            set { this.sentStartedEvent = value; }
-        }
+        internal bool SentStartedEvent { get; set; }
 
         internal List<Tracker> Trackers
         {
-            get { return this.trackers; }
+            get { return _trackers; }
         }
-
-        #endregion Properties
-
-
-        #region Constructors
 
         internal TrackerTier(IEnumerable<string> trackerUrls)
         {
-            Uri result;
-            List<Tracker> trackerList = new List<Tracker>();
+            var trackerList = new List<Tracker>();
 
-            foreach (string trackerUrl in trackerUrls)
+            foreach (var trackerUrl in trackerUrls)
             {
                 // FIXME: Debug spew?
+                Uri result;
                 if (!Uri.TryCreate(trackerUrl, UriKind.Absolute, out result))
                 {
                     Logger.Log(null, "TrackerTier - Invalid tracker Url specified: {0}", trackerUrl);
                     continue;
                 }
 
-                Tracker tracker = TrackerFactory.Create(result);
+                var tracker = TrackerFactory.Create(result);
                 if (tracker != null)
                 {
                     trackerList.Add(tracker);
                 }
                 else
                 {
-                    Console.Error.WriteLine("Unsupported protocol {0}", result);                // FIXME: Debug spew?
+                    Console.Error.WriteLine("Unsupported protocol {0}", result); // FIXME: Debug spew?
                 }
             }
 
-            this.trackers = trackerList;
-        }
-
-        #endregion Constructors
-
-
-        #region Methods
-
-        internal int IndexOf(Tracker tracker)
-        {
-            return trackers.IndexOf(tracker);
+            _trackers = trackerList;
         }
 
         public IEnumerator<Tracker> GetEnumerator()
         {
-            return trackers.GetEnumerator();
+            return _trackers.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -89,11 +55,14 @@ namespace OctoTorrent.Client.Tracker
             return GetEnumerator();
         }
 
-        public List<Tracker> GetTrackers()
+        internal int IndexOf(Tracker tracker)
         {
-            return new List<Tracker>(trackers);
+            return _trackers.IndexOf(tracker);
         }
 
-        #endregion Methods
+        public List<Tracker> GetTrackers()
+        {
+            return new List<Tracker>(_trackers);
+        }
     }
 }

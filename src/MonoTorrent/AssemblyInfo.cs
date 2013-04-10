@@ -10,3 +10,5 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyProduct("OctoTorrent Common Library")]
 [assembly: AssemblyTitle("OctoTorrent Common Library")]
 [assembly: AssemblyVersion("0.1.0")]
+
+[assembly: InternalsVisibleTo("OctoTorrent.SampleClient")]
