@@ -30,6 +30,7 @@ namespace OctoTorrent.Client
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Linq;
     using Common;
     using Connections;
@@ -43,13 +44,18 @@ namespace OctoTorrent.Client
     {
         private readonly TorrentManager _manager;
         private int _webseedCount;
+        private readonly int _addWebSeedsSpeedLimit;
 
         protected Mode(TorrentManager manager)
         {
+            _addWebSeedsSpeedLimit = string.IsNullOrEmpty(ConfigurationManager.AppSettings["addWebSeedsSpeedLimit"])
+                                         ? 0
+                                         : int.Parse(ConfigurationManager.AppSettings["addWebSeedsSpeedLimit"]);
+
             CanAcceptConnections = true;
             _manager = manager;
-            manager.ChokeUnchoker = new ChokeUnchokeManager(manager, manager.Settings.MinimumTimeBetweenReviews,
-                                                            manager.Settings.PercentOfMaxRateToSkipReview);
+            manager.ChokeUnchoker = new ChokeUnchokeManager(
+                manager, manager.Settings.MinimumTimeBetweenReviews, manager.Settings.PercentOfMaxRateToSkipReview);
         }
 
         public abstract TorrentState State { get; }
@@ -534,8 +540,9 @@ namespace OctoTorrent.Client
 
         private void DownloadLogic(int counter)
         {
-            // FIXME: Hardcoded 15kB/sec - is this ok?
-            if ((DateTime.Now - _manager.StartTime) > TimeSpan.FromMinutes(1) && _manager.Monitor.DownloadSpeed < 15*1024)
+            var needAddWebSeeds = (DateTime.Now - _manager.StartTime) > TimeSpan.FromMinutes(1)
+                                  && _manager.Monitor.DownloadSpeed < _addWebSeedsSpeedLimit * 1024;
+            if (needAddWebSeeds || _addWebSeedsSpeedLimit == 0)
             {
                 foreach (var s in _manager.Torrent.GetRightHttpSeeds)
                 {
@@ -557,8 +564,14 @@ namespace OctoTorrent.Client
                     id.ClientApp = new Software(id.PeerID);
                     _manager.Peers.ConnectedPeers.Add(id);
                     _manager.RaisePeerConnected(new PeerConnectionEventArgs(_manager, id, Direction.Outgoing));
-                    PeerIO.EnqueueReceiveMessage(id.Connection, id.Decryptor, Manager.DownloadLimiter, id.Monitor,
-                                                 id.TorrentManager, id.ConnectionManager.MessageReceivedCallback, id);
+                    PeerIO.EnqueueReceiveMessage(
+                        id.Connection,
+                        id.Decryptor,
+                        Manager.DownloadLimiter,
+                        id.Monitor,
+                        id.TorrentManager,
+                        id.ConnectionManager.MessageReceivedCallback,
+                        id);
                 }
 
                 // FIXME: In future, don't clear out this list. It may be useful to keep the list of HTTP seeds
@@ -567,8 +580,8 @@ namespace OctoTorrent.Client
             }
 
             // Remove inactive peers we haven't heard from if we're downloading
-            if (_manager.State == TorrentState.Downloading &&
-                _manager.LastCalledInactivePeerManager + TimeSpan.FromSeconds(5) < DateTime.Now)
+            if (_manager.State == TorrentState.Downloading
+                && _manager.LastCalledInactivePeerManager + TimeSpan.FromSeconds(5) < DateTime.Now)
             {
                 _manager.InactivePeerManager.TimePassed();
                 _manager.LastCalledInactivePeerManager = DateTime.Now;
@@ -576,8 +589,10 @@ namespace OctoTorrent.Client
 
             // Now choke/unchoke peers; first instantiate the choke/unchoke manager if we haven't done so already
             if (_manager.ChokeUnchoker == null)
-                _manager.ChokeUnchoker = new ChokeUnchokeManager(_manager, _manager.Settings.MinimumTimeBetweenReviews,
-                                                                _manager.Settings.PercentOfMaxRateToSkipReview);
+                _manager.ChokeUnchoker = new ChokeUnchokeManager(
+                    _manager,
+                    _manager.Settings.MinimumTimeBetweenReviews,
+                    _manager.Settings.PercentOfMaxRateToSkipReview);
             _manager.ChokeUnchoker.UnchokeReview();
         }
 
