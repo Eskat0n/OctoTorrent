@@ -67,9 +67,6 @@ namespace OctoTorrent.Client.PieceWriters
                 offset -= files[i].Length;
             }
 
-            if (files[i].Priority == Priority.DoNotDownload)
-                return false;
-
             while (totalRead < count)
             {
                 var fileToRead = (int)Math.Min(files[i].Length - offset, count - totalRead);
@@ -80,12 +77,11 @@ namespace OctoTorrent.Client.PieceWriters
 
                 offset += fileToRead;
                 totalRead += fileToRead;
-
-                if (offset < files[i].Length) 
-                    continue;
-
-                offset = 0;
-                i++;
+                if (offset >= files[i].Length)
+                {
+                    offset = 0;
+                    i++;
+                }
             }
 
             //monitor.BytesSent(totalRead, TransferType.Data);
@@ -114,22 +110,21 @@ namespace OctoTorrent.Client.PieceWriters
 
             while (totalWritten < count)
             {
-                var fileToWrite = (int)Math.Min(files[i].Length - offset, count - totalWritten);
+                var fileToWrite = (int) Math.Min(files[i].Length - offset, count - totalWritten);
                 fileToWrite = Math.Min(fileToWrite, Piece.BlockSize);
 
-                if (files[i].Priority != Priority.DoNotDownload)
+                if (files[i].Priority != Priority.DoNotDownload ||
+                    (offset < pieceLength || (files[i].Length - offset) < pieceLength))
                     Write(files[i], offset, buffer, bufferOffset + totalWritten, fileToWrite);
 
                 offset += fileToWrite;
                 totalWritten += fileToWrite;
-                if (offset < files[i].Length) 
+                if (offset < files[i].Length)
                     continue;
 
                 offset = 0;
                 i++;
             }
-
-            //monitor.BytesSent(totalRead, TransferType.Data);
         }
     }
 }
