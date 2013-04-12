@@ -310,6 +310,7 @@ namespace OctoTorrent.Client
                                        listenManager.Dispose();
                                        localPeerListener.Stop();
                                        localPeerManager.Dispose();
+                                       MainLoop.Dispose();
                                    });
         }
 

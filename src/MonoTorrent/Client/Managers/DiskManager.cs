@@ -250,7 +250,7 @@ namespace OctoTorrent.Client
 		void QueueRead(BufferedIO io, DiskIOCallback callback)
 		{
 			io.Callback = callback;
-			if (Thread.CurrentThread == IOLoop.thread) {
+			if (Thread.CurrentThread == IOLoop.Thread) {
 				PerformRead(io);
 				_cache.Enqueue (io);
 			}                           
@@ -273,7 +273,7 @@ namespace OctoTorrent.Client
 		void QueueWrite(BufferedIO io, DiskIOCallback callback)
 		{
 			io.Callback = callback;
-			if (Thread.CurrentThread == IOLoop.thread) {
+			if (Thread.CurrentThread == IOLoop.Thread) {
 				PerformWrite(io);
 				_cache.Enqueue (io);
 			}

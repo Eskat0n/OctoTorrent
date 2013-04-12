@@ -29,7 +29,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using Mono.Ssdp.Internal;
 using OctoTorrent.Common;
@@ -41,8 +40,10 @@ namespace OctoTorrent.Client
     public delegate void MainLoopTask();
     public delegate bool TimeoutTask();
 
-    public class MainLoop
+    public class MainLoop : IDisposable
     {
+        public string Name { get; private set; }
+
         private class DelegateTask : ICacheable
         {
             private ManualResetEvent handle;
@@ -143,17 +144,21 @@ namespace OctoTorrent.Client
             }
         }
 
-        TimeoutDispatcher dispatcher = new TimeoutDispatcher();
-        AutoResetEvent handle = new AutoResetEvent(false);
-        ICache<DelegateTask> cache = new Cache<DelegateTask>(true).Synchronize();
-        Queue<DelegateTask> tasks = new Queue<DelegateTask>();
-        internal Thread thread;
+        private readonly TimeoutDispatcher _dispatcher = new TimeoutDispatcher();
+        private readonly AutoResetEvent _handle = new AutoResetEvent(false);
+        private readonly ICache<DelegateTask> _cache = new Cache<DelegateTask>(true).Synchronize();
+        private readonly Queue<DelegateTask> _tasks = new Queue<DelegateTask>();
+        internal readonly Thread Thread;
+
+        private bool _disposed;
+        private bool _disposeEnqueued;
 
         public MainLoop(string name)
         {
-            thread = new Thread(Loop);
-            thread.IsBackground = true;
-            thread.Start();
+            Name = name;
+
+            Thread = new Thread(Loop) {IsBackground = true};
+            Thread.Start();
         }
 
         void Loop()
@@ -162,50 +167,62 @@ namespace OctoTorrent.Client
             {
                 DelegateTask task = null;
                 
-                lock (tasks)
+                lock (_tasks)
                 {
-                    if (tasks.Count > 0)
-                        task = tasks.Dequeue();
+                    if (_tasks.Count > 0)
+                        task = _tasks.Dequeue();
                 }
 
                 if (task == null)
                 {
-                    handle.WaitOne();
+                    if (_disposeEnqueued)
+                    {
+                        _disposed = true;
+                        _disposeEnqueued = false;
+                        break;
+                    }
+
+                    _handle.WaitOne();
                 }
                 else
                 {
-                    bool reuse = !task.IsBlocking;
                     task.Execute();
-                    if (reuse)
-                        cache.Enqueue(task);
+                    if (!task.IsBlocking)
+                        _cache.Enqueue(task);
                 }
             }
         }
 
-        private void Queue(DelegateTask task)
+        public void Dispose()
         {
-            Queue(task, Priority.Normal);
+            if (_disposed)
+                return;
+
+            _disposeEnqueued = true;
         }
 
-        private void Queue(DelegateTask task, Priority priority)
+        private void Queue(DelegateTask task)//, Priority priority = Priority.Normal)
         {
-            lock (tasks)
-            {
-                tasks.Enqueue(task);
-                handle.Set();
+            if (task == null)
+                return;
+
+            lock (_tasks)
+            {                
+                _tasks.Enqueue(task);
+                _handle.Set();
             }
         }
 
         public void Queue(MainLoopTask task)
         {
-            DelegateTask dTask = cache.Dequeue();
+            var dTask = _cache.Dequeue();
             dTask.Task = task;
             Queue(dTask);
         }
 
         public void QueueWait(MainLoopTask task)
         {
-            DelegateTask dTask = cache.Dequeue();
+            var dTask = _cache.Dequeue();
             dTask.Task = task;
             try
             {
@@ -213,13 +230,13 @@ namespace OctoTorrent.Client
             }
             finally
             {
-                cache.Enqueue(dTask);
+                _cache.Enqueue(dTask);
             }
         }
 
         public object QueueWait(MainLoopJob task)
         {
-            DelegateTask dTask = cache.Dequeue();
+            var dTask = _cache.Dequeue();
             dTask.Job = task;
 
             try
@@ -229,31 +246,31 @@ namespace OctoTorrent.Client
             }
             finally
             {
-                cache.Enqueue(dTask);
+                _cache.Enqueue(dTask);
             }
         }
 
-        private void QueueWait(DelegateTask t)
+        private void QueueWait(DelegateTask task)
         {
-            t.WaitHandle.Reset();
-            t.IsBlocking = true;
-            if (Thread.CurrentThread == thread)
-                t.Execute();
+            task.WaitHandle.Reset();
+            task.IsBlocking = true;
+            if (Thread.CurrentThread == Thread)
+                task.Execute();
             else
-                Queue(t, Priority.Highest);
+                Queue(task);//, Priority.Highest);
 
-            t.WaitHandle.WaitOne();
+            task.WaitHandle.WaitOne();
 
-            if (t.StoredException != null)
-                throw new TorrentException("Exception in mainloop", t.StoredException);
+            if (task.StoredException != null)
+                throw new TorrentException("Exception in mainloop", task.StoredException);
         }
 
         public uint QueueTimeout(TimeSpan span, TimeoutTask task)
         {
-            DelegateTask dTask = cache.Dequeue();
+            var dTask = _cache.Dequeue();
             dTask.Timeout = task;
 
-            return dispatcher.Add(span, delegate {
+            return _dispatcher.Add(span, delegate {
                 QueueWait(dTask);
                 return dTask.TimeoutResult;
             });
@@ -261,11 +278,7 @@ namespace OctoTorrent.Client
 
         public AsyncCallback Wrap(AsyncCallback callback)
         {
-            return delegate(IAsyncResult result) {
-                Queue(delegate {
-                    callback(result);
-                });
-            };
+            return result => Queue(() => callback(result));
         }
     }
 }
