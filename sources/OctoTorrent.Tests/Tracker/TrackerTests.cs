@@ -9,27 +9,9 @@ namespace OctoTorrent.Tests.Tracker
     using Tracker = OctoTorrent.Tracker.Tracker;
 
     [TestFixture]
+    [Category("Integration")]
     public class TrackerTests
     {
-        //static void Main(string[] args)
-        //{
-        //    TrackerTests t = new TrackerTests();
-        //    t.FixtureSetup();
-        //    t.Setup();
-        //    t.MultipleAnnounce();
-        //    t.FixtureTeardown();
-        //}
-
-        #region Setup/Teardown
-
-        [SetUp]
-        public void Setup()
-        {
-            //tracker = new MonoTorrent.Client.Tracker.HTTPTracker(uri);
-        }
-
-        #endregion
-
         private readonly Uri _uri = new Uri("http://127.0.0.1:23456/");
         private HttpListener _listener;
         private Tracker _server;

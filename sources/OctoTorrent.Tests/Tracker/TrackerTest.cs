@@ -48,71 +48,68 @@ namespace OctoTorrent.Tests.Tracker
         public void GetManagerTest()
         {
             AddAllTrackables();
-            rig.Trackables.ForEach(delegate(Trackable t) { Assert.IsNotNull(rig.Tracker.GetManager(t)); });
+            rig.Trackables.ForEach(trackable => Assert.IsNotNull(rig.Tracker.GetManager(trackable)));
         }
 
         [Test]
         public void AnnouncePeersTest()
         {
             AddAllTrackables();
-            rig.Peers.ForEach(delegate(PeerDetails d) { rig.Listener.Handle(d, rig.Trackables[0]); });
+            rig.Peers.ForEach(peerDetails => rig.Listener.Handle(peerDetails, rig.Trackables[0]));
 
-            SimpleTorrentManager manager = rig.Tracker.GetManager(rig.Trackables[0]);
+            var manager = rig.Tracker.GetManager(rig.Trackables[0]);
 
             Assert.AreEqual(rig.Peers.Count, manager.Count, "#1");
-            foreach (ITrackable t in rig.Trackables)
+            foreach (var trackable in rig.Trackables)
             {
-                SimpleTorrentManager m = rig.Tracker.GetManager(t);
-                if (m == manager)
+                var torrentManager = rig.Tracker.GetManager(trackable);
+                if (torrentManager == manager)
                     continue;
-                Assert.AreEqual(0, m.Count, "#2");
+
+                Assert.AreEqual(0, torrentManager.Count, "#2");
             }
 
-            foreach (Peer p in manager.GetPeers())
+            foreach (var peer in manager.GetPeers())
             {
-                PeerDetails d = rig.Peers.Find(delegate(PeerDetails details) {
-                    return details.ClientAddress == p.ClientAddress.Address && details.Port == p.ClientAddress.Port;
-                });
-                Assert.AreEqual(d.Downloaded, p.Downloaded, "#3");
-                Assert.AreEqual(d.PeerId, p.PeerId, "#4");
-                Assert.AreEqual(d.Remaining, p.Remaining, "#5");
-                Assert.AreEqual(d.Uploaded, p.Uploaded, "#6");
+                var peerDetails = rig.Peers.Find(details => details.ClientAddress == peer.ClientAddress.Address &&
+                                                            details.Port == peer.ClientAddress.Port);
+                Assert.AreEqual(peerDetails.Downloaded, peer.Downloaded, "#3");
+                Assert.AreEqual(peerDetails.PeerId, peer.PeerId, "#4");
+                Assert.AreEqual(peerDetails.Remaining, peer.Remaining, "#5");
+                Assert.AreEqual(peerDetails.Uploaded, peer.Uploaded, "#6");
             }
         }
 
         [Test]
         public void AnnounceInvalidTest()
         {
-            int i = 0;
-            rig.Peers.ForEach(delegate(PeerDetails d) { rig.Listener.Handle(d, rig.Trackables[0]); });
+            rig.Peers.ForEach(peerDetails => rig.Listener.Handle(peerDetails, rig.Trackables[0]));
             Assert.AreEqual(0, rig.Tracker.Count, "#1");
         }
 
         [Test]
         public void CheckPeersAdded()
         {
-            int i = 0;
+            var i = 0;
             AddAllTrackables();
 
-            List<PeerDetails>[] lists = new List<PeerDetails>[] { new List<PeerDetails>(), new List<PeerDetails>(), new List<PeerDetails>(), new List<PeerDetails>() };
-            rig.Peers.ForEach(delegate(PeerDetails d) {
-                lists[i % 4].Add(d);
-                rig.Listener.Handle(d, rig.Trackables[i++ % 4]);
-            });
+            var lists = new[] { new List<PeerDetails>(), new List<PeerDetails>(), new List<PeerDetails>(), new List<PeerDetails>() };
+            rig.Peers.ForEach(peerDetails =>
+                                  {
+                                      lists[i%4].Add(peerDetails);
+                                      rig.Listener.Handle(peerDetails, rig.Trackables[i++%4]);
+                                  });
 
             for (i = 0; i < 4; i++)
             {
-                SimpleTorrentManager manager = rig.Tracker.GetManager(rig.Trackables[i]);
-                List<Peer> peers = manager.GetPeers();
+                var manager = rig.Tracker.GetManager(rig.Trackables[i]);
+                var peers = manager.GetPeers();
+
                 Assert.AreEqual(25, peers.Count, "#1");
 
-                foreach (Peer p in peers)
-                {
-                    Assert.IsTrue(lists[i].Exists(delegate(PeerDetails d) {
-                        return d.Port == p.ClientAddress.Port &&
-                            d.ClientAddress == p.ClientAddress.Address;
-                    }));
-                }
+                foreach (var peer in peers)
+                    Assert.IsTrue(lists[i].Exists(d => d.Port == peer.ClientAddress.Port &&
+                                                       d.ClientAddress == peer.ClientAddress.Address));
             }
         }
 
@@ -137,32 +134,33 @@ namespace OctoTorrent.Tests.Tracker
             rig.Tracker.AllowNonCompact = true;
             rig.Tracker.Add(rig.Trackables[0]);
 
-            List<PeerDetails> peers = new List<PeerDetails>();
-            for (int i = 0; i < 25; i++)
+            var peers = new List<PeerDetails>();
+            for (var i = 0; i < 25; i++)
                 peers.Add(rig.Peers[i]);
 
-            for (int i = 0; i < peers.Count; i++)
-                rig.Listener.Handle(peers[i], rig.Trackables[0]);
+            foreach (var peerDetails in peers)
+                rig.Listener.Handle(peerDetails, rig.Trackables[0]);
 
-            BEncodedDictionary dict = (BEncodedDictionary)rig.Listener.Handle(rig.Peers[24], rig.Trackables[0]);
-            BEncodedList list = (BEncodedList)dict["peers"];
+            var dict = (BEncodedDictionary) rig.Listener.Handle(rig.Peers[24], rig.Trackables[0]);
+            var list = (BEncodedList) dict["peers"];
+
             Assert.AreEqual(25, list.Count, "#1");
 
             foreach (BEncodedDictionary d in list)
             {
-                IPAddress up = IPAddress.Parse(d["ip"].ToString());
-                int port = (int)((BEncodedNumber)d["port"]).Number;
-                string peerId = ((BEncodedString)d["peer id"]).Text;
+                var up = IPAddress.Parse(d["ip"].ToString());
+                var port = (int)((BEncodedNumber)d["port"]).Number;
+                var peerId = ((BEncodedString)d["peer id"]).Text;
 
-                Assert.IsTrue(peers.Exists(delegate(PeerDetails pd) {
-                    return pd.ClientAddress.Equals(up) && pd.Port == port && pd.PeerId == peerId;
-                }), "#2");
+                Assert.IsTrue(peers.Exists(pd => pd.ClientAddress.Equals(up) &&
+                                                 pd.Port == port &&
+                                                 pd.PeerId == peerId), "#2");
             }
         }
 
         private void AddAllTrackables()
         {
-            rig.Trackables.ForEach(delegate(Trackable t) { Assert.IsTrue(rig.Tracker.Add(t), "#1"); });
+            rig.Trackables.ForEach(trackable => Assert.IsTrue(rig.Tracker.Add(trackable), "#1"));
         }
 
         private InfoHash Clone(InfoHash p)

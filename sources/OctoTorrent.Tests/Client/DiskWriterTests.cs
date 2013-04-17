@@ -80,76 +80,77 @@ namespace OctoTorrent.Tests.Client
     }
 
     [TestFixture]
+    [Category("Integration")]
     public class DiskWriterTests
     {
-        byte [] data = new byte [Piece.BlockSize];
-        DiskManager diskManager;
-        ManualResetEvent handle;
-        TestRig rig;
-        ExceptionWriter writer;
+        private readonly byte[] _data = new byte[Piece.BlockSize];
+        private DiskManager _diskManager;
+        private ManualResetEvent _handle;
+        private TestRig _rig;
+        private ExceptionWriter _writer;
 
         [TestFixtureSetUp]
         public void FixtureSetup()
         {
-            rig = TestRig.CreateMultiFile();
-            diskManager = rig.Engine.DiskManager;
+            _rig = TestRig.CreateMultiFile();
+            _diskManager = _rig.Engine.DiskManager;
         }
 
         [SetUp]
         public void Setup()
         {
-            writer = new ExceptionWriter();
-            diskManager.Writer = writer;
-            handle = new ManualResetEvent(false);
-            rig.Manager.Stop();
+            _writer = new ExceptionWriter();
+            _diskManager.Writer = _writer;
+            _handle = new ManualResetEvent(false);
+            _rig.Manager.Stop();
         }
 
         [TearDown]
         public void Teardown()
         {
-            handle.Close();
+            _handle.Close();
         }
 
         [TestFixtureTearDown]
         public void FixtureTeardown()
         {
-            rig.Dispose();
+            _rig.Dispose();
         }
 
         [Test]
         public void CloseFail()
         {
-            writer.close = true;
+            _writer.close = true;
             Hookup();
-            diskManager.CloseFileStreams(rig.Manager);
+            _diskManager.CloseFileStreams(_rig.Manager);
             CheckFail();
         }
 
         [Test]
         public void FlushFail()
         {
-            writer.flush = true;
+            _writer.flush = true;
             Hookup();
-            diskManager.QueueFlush(rig.Manager, 0);
+            _diskManager.QueueFlush(_rig.Manager, 0);
             CheckFail();
         }
 
         [Test]
         public void MoveFail()
         {
-            writer.move = true;
+            _writer.move = true;
             Hookup();
-            diskManager.MoveFiles(rig.Manager, "root", true);
+            _diskManager.MoveFiles(_rig.Manager, "root", true);
             CheckFail();
         }
 
         [Test]
         public void ReadFail()
         {
-            bool called = false;
-            writer.read = true;
+            var called = false;
+            _writer.read = true;
             Hookup();
-            diskManager.QueueRead(rig.Manager, 0, data, data.Length, delegate { called = true; });
+            _diskManager.QueueRead(_rig.Manager, 0, _data, _data.Length, delegate { called = true; });
             CheckFail();
             Assert.IsTrue (called, "#delegate called");
         }
@@ -157,25 +158,25 @@ namespace OctoTorrent.Tests.Client
         [Test]
         public void WriteFail()
         {
-            bool called = false;
-            writer.write = true;
+            var called = false;
+            _writer.write = true;
             Hookup();
-            diskManager.QueueWrite(rig.Manager, 0, data, data.Length, delegate { called = true; });
+            _diskManager.QueueWrite(_rig.Manager, 0, _data, _data.Length, delegate { called = true; });
             CheckFail();
             Assert.IsTrue (called, "#delegate called");
         }
 
-        void Hookup()
+        private void Hookup()
         {
-            rig.Manager.TorrentStateChanged += delegate {
-                if (rig.Manager.State == TorrentState.Error)
-                    handle.Set();
+            _rig.Manager.TorrentStateChanged += delegate {
+                if (_rig.Manager.State == TorrentState.Error)
+                    _handle.Set();
             };
         }
 
         void CheckFail()
         {
-            Assert.IsTrue(handle.WaitOne(5000, true), "Failure was not handled");
+            Assert.IsTrue(_handle.WaitOne(5000, true), "Failure was not handled");
         }
     }
 }
