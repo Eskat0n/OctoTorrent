@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctoTorrent", "src\MonoTorrent\OctoTorrent.csproj", "{411A9E0E-FDC6-4E25-828A-0C2CD1CD96F8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctoTorrent", "sources\OctoTorrent\OctoTorrent.csproj", "{411A9E0E-FDC6-4E25-828A-0C2CD1CD96F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctoTorrent.Dht", "src\MonoTorrent.Dht\OctoTorrent.Dht.csproj", "{7A2A7E73-FD43-4171-AA34-DA413D35459E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctoTorrent.Dht", "sources\OctoTorrent.Dht\OctoTorrent.Dht.csproj", "{7A2A7E73-FD43-4171-AA34-DA413D35459E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctoTorrent.Tests", "src\MonoTorrent.Tests\OctoTorrent.Tests.csproj", "{526928D8-DBC8-4717-BCF0-A4FEDA80A0BD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctoTorrent.Tests", "sources\OctoTorrent.Tests\OctoTorrent.Tests.csproj", "{526928D8-DBC8-4717-BCF0-A4FEDA80A0BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleClient", "src\SampleClient\SampleClient.csproj", "{9CC2CC3A-4041-4857-AF8B-D58745FD3066}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleClient", "sources\SampleClient\SampleClient.csproj", "{9CC2CC3A-4041-4857-AF8B-D58745FD3066}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackerApp", "src\TrackerApp\TrackerApp.csproj", "{7A647552-B5F0-419F-9395-4DC24990ED20}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackerApp", "sources\TrackerApp\TrackerApp.csproj", "{7A647552-B5F0-419F-9395-4DC24990ED20}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{FDA8EC92-A28F-4AD4-ADAC-04BA8351E5D0}"
 	ProjectSection(SolutionItems) = preProject
