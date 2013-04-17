@@ -129,11 +129,11 @@
     <Compile Include="Common\TorrentEditorTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MonoTorrent.Dht\OctoTorrent.Dht.csproj">
+    <ProjectReference Include="..\OctoTorrent.Dht\OctoTorrent.Dht.csproj">
       <Project>{7A2A7E73-FD43-4171-AA34-DA413D35459E}</Project>
       <Name>OctoTorrent.Dht</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MonoTorrent\OctoTorrent.csproj">
+    <ProjectReference Include="..\OctoTorrent\OctoTorrent.csproj">
       <Project>{411A9E0E-FDC6-4E25-828A-0C2CD1CD96F8}</Project>
       <Name>OctoTorrent</Name>
     </ProjectReference>
