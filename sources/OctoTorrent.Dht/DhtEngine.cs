@@ -27,20 +27,12 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
 using System;
-using System.Net;
 using System.Collections.Generic;
-using System.Runtime.Serialization.Formatters.Binary;
-
-using OctoTorrent;
-using OctoTorrent.Common;
 using OctoTorrent.Client;
 using OctoTorrent.BEncoding;
-using System.IO;
 using OctoTorrent.Dht.Listeners;
 using OctoTorrent.Dht.Messages;
-using OctoTorrent.Client.Messages;
 using OctoTorrent.Dht.Tasks;
 
 namespace OctoTorrent.Dht
@@ -157,7 +149,7 @@ namespace OctoTorrent.Dht
             // I don't think it's *bad* that we can run several initialise tasks simultaenously
             // but it might be better to run them sequentially instead. We should also
             // run GetPeers and Announce tasks sequentially.
-            InitialiseTask task = new InitialiseTask(this, Node.FromCompactNode (nodes));
+            var task = new InitialiseTask(this, Node.FromCompactNode (nodes));
             task.Execute();
         }
 
@@ -166,8 +158,8 @@ namespace OctoTorrent.Dht
             if (nodes == null)
                 throw new ArgumentNullException("nodes");
 
-            foreach (Node n in nodes)
-                Add(n);
+            foreach (var node in nodes)
+                Add(node);
         }
 
         internal void Add(Node node)
@@ -175,7 +167,7 @@ namespace OctoTorrent.Dht
             if (node == null)
                 throw new ArgumentNullException("node");
 
-            SendQueryTask task = new SendQueryTask(this, new Ping(RoutingTable.LocalNode.Id), node);
+            var task = new SendQueryTask(this, new Ping(RoutingTable.LocalNode.Id), node);
             task.Execute();
         }
 
@@ -198,9 +190,12 @@ namespace OctoTorrent.Dht
                 return;
 
             // Ensure we don't break any threads actively running right now
-            DhtEngine.MainLoop.QueueWait((MainLoopTask)delegate {
-                disposed = true;
-            });
+            MainLoop.QueueWait(() => disposed = true);
+        }
+
+        public void GetPeers(byte[] bytes)
+        {
+            GetPeers(new InfoHash(bytes));
         }
 
         public void GetPeers(InfoHash infoHash)
@@ -226,20 +221,21 @@ namespace OctoTorrent.Dht
 
         public byte[] SaveNodes()
         {
-            BEncodedList details = new BEncodedList();
+            var details = new BEncodedList();
 
-            MainLoop.QueueWait((MainLoopTask)delegate {
-                foreach (Bucket b in RoutingTable.Buckets)
-                {
-                    foreach (Node n in b.Nodes)
-                        if (n.State != NodeState.Bad)
-                            details.Add(n.CompactNode());
+            MainLoop.QueueWait(() =>
+                                   {
+                                       foreach (var bucket in RoutingTable.Buckets)
+                                       {
+                                           foreach (var node in bucket.Nodes)
+                                               if (node.State != NodeState.Bad)
+                                                   details.Add(node.CompactNode());
 
-                    if (b.Replacement != null)
-                        if (b.Replacement.State != NodeState.Bad)
-                            details.Add(b.Replacement.CompactNode());
-                }
-            });
+                                           if (bucket.Replacement != null)
+                                               if (bucket.Replacement.State != NodeState.Bad)
+                                                   details.Add(bucket.Replacement.CompactNode());
+                                       }
+                                   });
 
             return details.Encode();
         }
@@ -265,19 +261,19 @@ namespace OctoTorrent.Dht
                 RaiseStateChanged(DhtState.Ready);
             }
 
-            DhtEngine.MainLoop.QueueTimeout(TimeSpan.FromSeconds(1), delegate
+            MainLoop.QueueTimeout(TimeSpan.FromSeconds(1), delegate
             {
                 if (Disposed)
                     return false;
 
-                foreach (Bucket b in RoutingTable.Buckets)
+                foreach (var b in RoutingTable.Buckets)
                 {
-                    if ((DateTime.UtcNow - b.LastChanged) > BucketRefreshTimeout)
-                    {
-                        b.LastChanged = DateTime.UtcNow;
-                        RefreshBucketTask task = new RefreshBucketTask(this, b);
-                        task.Execute();
-                    }
+                    if ((DateTime.UtcNow - b.LastChanged) <= BucketRefreshTimeout)
+                        continue;
+
+                    b.LastChanged = DateTime.UtcNow;
+                    var task = new RefreshBucketTask(this, b);
+                    task.Execute();
                 }
                 return !Disposed;
             });

@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{47C674
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleClient.Dht", "sources\SampleClient.Dht\SampleClient.Dht.csproj", "{19777ED5-79FD-4D05-B839-B178A875BF42}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +66,12 @@ Global
 		{7A647552-B5F0-419F-9395-4DC24990ED20}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7A647552-B5F0-419F-9395-4DC24990ED20}.Stats|Any CPU.ActiveCfg = Stats|Any CPU
 		{7A647552-B5F0-419F-9395-4DC24990ED20}.Stats|Any CPU.Build.0 = Stats|Any CPU
+		{19777ED5-79FD-4D05-B839-B178A875BF42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19777ED5-79FD-4D05-B839-B178A875BF42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19777ED5-79FD-4D05-B839-B178A875BF42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19777ED5-79FD-4D05-B839-B178A875BF42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19777ED5-79FD-4D05-B839-B178A875BF42}.Stats|Any CPU.ActiveCfg = Release|Any CPU
+		{19777ED5-79FD-4D05-B839-B178A875BF42}.Stats|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +82,7 @@ Global
 		{411A9E0E-FDC6-4E25-828A-0C2CD1CD96F8} = {F4AACEDF-5F0C-43AC-B91A-5DD5A869A5E2}
 		{7A647552-B5F0-419F-9395-4DC24990ED20} = {18B0BA3A-E28E-47FA-A8BC-351B62147670}
 		{9CC2CC3A-4041-4857-AF8B-D58745FD3066} = {18B0BA3A-E28E-47FA-A8BC-351B62147670}
+		{19777ED5-79FD-4D05-B839-B178A875BF42} = {18B0BA3A-E28E-47FA-A8BC-351B62147670}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		$0.CSharpFormattingPolicy = $2
