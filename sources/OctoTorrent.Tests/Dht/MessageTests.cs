@@ -5,18 +5,13 @@ namespace OctoTorrent.Tests.Dht
     using NUnit.Framework;
     using OctoTorrent.Dht;
     using OctoTorrent.Dht.Messages;
-    using OctoTorrent.BEncoding;
+    using BEncoding;
     using OctoTorrent.Client.Messages;
     using Message = OctoTorrent.Dht.Messages.Message;
 
     [TestFixture]
     public class MessageTests
     {
-        //static void Main(string[] args)
-        //{
-        //    MessageTests t = new MessageTests();
-        //    t.GetPeersResponseEncode();
-        //}
         private readonly NodeId _id = new NodeId(Encoding.UTF8.GetBytes("abcdefghij0123456789"));
         private readonly NodeId _infohash = new NodeId(Encoding.UTF8.GetBytes("mnopqrstuvwxyz123456"));
         private readonly BEncodedString _token = "aoeusnth";
@@ -120,8 +115,9 @@ namespace OctoTorrent.Tests.Dht
         [Test]
         public void AnnouncePeerDecode()
         {
-            string text = "d1:ad2:id20:abcdefghij01234567899:info_hash20:mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q13:announce_peer1:t2:aa1:y1:qe";
-            AnnouncePeer m = (AnnouncePeer)Decode("d1:ad2:id20:abcdefghij01234567899:info_hash20:mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q13:announce_peer1:t2:aa1:y1:qe");
+            const string text = "d1:ad2:id20:abcdefghij01234567899:info_hash20:mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q13:announce_peer1:t2:aa1:y1:qe";
+
+            var m = (AnnouncePeer)Decode("d1:ad2:id20:abcdefghij01234567899:info_hash20:mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q13:announce_peer1:t2:aa1:y1:qe");
             Assert.AreEqual(m.TransactionId, _transactionId, "#1");
             Assert.AreEqual(m.MessageType, QueryMessage.QueryType, "#2");
             Assert.AreEqual(_id, m.Id, "#3");
@@ -133,16 +129,16 @@ namespace OctoTorrent.Tests.Dht
             _message = m;
         }
 
-
         [Test]
         public void AnnouncePeerResponseDecode()
         {
+            const string text = "d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re";
+
             // Register the query as being sent so we can decode the response
             AnnouncePeerDecode();
             MessageFactory.RegisterSend(_message);
-            string text = "d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re";
 
-            AnnouncePeerResponse m = (AnnouncePeerResponse)Decode(text);
+            var m = (AnnouncePeerResponse)Decode(text);
             Assert.AreEqual(_infohash, m.Id, "#1");
 
             Compare(m, text);
@@ -151,20 +147,22 @@ namespace OctoTorrent.Tests.Dht
         [Test]
         public void FindNodeDecode()
         {
-            string text ="d1:ad2:id20:abcdefghij01234567896:target20:mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe";
-            FindNode m = (FindNode)Decode(text);
+            const string text = "d1:ad2:id20:abcdefghij01234567896:target20:mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe";
 
-            Assert.AreEqual(_id, m.Id, "#1");
-            Assert.AreEqual(_infohash, m.Target, "#1");
-            Compare(m, text);
+            var message = (FindNode)Decode(text);
+
+            Assert.AreEqual(_id, message.Id, "#1");
+            Assert.AreEqual(_infohash, message.Target, "#1");
+            Compare(message, text);
         }
 
         [Test]
         public void FindNodeResponseDecode()
         {
+            const string text = "d1:rd2:id20:abcdefghij01234567895:nodes9:def456...e1:t2:aa1:y1:re";
+
             FindNodeEncode();
             MessageFactory.RegisterSend(_message);
-            string text = "d1:rd2:id20:abcdefghij01234567895:nodes9:def456...e1:t2:aa1:y1:re";
             FindNodeResponse m = (FindNodeResponse)Decode(text);
 
             Assert.AreEqual(_id, m.Id, "#1");
@@ -177,70 +175,73 @@ namespace OctoTorrent.Tests.Dht
         [Test]
         public void GetPeersDecode()
         {
-            string text = "d1:ad2:id20:abcdefghij01234567899:info_hash20:mnopqrstuvwxyz123456e1:q9:get_peers1:t2:aa1:y1:qe";
-            GetPeers m = (GetPeers)Decode(text);
+            const string text = "d1:ad2:id20:abcdefghij01234567899:info_hash20:mnopqrstuvwxyz123456e1:q9:get_peers1:t2:aa1:y1:qe";
 
-            Assert.AreEqual(_infohash, m.InfoHash, "#1");
-            Assert.AreEqual(_id, m.Id, "#2");
-            Assert.AreEqual(_transactionId, m.TransactionId, "#3");
+            var message = (GetPeers)Decode(text);
 
-            Compare(m, text);
+            Assert.AreEqual(_infohash, message.InfoHash, "#1");
+            Assert.AreEqual(_id, message.Id, "#2");
+            Assert.AreEqual(_transactionId, message.TransactionId, "#3");
+
+            Compare(message, text);
         }
 
         [Test]
         public void GetPeersResponseDecode()
         {
+            const string text = "d1:rd2:id20:abcdefghij01234567895:token8:aoeusnth6:valuesl6:axje.u6:idhtnmee1:t2:aa1:y1:re";
+
             GetPeersEncode();
             MessageFactory.RegisterSend(_message);
 
-            string text = "d1:rd2:id20:abcdefghij01234567895:token8:aoeusnth6:valuesl6:axje.u6:idhtnmee1:t2:aa1:y1:re";
-            GetPeersResponse m = (GetPeersResponse)Decode(text);
+            var m = (GetPeersResponse)Decode(text);
 
             Assert.AreEqual(_token, m.Token, "#1");
             Assert.AreEqual(_id, m.Id, "#2");
 
-            BEncodedList l = new BEncodedList();
-            l.Add((BEncodedString)"axje.u");
-            l.Add((BEncodedString)"idhtnm");
-            Assert.AreEqual(l, m.Values, "#3");
+            var list = new BEncodedList
+                           {
+                               (BEncodedString) "axje.u",
+                               (BEncodedString) "idhtnm"
+                           };
 
+            Assert.AreEqual(list, m.Values, "#3");
             Compare(m, text);
         }
 
         [Test]
         public void PingDecode()
         {
-            string text = "d1:ad2:id20:abcdefghij0123456789e1:q4:ping1:t2:aa1:y1:qe";
-            Ping m = (Ping) Decode(text);
+            const string text = "d1:ad2:id20:abcdefghij0123456789e1:q4:ping1:t2:aa1:y1:qe";
 
-            Assert.AreEqual(_id, m.Id, "#1");
+            var message = (Ping) Decode(text);
 
-            Compare(m, text);
+            Assert.AreEqual(_id, message.Id, "#1");
+            Compare(message, text);
         }
 
         [Test]
         public void PingResponseDecode()
         {
+            const string text = "d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re";
+
             PingEncode();
             MessageFactory.RegisterSend(_message);
 
-            string text = "d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re";
-            PingResponse m = (PingResponse)Decode(text);
+            var message = (PingResponse)Decode(text);
 
-            Assert.AreEqual(_infohash, m.Id);
-
-            Compare(m, "d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re");
+            Assert.AreEqual(_infohash, message.Id);
+            Compare(message, text);
         }
 
         #endregion
 
-
-        private void Compare(IMessage message, string expected)
+        private static void Compare(IMessage message, string expected)
         {
             Assert.AreEqual(Encoding.UTF8.GetString(message.Encode()), expected);
         }
 
-        private Message Decode(string p)
+        private static Message Decode(string p)
         {
             var buffer = Encoding.UTF8.GetBytes(p);
             return MessageFactory.DecodeMessage(BEncodedValue.Decode<BEncodedDictionary>(buffer));

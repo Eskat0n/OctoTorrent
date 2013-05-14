@@ -2,55 +2,53 @@ namespace OctoTorrent.Tests.Client
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using NUnit.Framework;
-    using OctoTorrent.BEncoding;
+    using BEncoding;
     using OctoTorrent.Client;
 
     [TestFixture]
     public class PeerTests
     {
-        //static void Main(string[] args)
-        //{
-        //    PeerTests t = new PeerTests();
-        //    t.Setup();
-        //    t.CorruptList();
-        //}
-        private List<Peer> peers;
+        private List<Peer> _peers;
 
         [SetUp]
         public void Setup()
         {
-            peers = new List<Peer>();
-            for (int i=0; i < 10; i++)
+            _peers = new List<Peer>();
+            for (var i = 0; i < 10; i++)
             {
-                Uri uri = new Uri(string.Format("tcp://192.168.0.{0}:1", i));
-                peers.Add(new Peer(new string(i.ToString()[0], 20), uri));
+                var uri = new Uri(string.Format("tcp://192.168.0.{0}:1", i));
+                _peers.Add(new Peer(new string(i.ToString(CultureInfo.InvariantCulture)[0], 20), uri));
             }
-            peers.Add(new Peer(new string('a', 20), new Uri("tcp://255.255.255.255:6530")));
-            peers.Add(new Peer(new string('b', 20), new Uri("tcp://255.0.0.0:123")));
-            peers.Add(new Peer(new string('c', 20), new Uri("tcp://0.0.255.0:312")));
-            peers.Add(new Peer(new string('a', 20), new Uri("tcp://0.0.0.255:3454")));
+            _peers.Add(new Peer(new string('a', 20), new Uri("tcp://255.255.255.255:6530")));
+            _peers.Add(new Peer(new string('b', 20), new Uri("tcp://255.0.0.0:123")));
+            _peers.Add(new Peer(new string('c', 20), new Uri("tcp://0.0.255.0:312")));
+            _peers.Add(new Peer(new string('a', 20), new Uri("tcp://0.0.0.255:3454")));
         }
 
         [Test]
         public void CompactPeer()
         {
-            string peerId = "12345abcde12345abcde";
-            Uri uri = new Uri("tcp://192.168.0.5:12345");
-            Peer p = new Peer(peerId, uri);
+            const string peerId = "12345abcde12345abcde";
 
-            byte[] compact = p.CompactPeer();
-            Peer peer = Peer.Decode((BEncoding.BEncodedString)compact)[0];
+            var uri = new Uri("tcp://192.168.0.5:12345");
+            var p = new Peer(peerId, uri);
+
+            var compact = p.CompactPeer();
+            var peer = Peer.Decode(compact)[0];
+
             Assert.AreEqual(p.ConnectionUri, peer.ConnectionUri, "#1");
         }
 
         [Test]
         public void CorruptDictionary()
         {
-            BEncodedList l = new BEncodedList();
-            BEncodedDictionary d = new BEncodedDictionary();
-            l.Add(d);
-            IList<Peer> decoded = Peer.Decode(l);
+            var list = new BEncodedList();
+            var dictionary = new BEncodedDictionary();
+
+            list.Add(dictionary);
+            IList<Peer> decoded = Peer.Decode(list);
             Assert.AreEqual(0, decoded.Count, "#1");
         }
 
@@ -58,8 +56,8 @@ namespace OctoTorrent.Tests.Client
         public void CorruptList()
         {
             BEncodedList list = new BEncodedList();
-            for (int i = 0; i < peers.Count; i++)
-                list.Add((BEncodedString) peers[i].CompactPeer());
+            for (int i = 0; i < _peers.Count; i++)
+                list.Add((BEncodedString) _peers[i].CompactPeer());
 
             list.Insert(2, new BEncodedNumber(5));
             VerifyDecodedPeers(Peer.Decode(list));
@@ -90,7 +88,7 @@ namespace OctoTorrent.Tests.Client
         {
             // List of String
             BEncodedList list = new BEncodedList();
-            foreach (Peer p in peers)
+            foreach (Peer p in _peers)
                 list.Add((BEncodedString)p.CompactPeer());
            
             VerifyDecodedPeers(Peer.Decode(list));
@@ -100,7 +98,7 @@ namespace OctoTorrent.Tests.Client
         public void DecodeDictionary()
         {
             BEncodedList list = new BEncodedList();
-            foreach (Peer p in peers)
+            foreach (Peer p in _peers)
             {
                 BEncodedDictionary dict = new BEncodedDictionary();
                 dict.Add("ip", (BEncodedString)p.ConnectionUri.Host);
@@ -115,9 +113,9 @@ namespace OctoTorrent.Tests.Client
         [Test]
         public void DecodeCompact()
         {
-            byte[] bytes = new byte[peers.Count * 6];
-            for (int i = 0; i < peers.Count; i++)
-                peers[i].CompactPeer(bytes, i * 6);
+            byte[] bytes = new byte[_peers.Count * 6];
+            for (int i = 0; i < _peers.Count; i++)
+                _peers[i].CompactPeer(bytes, i * 6);
             VerifyDecodedPeers(Peer.Decode((BEncodedString)bytes));
         }
 
@@ -125,9 +123,9 @@ namespace OctoTorrent.Tests.Client
 
         private void VerifyDecodedPeers(List<Peer> decoded)
         {
-            Assert.AreEqual(peers.Count, decoded.Count, "#1");
+            Assert.AreEqual(_peers.Count, decoded.Count, "#1");
             foreach (Peer dec in decoded)
-                Assert.IsTrue(peers.Exists(delegate(Peer p) { return p.ConnectionUri.Equals(dec.ConnectionUri); }));
+                Assert.IsTrue(_peers.Exists(delegate(Peer p) { return p.ConnectionUri.Equals(dec.ConnectionUri); }));
         }
     }
 }

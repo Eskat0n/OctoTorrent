@@ -28,10 +28,7 @@
 //
 
 
-using System;
 using System.Collections.Generic;
-using System.Text;
-
 using OctoTorrent.BEncoding;
 
 namespace OctoTorrent.Dht.Messages
@@ -41,9 +38,9 @@ namespace OctoTorrent.Dht.Messages
     
     internal static class MessageFactory
     {
-        private static readonly string QueryNameKey = "q";
-        private static BEncodedString MessageTypeKey = "y";
-        private static BEncodedString TransactionIdKey = "t";
+        private const string QueryNameKey = "q";
+        private static readonly BEncodedString MessageTypeKey = "y";
+        private static readonly BEncodedString TransactionIdKey = "t";
 
         public static int RegisteredMessages
         {
