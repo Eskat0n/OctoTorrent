@@ -37,7 +37,7 @@ using OctoTorrent.Dht.Tasks;
 
 namespace OctoTorrent.Dht
 {
-    internal enum ErrorCode : int
+    internal enum ErrorCode
     {
         GenericError = 201,
         ServerError = 202,

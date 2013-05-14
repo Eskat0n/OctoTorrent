@@ -60,10 +60,9 @@ namespace Mono.Math
         /// <summary>
         /// Default length of a BigInteger in bytes
         /// </summary>
-        const uint DEFAULT_LEN = 20;
+        const uint DefaultLength = 20;
 
-
-        public enum Sign : int
+        public enum Sign
         {
             Negative = -1,
             Zero = 0,
@@ -80,8 +79,8 @@ namespace Mono.Math
 
         public BigInteger()
         {
-            data = new uint[DEFAULT_LEN];
-            this.length = DEFAULT_LEN;
+            data = new uint[DefaultLength];
+            this.length = DefaultLength;
         }
 
         public BigInteger(uint ui)

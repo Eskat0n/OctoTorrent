@@ -36,15 +36,12 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Security.Cryptography;
-
 namespace OctoTorrent.Dht
 {
+    using System;
 
     internal class BigInteger
     {
-
         #region Data Storage
 
         /// <summary>
@@ -64,10 +61,9 @@ namespace OctoTorrent.Dht
         /// <summary>
         /// Default length of a BigInteger in bytes
         /// </summary>
-        const uint DEFAULT_LEN = 20;
+        const uint DefaultLength = 20;
 
-
-        public enum Sign : int
+        public enum Sign
         {
             Negative = -1,
             Zero = 0,
@@ -84,8 +80,8 @@ namespace OctoTorrent.Dht
 
         public BigInteger()
         {
-            data = new uint[DEFAULT_LEN];
-            this.length = DEFAULT_LEN;
+            data = new uint[DefaultLength];
+            this.length = DefaultLength;
         }
 
         public BigInteger(uint ui)
