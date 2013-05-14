@@ -96,9 +96,9 @@ namespace OctoTorrent
                if (endpoint.Address != IPAddress.Any)
                     _client.Send(buffer, buffer.Length, endpoint);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Logger.Log (null, "UdpListener could not send message: {0}", ex);
+                Logger.Log(null, "UdpListener could not send message: {0}", ex);
             }
         }
 

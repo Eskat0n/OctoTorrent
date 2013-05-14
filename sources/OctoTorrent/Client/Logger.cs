@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.IO;
 using System.Diagnostics;
 using OctoTorrent.Client.Connections;
 
@@ -9,11 +8,11 @@ namespace OctoTorrent.Client
 {
     public static class Logger
     {
-        private static List<TraceListener> listeners;
+        private static readonly List<TraceListener> Listeners;
 
         static Logger()
         {
-            listeners = new List<TraceListener>();
+            Listeners = new List<TraceListener>();
         }
 
         public static void AddListener(TraceListener listener)
@@ -21,14 +20,14 @@ namespace OctoTorrent.Client
             if (listener == null)
                 throw new ArgumentNullException("listener");
 
-            lock (listeners)
-                listeners.Add(listener);
+            lock (Listeners)
+                Listeners.Add(listener);
         }
 		
 		public static void Flush()
 		{
-			lock (listeners)
-				listeners.ForEach (delegate (TraceListener l) { l.Flush(); } );
+			lock (Listeners)
+				Listeners.ForEach (listener => listener.Flush());
 		}
         /*
         internal static void Log(PeerIdInternal id, string message)
@@ -50,31 +49,27 @@ namespace OctoTorrent.Client
                     listeners[i].WriteLine(p);
         }*/
 
-        [Conditional("DO_NOT_ENABLE")]
-        internal static void Log(IConnection connection, string message)
-        {
-            Log(connection, message, null);
-        }
+        private static readonly StringBuilder StringBuilder = new StringBuilder();
 
-        private static StringBuilder sb = new StringBuilder();
         [Conditional("DO_NOT_ENABLE")]
         internal static void Log(IConnection connection, string message, params object[] formatting)
         {
-            lock (listeners)
+            lock (Listeners)
             {
-                sb.Remove(0, sb.Length);
-                sb.Append(Environment.TickCount);
-                sb.Append(": ");
+                StringBuilder.Remove(0, StringBuilder.Length);
+                StringBuilder.Append(Environment.TickCount);
+                StringBuilder.Append(": ");
 
                 if (connection != null)
-                    sb.Append(connection.EndPoint.ToString());
+                    StringBuilder.Append(connection.EndPoint);
 
-                if (formatting != null)
-                    sb.Append(string.Format(message, formatting));
+                if (formatting != null && formatting.Length != 0)
+                    StringBuilder.Append(string.Format(message, formatting));
                 else
-                    sb.Append(message);
-				string s = sb.ToString();
-                listeners.ForEach(delegate(TraceListener l) { l.WriteLine(s); });
+                    StringBuilder.Append(message);
+
+				var s = StringBuilder.ToString();
+                Listeners.ForEach(listener => listener.WriteLine(s));
             }
         }
     }
