@@ -1,32 +1,33 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using OctoTorrent.Common;
 using System.IO;
 
 namespace OctoTorrent.Client
 {
+    using System.Linq;
+
     class FileStreamBuffer : IDisposable
     {
         // A list of currently open filestreams. Note: The least recently used is at position 0
         // The most recently used is at the last position in the array
-        private List<TorrentFileStream> list;
-        private int maxStreams;
+        private readonly List<TorrentFileStream> _list;
+        private readonly int _maxStreams;
 		
 		public int Count
 		{
-			get { return list.Count; }
+			get { return _list.Count; }
 		}
 		
 		public List<TorrentFileStream> Streams
 		{
-			get { return list; }
+			get { return _list; }
 		}
 
         public FileStreamBuffer(int maxStreams)
         {
-            this.maxStreams = maxStreams;
-            list = new List<TorrentFileStream>(maxStreams);
+            this._maxStreams = maxStreams;
+            _list = new List<TorrentFileStream>(maxStreams);
         }
 
         private void Add(TorrentFileStream stream)
@@ -34,20 +35,17 @@ namespace OctoTorrent.Client
             Logger.Log (null, "Opening filestream: {0}", stream.Path);
 
             // If we have our maximum number of streams open, just dispose and dump the least recently used one
-            if (maxStreams != 0 && list.Count >= list.Capacity)
+            if (_maxStreams != 0 && _list.Count >= _list.Capacity)
             {
-                Logger.Log (null, "We've reached capacity: {0}", list.Count);
-                CloseAndRemove(list[0]);
+                Logger.Log (null, "We've reached capacity: {0}", _list.Count);
+                CloseAndRemove(_list[0]);
             }
-            list.Add(stream);
+            _list.Add(stream);
         }
 
         public TorrentFileStream FindStream(string path)
         {
-            for (int i = 0; i < list.Count; i++)
-                if (list[i].Path == path)
-                    return list[i];
-            return null;
+            return _list.FirstOrDefault(stream => stream.Path == path);
         }
 
         internal TorrentFileStream GetStream(TorrentFile file, FileAccess access)
@@ -66,8 +64,8 @@ namespace OctoTorrent.Client
                 else
                 {
                     // Place the filestream at the end so we know it's been recently used
-                    list.Remove(fileStream);
-                    list.Add(fileStream);
+                    _list.Remove(fileStream);
+                    _list.Add(fileStream);
                 }
             }
 
@@ -99,8 +97,8 @@ namespace OctoTorrent.Client
 
         public void Dispose()
         {
-            list.ForEach(delegate (TorrentFileStream s) { s.Dispose(); }); 
-            list.Clear();
+            _list.ForEach(delegate (TorrentFileStream s) { s.Dispose(); }); 
+            _list.Clear();
         }
 
         #endregion
@@ -117,7 +115,7 @@ namespace OctoTorrent.Client
         private void CloseAndRemove(TorrentFileStream s)
         {
             Logger.Log (null, "Closing and removing: {0}", s.Path);
-            list.Remove(s);
+            _list.Remove(s);
             s.Dispose();
         }
     }

@@ -97,6 +97,7 @@
     <Compile Include="BanLists\RangeCollection.cs" />
     <Compile Include="Client\ConnectionListeners\LocalPeerListener.cs" />
     <Compile Include="Client\ConnectionListeners\UdpListener.cs" />
+    <Compile Include="Client\Encryption\EncryptionException.cs" />
     <Compile Include="Client\EventArgs\LocalPeersAdded.cs" />
     <Compile Include="Client\EventArgs\PeersFoundEventArgs.cs" />
     <Compile Include="Client\IDhtEngine.cs" />

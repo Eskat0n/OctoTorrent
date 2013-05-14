@@ -67,7 +67,7 @@ namespace OctoTorrent.Client.Encryption
             }
             catch (Exception ex)
             {
-                asyncResult.Complete(ex);
+                AsyncResult.Complete(ex);
             }
         }
 
@@ -84,7 +84,7 @@ namespace OctoTorrent.Client.Encryption
             }
             catch (Exception ex)
             {
-                asyncResult.Complete(ex);
+                AsyncResult.Complete(ex);
             }
         }
 
@@ -103,7 +103,7 @@ namespace OctoTorrent.Client.Encryption
 
                 if (!MatchSKEY(torrentHash))
                 {
-                    asyncResult.Complete(new EncryptionException("No valid SKey found"));
+                    AsyncResult.Complete(new EncryptionException("No valid SKey found"));
                     return;
                 }
 
@@ -114,7 +114,7 @@ namespace OctoTorrent.Client.Encryption
                 Array.Copy(VerifyBytes, 20, myVC, 0, myVC.Length);
                 if (!Toolbox.ByteMatch(myVC, VerificationConstant))
                 {
-                    asyncResult.Complete(new EncryptionException("Verification constant was invalid"));
+                    AsyncResult.Complete(new EncryptionException("Verification constant was invalid"));
                     return;
                 }
 
@@ -129,7 +129,7 @@ namespace OctoTorrent.Client.Encryption
             }
             catch (Exception ex)
             {
-                asyncResult.Complete(ex);
+                AsyncResult.Complete(ex);
             }
         }
 
@@ -147,7 +147,7 @@ namespace OctoTorrent.Client.Encryption
             }
             catch (Exception ex)
             {
-                asyncResult.Complete(ex);
+                AsyncResult.Complete(ex);
             }
         }
 
@@ -160,7 +160,7 @@ namespace OctoTorrent.Client.Encryption
             }
             catch (Exception ex)
             {
-                asyncResult.Complete(ex);
+                AsyncResult.Complete(ex);
             }
         }
 
@@ -189,7 +189,7 @@ namespace OctoTorrent.Client.Encryption
 
             catch (Exception ex)
             {
-                asyncResult.Complete(ex);
+                AsyncResult.Complete(ex);
             }
         }
 
@@ -221,7 +221,7 @@ namespace OctoTorrent.Client.Encryption
             }
             catch (Exception ex)
             {
-                asyncResult.Complete(ex);
+                AsyncResult.Complete(ex);
             }
             return false;
         }

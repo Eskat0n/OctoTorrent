@@ -29,9 +29,6 @@
 
 using System;
 using System.Text;
-using System.Net.Sockets;
-using OctoTorrent.Common;
-using OctoTorrent.Client.Connections;
 using OctoTorrent.Client.Messages;
 
 namespace OctoTorrent.Client.Encryption
@@ -41,18 +38,18 @@ namespace OctoTorrent.Client.Encryption
     /// </summary>
     class PeerAEncryption : EncryptedSocket
     {
-        private byte[] VerifyBytes;
+        private byte[] _verifyBytes;
 
-        private AsyncCallback gotVerificationCallback;
-        private AsyncCallback gotPadDCallback;
+        private readonly AsyncCallback _gotVerificationCallback;
+        private readonly AsyncCallback _gotPadDCallback;
 
-        public PeerAEncryption(InfoHash InfoHash, EncryptionTypes allowedEncryption)
+        public PeerAEncryption(InfoHash infoHash, EncryptionTypes allowedEncryption)
             : base(allowedEncryption)
         {
-            gotVerificationCallback = new AsyncCallback(gotVerification);
-            gotPadDCallback = new AsyncCallback(gotPadD);
+            _gotVerificationCallback = GotVerification;
+            _gotPadDCallback = GotPadD;
 
-            SKEY = InfoHash;
+            SKEY = infoHash;
         }
 
         protected override void doneReceiveY()
@@ -65,7 +62,7 @@ namespace OctoTorrent.Client.Encryption
             }
             catch (Exception ex)
             {
-                asyncResult.Complete(ex);
+                AsyncResult.Complete(ex);
             }
         }
 
@@ -114,7 +111,7 @@ namespace OctoTorrent.Client.Encryption
             }
             catch (Exception ex)
             {
-                asyncResult.Complete(ex);
+                AsyncResult.Complete(ex);
             }
         }
 
@@ -124,51 +121,53 @@ namespace OctoTorrent.Client.Encryption
             {
                 base.doneSynchronize(); // 4 B->A: ENCRYPT(VC, ...
 
-                VerifyBytes = new byte[4 + 2];
-                ReceiveMessage(VerifyBytes, VerifyBytes.Length, gotVerificationCallback); // crypto_select, len(padD) ...
+                _verifyBytes = new byte[4 + 2];
+                ReceiveMessage(_verifyBytes, _verifyBytes.Length, _gotVerificationCallback); // crypto_select, len(padD) ...
             }
             catch (Exception ex)
             {
-                asyncResult.Complete(ex);
+                AsyncResult.Complete(ex);
             }
         }
-        private byte[] b;
-        private void gotVerification(IAsyncResult result)
+
+        private byte[] _b;
+
+        private void GotVerification(IAsyncResult result)
         {
             try
             {
-                byte[] myCS = new byte[4];
-                byte[] lenPadD = new byte[2];
+                var myCs = new byte[4];
+                var lenPadD = new byte[2];
 
-                DoDecrypt(VerifyBytes, 0, VerifyBytes.Length);
+                DoDecrypt(_verifyBytes, 0, _verifyBytes.Length);
 
-                Array.Copy(VerifyBytes, 0, myCS, 0, myCS.Length); // crypto_select
+                Array.Copy(_verifyBytes, 0, myCs, 0, myCs.Length); // crypto_select
 
                 //SelectCrypto(myCS);
-                b = myCS;
-                Array.Copy(VerifyBytes, myCS.Length, lenPadD, 0, lenPadD.Length); // len(padD)
+                _b = myCs;
+                Array.Copy(_verifyBytes, myCs.Length, lenPadD, 0, lenPadD.Length); // len(padD)
 
                 PadD = new byte[DeLen(lenPadD)];
 
-                ReceiveMessage(PadD, PadD.Length, gotPadDCallback);
+                ReceiveMessage(PadD, PadD.Length, _gotPadDCallback);
             }
             catch (Exception ex)
             {
-                asyncResult.Complete(ex);
+                AsyncResult.Complete(ex);
             }
         }
 
-        private void gotPadD(IAsyncResult result)
+        private void GotPadD(IAsyncResult result)
         {
             try
             {
                 DoDecrypt(PadD, 0, PadD.Length); // padD
-                SelectCrypto(b, true);
+                SelectCrypto(_b, true);
                 Ready();
             }
             catch (Exception ex)
             {
-                asyncResult.Complete(ex);
+                AsyncResult.Complete(ex);
             }
         }
     }

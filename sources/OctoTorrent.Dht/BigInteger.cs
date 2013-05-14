@@ -132,7 +132,7 @@ namespace OctoTorrent.Dht
             if (inData.Length == 0)
                 inData = new byte[1];
             length = (uint)inData.Length >> 2;
-            int leftOver = inData.Length & 0x3;
+            var leftOver = inData.Length & 0x3;
 
             // length not multiples of 4
             if (leftOver != 0) length++;
@@ -521,15 +521,13 @@ namespace OctoTorrent.Dht
 
             public void BarrettReduction(BigInteger x)
             {
-                BigInteger n = mod;
+                var n = mod;
                 uint k = n.length,
                     kPlusOne = k + 1,
                     kMinusOne = k - 1;
 
                 // x < mod, so nothing to do.
                 if (x.length < k) return;
-
-                BigInteger q3;
 
                 //
                 // Validate pointers
@@ -541,13 +539,13 @@ namespace OctoTorrent.Dht
                 // q3 = q2 / b^ (k+1), Needs to be accessed with an offset of kPlusOne
 
                 // TODO: We should the method in HAC p 604 to do this (14.45)
-                q3 = new BigInteger(Sign.Positive, x.length - kMinusOne + constant.length);
+                var q3 = new BigInteger(Sign.Positive, x.length - kMinusOne + constant.length);
                 Kernel.Multiply(x.data, kMinusOne, x.length - kMinusOne, constant.data, 0, constant.length, q3.data, 0);
 
                 // r1 = x mod b^ (k+1)
                 // i.e. keep the lowest (k+1) words
 
-                uint lengthToCopy = (x.length > kPlusOne) ? kPlusOne : x.length;
+                var lengthToCopy = (x.length > kPlusOne) ? kPlusOne : x.length;
 
                 x.length = lengthToCopy;
                 x.Normalize();
@@ -555,7 +553,7 @@ namespace OctoTorrent.Dht
                 // r2 = (q3 * n) mod b^ (k+1)
                 // partial multiplication of q3 and n
 
-                BigInteger r2 = new BigInteger(Sign.Positive, kPlusOne);
+                var r2 = new BigInteger(Sign.Positive, kPlusOne);
                 Kernel.MultiplyMod2p32pmod(q3.data, (int)kPlusOne, (int)q3.length - (int)kPlusOne, n.data, 0, (int)n.length, r2.data, 0, (int)kPlusOne);
 
                 r2.Normalize();
@@ -566,7 +564,7 @@ namespace OctoTorrent.Dht
                 }
                 else
                 {
-                    BigInteger val = new BigInteger(Sign.Positive, kPlusOne + 1);
+                    var val = new BigInteger(Sign.Positive, kPlusOne + 1);
                     val.data[kPlusOne] = 0x00000001;
 
                     Kernel.MinusEq(val, r2);
