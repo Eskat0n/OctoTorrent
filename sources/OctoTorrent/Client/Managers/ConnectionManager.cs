@@ -31,7 +31,7 @@ namespace OctoTorrent.Client
         #region Member Variables
 
         // Download in 2kB chunks to allow for better rate limiting
-        internal static readonly int ChunkLength = 2096 + 64;
+        internal const int ChunkLength = 2096 + 64;
 
         // Create the callbacks and reuse them. Reduces ongoing allocations by a fair few megs
         private readonly AsyncCallback _endCheckEncryptionCallback;
@@ -44,17 +44,16 @@ namespace OctoTorrent.Client
 
         private readonly List<AsyncConnectState> _pendingConnects;
 
-        internal AsyncIOCallback IncomingConnectionAcceptedCallback;
-        internal AsyncMessageReceivedCallback MessageReceivedCallback;
+        internal readonly AsyncIOCallback IncomingConnectionAcceptedCallback;
+        internal readonly AsyncMessageReceivedCallback MessageReceivedCallback;
 
         /// <summary>
         ///   The number of half open connections
         /// </summary>
-        public int HalfOpenConnections
+        public static int HalfOpenConnections
         {
             get { return NetworkIO.HalfOpens; }
         }
-
 
         /// <summary>
         ///   The maximum number of half open connections

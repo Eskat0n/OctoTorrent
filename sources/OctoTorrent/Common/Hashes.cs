@@ -1,26 +1,24 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace OctoTorrent.Common
 {
+    using System;
+
     public class Hashes
     {
         #region Constants
+
         /// <summary>
         /// Hash code length (in bytes)
         /// </summary>
-        internal static readonly int HashCodeLength = 20;
-        #endregion
+        private const int HashCodeLength = 20;
 
+        #endregion
 
         #region Private Fields
 
-        private int count;
-        private byte[] hashData;
+        private readonly int _count;
+        private readonly byte[] _hashData;
 
         #endregion Private Fields
-
 
         #region Properties
 
@@ -29,22 +27,20 @@ namespace OctoTorrent.Common
         /// </summary>
         public int Count
         {
-            get { return this.count; }
+            get { return _count; }
         }
 
         #endregion Properties
-
 
         #region Constructors
 
         internal Hashes(byte[] hashData, int count)
         {
-            this.hashData = hashData;
-            this.count = count;
+            _hashData = hashData;
+            _count = count;
         }
 
         #endregion Constructors
-
 
         #region Methods
 
@@ -62,12 +58,12 @@ namespace OctoTorrent.Common
             if (hash.Length != HashCodeLength)
                 throw new ArgumentException(string.Format("Hash must be {0} bytes in length", HashCodeLength), "hash");
 
-            if (hashIndex < 0 || hashIndex > count)
-                throw new ArgumentOutOfRangeException("hashIndex", string.Format("hashIndex must be between 0 and {0}", count)); 
+            if (hashIndex < 0 || hashIndex > _count)
+                throw new ArgumentOutOfRangeException("hashIndex", string.Format("hashIndex must be between 0 and {0}", _count)); 
 
-            int start = hashIndex * HashCodeLength;
-            for (int i = 0; i < HashCodeLength; i++)
-                if (hash[i] != this.hashData[i + start])
+            var start = hashIndex * HashCodeLength;
+            for (var i = 0; i < HashCodeLength; i++)
+                if (hash[i] != _hashData[i + start])
                     return false;
 
             return true;
@@ -80,12 +76,12 @@ namespace OctoTorrent.Common
         /// <returns>byte[] (length HashCodeLength) containing hashdata</returns>
         public byte[] ReadHash(int hashIndex)
         {
-            if (hashIndex < 0 || hashIndex >= count)
+            if (hashIndex < 0 || hashIndex >= _count)
                 throw new ArgumentOutOfRangeException("hashIndex");
 
             // Read out our specified piece's hash data
-            byte[] hash = new byte[HashCodeLength];
-            Buffer.BlockCopy(this.hashData, hashIndex * HashCodeLength, hash, 0, HashCodeLength);
+            var hash = new byte[HashCodeLength];
+            Buffer.BlockCopy(_hashData, hashIndex * HashCodeLength, hash, 0, HashCodeLength);
 
             return hash;
         }

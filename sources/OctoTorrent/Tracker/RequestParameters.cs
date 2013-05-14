@@ -1,44 +1,42 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Collections.Specialized;
-using OctoTorrent.BEncoding;
-using System.Net;
-
 namespace OctoTorrent.Tracker
 {
+    using System;
+    using System.Collections.Specialized;
+    using BEncoding;
+    using System.Net;
+
     public abstract class RequestParameters : EventArgs
     {
-        protected internal static readonly string FailureKey = "failure reason";
-        protected internal static readonly string WarningKey = "warning message";
+        protected internal const string FailureKey = "failure reason";
+        protected internal const string WarningKey = "warning message";
 
-        private IPAddress remoteAddress;
-        private NameValueCollection parameters;
-        private BEncodedDictionary response;
+        private IPAddress _remoteAddress;
+        private readonly NameValueCollection _parameters;
+        private readonly BEncodedDictionary _response;
 
         public abstract bool IsValid { get; }
         
         public NameValueCollection Parameters
         {
-            get { return parameters; }
+            get { return _parameters; }
         }
 
         public BEncodedDictionary Response
         {
-            get { return response; }
+            get { return _response; }
         }
 
         public IPAddress RemoteAddress
         {
-            get { return remoteAddress; }
-            protected set { remoteAddress = value; }
+            get { return _remoteAddress; }
+            protected set { _remoteAddress = value; }
         }
 
         protected RequestParameters(NameValueCollection parameters, IPAddress address)
         {
-            this.parameters = parameters;
-            remoteAddress = address;
-            response = new BEncodedDictionary();
+            _parameters = parameters;
+            _remoteAddress = address;
+            _response = new BEncodedDictionary();
         }
     }
 }

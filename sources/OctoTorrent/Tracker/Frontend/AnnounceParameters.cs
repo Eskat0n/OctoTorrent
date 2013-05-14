@@ -26,12 +26,10 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
 using OctoTorrent.Common;
 using System.Collections.Specialized;
 using System.Collections.Generic;
 using OctoTorrent.BEncoding;
-using System.Web;
 using System.Net;
 
 namespace OctoTorrent.Tracker
@@ -43,7 +41,8 @@ namespace OctoTorrent.Tracker
         };
 
         // FIXME: Expose these as configurable options
-        internal static readonly int DefaultWanted = 30;
+        private const int DefaultWanted = 30;
+
         internal static readonly bool UseTrackerKey = false;
         private IPEndPoint clientAddress;
         private bool isValid;
