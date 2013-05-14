@@ -17,17 +17,19 @@ namespace OctoTorrent.Tests.Client
 
     public class TestWriter : PieceWriter
     {
-        public List<TorrentFile> FilesThatExist = new List<TorrentFile>();
-        public List<TorrentFile> DoNotReadFrom = new List<TorrentFile>();
+        public readonly List<TorrentFile> FilesThatExist = new List<TorrentFile>();
+        public readonly List<TorrentFile> DoNotReadFrom = new List<TorrentFile>();
         public bool DontWrite;
-        public List<String> Paths = new List<string>();
+
+        private readonly List<String> _paths = new List<string>();
+
         public override int Read(TorrentFile file, long offset, byte[] buffer, int bufferOffset, int count)
         {
             if (DoNotReadFrom.Contains(file))
                 return 0;
 
-            if (!Paths.Contains(file.FullPath))
-                Paths.Add(file.FullPath);
+            if (!_paths.Contains(file.FullPath))
+                _paths.Add(file.FullPath);
 
             if (!DontWrite)
                 for (int i = 0; i < count; i++)
@@ -37,17 +39,14 @@ namespace OctoTorrent.Tests.Client
 
         public override void Write(TorrentFile file, long offset, byte[] buffer, int bufferOffset, int count)
         {
-
         }
 
         public override void Close(TorrentFile file)
         {
-
         }
 
         public override void Flush(TorrentFile file)
         {
-
         }
 
         public override bool Exists(TorrentFile file)
@@ -57,11 +56,10 @@ namespace OctoTorrent.Tests.Client
 
         public override void Move(string oldPath, string newPath, bool ignoreExisting)
         {
-            
         }
     }
 
-    public class CustomTracker : OctoTorrent.Client.Tracker.Tracker
+    public class CustomTracker : Tracker
     {
         public readonly List<DateTime> AnnouncedAt = new List<DateTime>();
         public readonly List<DateTime> ScrapedAt = new List<DateTime>();
@@ -92,8 +90,8 @@ namespace OctoTorrent.Tests.Client
 
         public void AddPeer(Peer p)
         {
-            TrackerConnectionID id = new TrackerConnectionID(this, false, TorrentEvent.None, new ManualResetEvent(false));
-            AnnounceResponseEventArgs e = new AnnounceResponseEventArgs(this, id, true);
+            var id = new TrackerConnectionID(this, false, TorrentEvent.None, new ManualResetEvent(false));
+            var e = new AnnounceResponseEventArgs(this, id, true);
             e.Peers.Add(p);
             RaiseAnnounceComplete(e);
             Assert.IsTrue(id.WaitHandle.WaitOne(1000, true), "#1 Tracker never raised the AnnounceComplete event");
@@ -101,8 +99,8 @@ namespace OctoTorrent.Tests.Client
 
         public void AddFailedPeer(Peer p)
         {
-            TrackerConnectionID id = new TrackerConnectionID(this, true, TorrentEvent.None, new ManualResetEvent(false));
-            AnnounceResponseEventArgs e = new AnnounceResponseEventArgs(this, id, false);
+            var id = new TrackerConnectionID(this, true, TorrentEvent.None, new ManualResetEvent(false));
+            var e = new AnnounceResponseEventArgs(this, id, false);
             e.Peers.Add(p);
             RaiseAnnounceComplete(e);
             Assert.IsTrue(id.WaitHandle.WaitOne(1000, true), "#2 Tracker never raised the AnnounceComplete event");
@@ -123,35 +121,27 @@ namespace OctoTorrent.Tests.Client
         public event EventHandler BeginSendStarted;
         public event EventHandler EndSendStarted;
 
-        private Socket s;
-        private bool incoming;
+        private readonly Socket _socket;
+        private readonly bool _incoming;
 
-        public int? ManualBytesReceived {
-            get; set;
-        }
+        public int? ManualBytesReceived { get; set; }
+        public int? ManualBytesSent { get; set; }
+        public bool SlowConnection { get; set; }
 
-        public int? ManualBytesSent {
-            get; set;
-        }
-
-        public bool SlowConnection {
-            get; set;
-        }
-
-        public CustomConnection(Socket s, bool incoming)
+        public CustomConnection(Socket socket, bool incoming)
         {
-            this.s = s;
-            this.incoming = incoming;
+            _socket = socket;
+            _incoming = incoming;
         }
 
         public byte[] AddressBytes
         {
-            get { return ((IPEndPoint)s.RemoteEndPoint).Address.GetAddressBytes(); }
+            get { return ((IPEndPoint)_socket.RemoteEndPoint).Address.GetAddressBytes(); }
         }
 
         public bool Connected
         {
-            get { return s.Connected; }
+            get { return _socket.Connected; }
         }
 
         public bool CanReconnect
@@ -161,12 +151,12 @@ namespace OctoTorrent.Tests.Client
 
         public bool IsIncoming
         {
-            get { return incoming; }
+            get { return _incoming; }
         }
 
         public EndPoint EndPoint
         {
-            get { return s.RemoteEndPoint; }
+            get { return _socket.RemoteEndPoint; }
         }
 
         public IAsyncResult BeginConnect(AsyncCallback callback, object state)
@@ -185,7 +175,7 @@ namespace OctoTorrent.Tests.Client
                 BeginReceiveStarted (this, EventArgs.Empty);
             if (SlowConnection)
                 count = 1;
-            return s.BeginReceive(buffer, offset, count, SocketFlags.None, callback, state);
+            return _socket.BeginReceive(buffer, offset, count, SocketFlags.None, callback, state);
         }
 
         public int EndReceive(IAsyncResult result)
@@ -198,7 +188,7 @@ namespace OctoTorrent.Tests.Client
 
             try
             {
-                return s.EndReceive(result);
+                return _socket.EndReceive(result);
             }
             catch (ObjectDisposedException)
             {
@@ -213,7 +203,7 @@ namespace OctoTorrent.Tests.Client
 
             if (SlowConnection)
                 count = 1;
-            return s.BeginSend(buffer, offset, count, SocketFlags.None, callback, state);
+            return _socket.BeginSend(buffer, offset, count, SocketFlags.None, callback, state);
         }
 
         public int EndSend(IAsyncResult result)
@@ -226,18 +216,19 @@ namespace OctoTorrent.Tests.Client
 
             try
             {
-                return s.EndSend(result);
+                return _socket.EndSend(result);
             }
             catch (ObjectDisposedException)
             {
                 return 0;
             }
         }
+
         //private bool disposed;
         public void Dispose()
         {
            // disposed = true;
-            s.Close();
+            _socket.Close();
         }
 
         public override string ToString()
@@ -272,12 +263,10 @@ namespace OctoTorrent.Tests.Client
     {
         public override void Start()
         {
-
         }
 
         public override void Stop()
         {
-
         }
 
         public CustomListener()
@@ -287,43 +276,44 @@ namespace OctoTorrent.Tests.Client
 
         public void Add(TorrentManager manager, IConnection connection)
         {
-            var peer = new Peer("", new Uri("tcp://12.123.123.1:2342"), EncryptionTypes.All);
+            var peer = new Peer("", new Uri("tcp://12.123.123.1:2342"));
             base.RaiseConnectionReceived(peer, connection, manager);
         }
     }
 
     public class ConnectionPair : IDisposable
     {
-        TcpListener socketListener;
-        public CustomConnection Incoming;
-        public CustomConnection Outgoing;
+        public readonly CustomConnection Incoming;
+        public readonly CustomConnection Outgoing;
+
+        private readonly TcpListener _socketListener;
 
         public ConnectionPair(int port)
         {
-            socketListener = new TcpListener(IPAddress.Loopback, port);
-            socketListener.Start();
+            _socketListener = new TcpListener(IPAddress.Loopback, port);
+            _socketListener.Start();
 
-            Socket s1a = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            s1a.Connect(IPAddress.Loopback, port);
-            Socket s1b = socketListener.AcceptSocket();
+            var socketA = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            socketA.Connect(IPAddress.Loopback, port);
+            var socketB = _socketListener.AcceptSocket();
 
-            Incoming = new CustomConnection(s1a, true);
-            Outgoing = new CustomConnection(s1b, false);
-            socketListener.Stop();
+            Incoming = new CustomConnection(socketA, true);
+            Outgoing = new CustomConnection(socketB, false);
+            _socketListener.Stop();
         }
 
         public void Dispose()
         {
             Incoming.Dispose();
             Outgoing.Dispose();
-            socketListener.Stop();
+            _socketListener.Stop();
         }
     }
 
     public class TestRig : IDisposable
     {
-        static Random Random = new Random(1000);
-        static int port = 10000;
+        static readonly Random Random = new Random(1000);
+        static int _port = 10000;
         private BEncodedDictionary torrentDict;
         private ClientEngine engine;
         private CustomListener listener;
@@ -417,7 +407,7 @@ namespace OctoTorrent.Tests.Client
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < 20; i++)
                 sb.Append((char)Random.Next((int)'a', (int)'z'));
-            Peer peer = new Peer(sb.ToString(), new Uri("tcp://127.0.0.1:" + (port++)));
+            Peer peer = new Peer(sb.ToString(), new Uri("tcp://127.0.0.1:" + (_port++)));
             PeerId id = new PeerId(peer, Manager);
             id.SupportsFastPeer = supportsFastPeer;
             id.ProcessingQueue = processingQueue;

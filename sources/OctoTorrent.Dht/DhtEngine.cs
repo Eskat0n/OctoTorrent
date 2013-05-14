@@ -56,17 +56,17 @@ namespace OctoTorrent.Dht
 
         #region Fields
 
-        internal static MainLoop MainLoop = new MainLoop("DhtLoop");
+        internal static readonly MainLoop MainLoop = new MainLoop("DhtLoop");
 
-        bool bootStrap = true;
-        TimeSpan bucketRefreshTimeout = TimeSpan.FromMinutes(15);
-        bool disposed;
-        MessageLoop messageLoop;
-        DhtState state = DhtState.NotReady;
-        RoutingTable table = new RoutingTable();
-        TimeSpan timeout;
-        Dictionary<NodeId, List<Node>> torrents = new Dictionary<NodeId, List<Node>>();
-        TokenManager tokenManager;
+        private bool _bootStrap = true;
+        private TimeSpan _bucketRefreshTimeout = TimeSpan.FromMinutes(15);
+        private bool _disposed;
+        private readonly MessageLoop _messageLoop;
+        private DhtState _state = DhtState.NotReady;
+        private readonly RoutingTable _table = new RoutingTable();
+        private TimeSpan _timeout;
+        private readonly Dictionary<NodeId, List<Node>> _torrents = new Dictionary<NodeId, List<Node>>();
+        private readonly TokenManager _tokenManager;
 
         #endregion Fields
 
@@ -74,19 +74,19 @@ namespace OctoTorrent.Dht
 
         internal bool Bootstrap
         {
-            get { return bootStrap; }
-            set { bootStrap = value; }
+            get { return _bootStrap; }
+            set { _bootStrap = value; }
         }
 
         internal TimeSpan BucketRefreshTimeout
         {
-            get { return bucketRefreshTimeout; }
-            set { bucketRefreshTimeout = value; }
+            get { return _bucketRefreshTimeout; }
+            set { _bucketRefreshTimeout = value; }
         }
 
         public bool Disposed
         {
-            get { return disposed; }
+            get { return _disposed; }
         }
 
         internal NodeId LocalId
@@ -96,33 +96,33 @@ namespace OctoTorrent.Dht
 
         internal MessageLoop MessageLoop
         {
-            get { return messageLoop; }
+            get { return _messageLoop; }
         }
 
         internal RoutingTable RoutingTable
         {
-            get { return table; }
+            get { return _table; }
         }
 
         public DhtState State
         {
-            get { return state; }
+            get { return _state; }
         }
 
         internal TimeSpan TimeOut
         {
-            get { return timeout; }
-            set { timeout = value; }
+            get { return _timeout; }
+            set { _timeout = value; }
         }
 
         internal TokenManager TokenManager
         {
-            get { return tokenManager; }
+            get { return _tokenManager; }
         }
 
         internal Dictionary<NodeId, List<Node>> Torrents
         {
-            get { return torrents; }
+            get { return _torrents; }
         }
 
         #endregion Properties
@@ -134,9 +134,9 @@ namespace OctoTorrent.Dht
             if (listener == null)
                 throw new ArgumentNullException("listener");
 
-            messageLoop = new MessageLoop(this, listener);
-            timeout = TimeSpan.FromSeconds(15); // 15 second message timeout by default
-            tokenManager = new TokenManager();
+            _messageLoop = new MessageLoop(this, listener);
+            _timeout = TimeSpan.FromSeconds(15); // 15 second message timeout by default
+            _tokenManager = new TokenManager();
         }
 
         #endregion Constructors
@@ -186,11 +186,11 @@ namespace OctoTorrent.Dht
 
         public void Dispose()
         {
-            if (disposed)
+            if (_disposed)
                 return;
 
             // Ensure we don't break any threads actively running right now
-            MainLoop.QueueWait(() => disposed = true);
+            MainLoop.QueueWait(() => _disposed = true);
         }
 
         public void GetPeers(byte[] bytes)
@@ -207,7 +207,7 @@ namespace OctoTorrent.Dht
 
         internal void RaiseStateChanged(DhtState newState)
         {
-            state = newState;
+            _state = newState;
 
             if (StateChanged != null)
                 StateChanged(this, EventArgs.Empty);
@@ -249,12 +249,12 @@ namespace OctoTorrent.Dht
         {
             CheckDisposed();
 
-            messageLoop.Start();
+            _messageLoop.Start();
             if (Bootstrap)
             {
                 new InitialiseTask(this, initialNodes).Execute();
                 RaiseStateChanged(DhtState.Initialising);
-                bootStrap = false;
+                _bootStrap = false;
             }
             else
             {
@@ -281,7 +281,7 @@ namespace OctoTorrent.Dht
 
         public void Stop()
         {
-            messageLoop.Stop();
+            _messageLoop.Stop();
         }
 
         #endregion Methods

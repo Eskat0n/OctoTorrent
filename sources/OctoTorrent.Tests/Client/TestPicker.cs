@@ -34,19 +34,20 @@ namespace OctoTorrent.Tests.Client
     using OctoTorrent.Client.Messages;
     using OctoTorrent.Common;
 
-    class TestPicker : PiecePicker
+    internal class TestPicker : PiecePicker
     {
-        public List<BitField> IsInterestingBitfield = new List<BitField>();
-        public List<PeerId> PickPieceId = new List<PeerId>();
-        public List<BitField> PickPieceBitfield = new List<BitField>();
-        public List<List<PeerId>> PickPiecePeers = new List<List<PeerId>>();
-        public List<int> PickPieceStartIndex = new List<int>();
-        public List<int> PickPieceEndIndex = new List<int>();
-        public List<int> PickPieceCount = new List<int>();
+        private readonly List<BitField> _isInterestingBitfield = new List<BitField>();
+        private readonly List<PeerId> _pickPieceId = new List<PeerId>();
+        private readonly List<BitField> _pickPieceBitfield = new List<BitField>();
+        private readonly List<List<PeerId>> _pickPiecePeers = new List<List<PeerId>>();
+        private readonly List<int> _pickPieceStartIndex = new List<int>();
+        private readonly List<int> _pickPieceEndIndex = new List<int>();
+        private readonly List<int> _pickPieceCount = new List<int>();
 
-        public List<int> PickedPieces = new List<int>();
+        public readonly List<int> PickedPieces = new List<int>();
 
         public bool ReturnNoPiece = true;
+
         public TestPicker()
             : base(null)
         {
@@ -54,36 +55,37 @@ namespace OctoTorrent.Tests.Client
 
         public override MessageBundle PickPiece(PeerId id, BitField peerBitfield, List<PeerId> otherPeers, int count, int startIndex, int endIndex)
         {
-            PickPieceId.Add(id);
-            BitField clone = new BitField(peerBitfield.Length);
+            _pickPieceId.Add(id);
+            var clone = new BitField(peerBitfield.Length);
             clone.Or(peerBitfield);
-            PickPieceBitfield.Add(clone);
-            PickPiecePeers.Add(otherPeers);
-            PickPieceStartIndex.Add(startIndex);
-            PickPieceEndIndex.Add(endIndex);
-            PickPieceCount.Add(count);
+            _pickPieceBitfield.Add(clone);
+            _pickPiecePeers.Add(otherPeers);
+            _pickPieceStartIndex.Add(startIndex);
+            _pickPieceEndIndex.Add(endIndex);
+            _pickPieceCount.Add(count);
 
-            for (int i = startIndex; i < endIndex; i++)
+            for (var i = startIndex; i < endIndex; i++)
             {
                 if (PickedPieces.Contains(i))
                     continue;
+
                 PickedPieces.Add(i);
-                if (ReturnNoPiece)
-                    return null;
-                else
-                    return new MessageBundle();
+
+                return ReturnNoPiece
+                           ? null
+                           : new MessageBundle();
             }
+
             return null;
         }
 
         public override void Initialise(BitField bitfield, TorrentFile[] files, IEnumerable<Piece> requests)
         {
-            
         }
 
         public override bool IsInteresting(BitField bitfield)
         {
-            IsInterestingBitfield.Add(bitfield);
+            _isInterestingBitfield.Add(bitfield);
             return !bitfield.AllFalse;
         }
     }

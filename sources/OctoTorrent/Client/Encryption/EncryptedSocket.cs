@@ -128,7 +128,7 @@ namespace OctoTorrent.Client.Encryption
         {
             var b = new byte[4];
             random.GetBytes(b);
-            uint val = BitConverter.ToUInt32(b, 0);
+            var val = BitConverter.ToUInt32(b, 0);
             return (int) (val%max);
         }
 
