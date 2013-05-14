@@ -28,27 +28,21 @@
 
 
 using System;
-using System.Text;
-using System.Net.Sockets;
 using System.Net;
-using System.Threading;
 using System.Collections.Generic;
 using System.IO;
-
-using OctoTorrent.Client.Encryption;
 using OctoTorrent.Client.Messages;
 using OctoTorrent.Client.Messages.Standard;
 using OctoTorrent.Common;
-using System.Text.RegularExpressions;
 using System.Reflection;
-using OctoTorrent.BEncoding;
 
 namespace OctoTorrent.Client.Connections
 {
     public partial class HttpConnection : IConnection
     {
-        static MethodInfo method = typeof(WebHeaderCollection).GetMethod
-                                ("AddWithoutValidate", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly MethodInfo Method = typeof (WebHeaderCollection).GetMethod
+            ("AddWithoutValidate", BindingFlags.Instance | BindingFlags.NonPublic);
+
         private class HttpResult : AsyncResult
         {
             public byte[] Buffer;
@@ -66,8 +60,8 @@ namespace OctoTorrent.Client.Connections
 
             public void Complete(int bytes)
             {
-                this.BytesTransferred = bytes;
-                base.Complete();
+                BytesTransferred = bytes;
+                Complete();
             }
 		}
 
@@ -401,7 +395,7 @@ namespace OctoTorrent.Client.Connections
 
         static void AddRange(HttpWebRequest request, long startOffset, long endOffset)
         {
-            method.Invoke(request.Headers, new object[] { "Range", string.Format("bytes={0}-{1}", startOffset, endOffset) });
+            Method.Invoke(request.Headers, new object[] { "Range", string.Format("bytes={0}-{1}", startOffset, endOffset) });
         }
 
         public void Dispose()
