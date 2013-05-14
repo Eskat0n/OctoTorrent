@@ -497,56 +497,58 @@ namespace OctoTorrent.Tests.Client
             return dict;
         }
 
-        void AddFiles(BEncodedDictionary dict, TorrentFile[] files)
+        void AddFiles(BEncodedDictionary dict, IEnumerable<TorrentFile> torrentFiles)
         {
             long totalSize = piecelength - 1;
-            BEncodedList bFiles = new BEncodedList();
-            for (int i = 0; i < files.Length; i++)
+            var bFiles = new BEncodedList();
+            foreach (var torrentFile in torrentFiles)
             {
-                BEncodedList path = new BEncodedList();
-                foreach (string s in files[i].Path.Split('/'))
-                    path.Add((BEncodedString)s);
-                BEncodedDictionary d = new BEncodedDictionary();
-                d["path"] = path;
-                d["length"] = (BEncodedNumber)files[i].Length;
-                bFiles.Add(d);
-                totalSize += files[i].Length;
+                var path = new BEncodedList();
+                foreach (var split in torrentFile.Path.Split('/'))
+                    path.Add((BEncodedString)split);
+
+                var dictionary = new BEncodedDictionary();
+                dictionary["path"] = path;
+                dictionary["length"] = (BEncodedNumber)torrentFile.Length;
+                bFiles.Add(dictionary);
+
+                totalSize += torrentFile.Length;
             }
 
-            dict[new BEncodedString("files")] = bFiles;
-            dict[new BEncodedString("name")] = new BEncodedString("test.files");
+            dict[new BEncodedString("torrentFiles")] = bFiles;
+            dict[new BEncodedString("name")] = new BEncodedString("test.torrentFiles");
             dict[new BEncodedString("piece length")] = new BEncodedNumber(piecelength);
             dict[new BEncodedString("pieces")] = new BEncodedString(new byte[20 * (totalSize / piecelength)]);
         }
 
         public static TestRig CreateSingleFile()
         {
-            return new TestRig("", StandardPieceSize(), StandardWriter(), StandardTrackers(), StandardSingleFile());
+            return new TestRig(string.Empty, StandardPieceSize(), StandardWriter(), StandardTrackers(), StandardSingleFile());
         }
 
         public static TestRig CreateMultiFile()
         {
-            return new TestRig("", StandardPieceSize(), StandardWriter(), StandardTrackers(), StandardMultiFile());
+            return new TestRig(string.Empty, StandardPieceSize(), StandardWriter(), StandardTrackers(), StandardMultiFile());
         }
 
         internal static TestRig CreateMultiFile(TorrentFile[] files, int pieceLength)
         {
-            return new TestRig("", pieceLength, StandardWriter(), StandardTrackers(), files);
+            return new TestRig(string.Empty, pieceLength, StandardWriter(), StandardTrackers(), files);
         }
 
         public static TestRig CreateTrackers(string[][] tier)
         {
-            return new TestRig("", StandardPieceSize(), StandardWriter(), tier, StandardMultiFile());
+            return new TestRig(string.Empty, StandardPieceSize(), StandardWriter(), tier, StandardMultiFile());
         }
 
         internal static TestRig CreateMultiFile(TestWriter writer)
         {
-            return new TestRig ("", StandardPieceSize (), writer, StandardTrackers (), StandardMultiFile());
+            return new TestRig (string.Empty, StandardPieceSize (), writer, StandardTrackers (), StandardMultiFile());
         }
 
         internal static TestRig CreateMultiFile(int pieceSize)
         {
-            return new TestRig("", pieceSize, StandardWriter(), StandardTrackers(), StandardMultiFile());
+            return new TestRig(string.Empty, pieceSize, StandardWriter(), StandardTrackers(), StandardMultiFile());
         }
 
         #region Create standard fake data
@@ -558,27 +560,29 @@ namespace OctoTorrent.Tests.Client
 
         static TorrentFile[] StandardMultiFile()
         {
-            return new TorrentFile[] {
-                new TorrentFile ("Dir1/File1", (int)(StandardPieceSize () * 0.44)),
-                new TorrentFile ("Dir1/Dir2/File2", (int)(StandardPieceSize () * 13.25)),
-                new TorrentFile ("File3", (int)(StandardPieceSize () * 23.68)),
-                new TorrentFile ("File4", (int)(StandardPieceSize () * 2.05)),
-            };
+            return new[]
+                       {
+                           new TorrentFile("Dir1/File1", (int) (StandardPieceSize()*0.44)),
+                           new TorrentFile("Dir1/Dir2/File2", (int) (StandardPieceSize()*13.25)),
+                           new TorrentFile("File3", (int) (StandardPieceSize()*23.68)),
+                           new TorrentFile("File4", (int) (StandardPieceSize()*2.05)),
+                       };
         }
 
         static TorrentFile[] StandardSingleFile()
         {
-            return new TorrentFile[] {
+            return new[] {
                  new TorrentFile ("Dir1/File1", (int)(StandardPieceSize () * 0.44))
             };
         }
 
         static string[][] StandardTrackers()
         {
-            return new string[][] {
-                new string[] { "custom://tier1/announce1", "custom://tier1/announce2" },
-                new string[] { "custom://tier2/announce1", "custom://tier2/announce2", "custom://tier2/announce3" },
-            };
+            return new[]
+                       {
+                           new[] {"custom://tier1/announce1", "custom://tier1/announce2"},
+                           new[] {"custom://tier2/announce1", "custom://tier2/announce2", "custom://tier2/announce3"},
+                       };
         }
 
         static TestWriter StandardWriter()

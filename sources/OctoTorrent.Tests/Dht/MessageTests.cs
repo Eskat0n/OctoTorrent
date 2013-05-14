@@ -36,27 +36,27 @@ namespace OctoTorrent.Tests.Dht
         [Test]
         public void AnnouncePeerEncode()
         {
-            var n = new Node(NodeId.Create(), null) {Token = _token};
-            var m = new AnnouncePeer(_id, _infohash, 6881, _token) {TransactionId = _transactionId};
+//            var n = new Node(NodeId.Create(), null) {Token = _token};
+            var message = new AnnouncePeer(_id, _infohash, 6881, _token) {TransactionId = _transactionId};
 
-            Compare(m, "d1:ad2:id20:abcdefghij01234567899:info_hash20:mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q13:announce_peer1:t2:aa1:y1:qe");
+            Compare(message, "d1:ad2:id20:abcdefghij01234567899:info_hash20:mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q13:announce_peer1:t2:aa1:y1:qe");
         }
 
         [Test]
         public void AnnouncePeerResponseEncode()
         {
-            var m = new AnnouncePeerResponse(_infohash, _transactionId);
+            var message = new AnnouncePeerResponse(_infohash, _transactionId);
 
-            Compare(m, "d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re");
+            Compare(message, "d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re");
         }
 
         [Test]
         public void FindNodeEncode()
         {
-            var m = new FindNode(_id, _infohash) {TransactionId = _transactionId};
+            var message = new FindNode(_id, _infohash) {TransactionId = _transactionId};
 
-            Compare(m, "d1:ad2:id20:abcdefghij01234567896:target20:mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe");
-            _message = m;
+            Compare(message, "d1:ad2:id20:abcdefghij01234567896:target20:mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe");
+            _message = message;
         }
 
         [Test]

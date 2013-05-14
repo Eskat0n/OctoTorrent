@@ -197,7 +197,7 @@ namespace SampleTracker
             Console.Write("What is the tracker address: ");
             string address = Console.ReadLine();
 
-            StressTest test = new StressTest(torrents, peers, requests);
+            StressTest test = new StressTest(torrents, requests);
             test.Start(address);
 
             while (true)

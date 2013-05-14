@@ -7,7 +7,6 @@ namespace OctoTorrent.SampleClient
     using BEncoding;
     using Client;
     using Client.Connections;
-    using Client.Encryption;
     using Client.PieceWriters;
     using Client.Tracker;
     using Common;
@@ -32,7 +31,7 @@ namespace OctoTorrent.SampleClient
 
         public void AddPeer(Peer p)
         {
-            var id = new TrackerConnectionID(this, false, TorrentEvent.None, null);
+//            var id = new TrackerConnectionID(this, false, TorrentEvent.None, null);
             var e = new AnnounceResponseEventArgs(this, null, true);
             e.Peers.Add(p);
             e.Successful = true;

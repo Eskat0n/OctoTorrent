@@ -561,8 +561,6 @@ namespace OctoTorrent.Client
 
         internal void TryConnect()
         {
-            TorrentManager m = null;
-
             // If we have already reached our max connections globally, don't try to connect to a new peer
             while (OpenConnections < MaxOpenConnections && HalfOpenConnections < MaxHalfOpenConnections)
             {

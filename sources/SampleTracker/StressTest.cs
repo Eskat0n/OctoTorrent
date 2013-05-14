@@ -16,7 +16,7 @@ namespace TrackerApp
         private readonly int _threadSleepTime;
         private readonly Thread[] _threads;
 
-        public StressTest(int torrents, int peers, int requests)
+        public StressTest(int torrents, int requests)
         {
             for (int i = 0; i < torrents; i++)
             {
@@ -50,8 +50,6 @@ namespace TrackerApp
                                                 while (true)
                                                 {
                                                     sb.Remove(0, sb.Length);
-
-                                                    var ipaddress = _random.Next(0, _hashes.Count);
 
                                                     sb.Append(trackerAddress);
                                                     sb.Append("?info_hash=");
