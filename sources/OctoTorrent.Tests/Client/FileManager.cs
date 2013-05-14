@@ -1,6 +1,5 @@
 namespace OctoTorrent.Tests.Client
 {
-    using System.Globalization;
     using System.IO;
     using NUnit.Framework;
 
@@ -18,7 +17,7 @@ namespace OctoTorrent.Tests.Client
             _path = GetType().Assembly.Location;
             for (var i = 0; i >= 0; i++)
             {
-                var directoryName = string.Format("temp{0}", i.ToString(CultureInfo.InvariantCulture));
+                var directoryName = string.Format("temp{0}", i);
 
                 if (Directory.Exists(directoryName)) 
                     continue;
@@ -35,10 +34,10 @@ namespace OctoTorrent.Tests.Client
 
         private void GenerateTestFiles()
         {
+            const string data = "this is my teststring. It's not really that long, but i'll be writing a lot more where this come from\r\n";
+
             var file1 = File.OpenWrite(Path.Combine(_fullPath, "file1.txt"));
             var file2 = File.OpenWrite(Path.Combine(_fullPath, "file2.txt"));
-
-            const string data = "this is my teststring. It's not really that long, but i'll be writing a lot more where this come from\r\n";
 
             for (var i = 0; i < 100; i++)
                 file1.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, System.Text.Encoding.UTF8.GetByteCount(data));

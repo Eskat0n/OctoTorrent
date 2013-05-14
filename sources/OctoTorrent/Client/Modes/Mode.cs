@@ -355,8 +355,7 @@ namespace OctoTorrent.Client
             // we will close the connection
             if (_manager.Torrent.Pieces.Count != (message.PieceIndex + 1))
                 if (message.RequestLength > RequestMessage.MaxSize || message.RequestLength < RequestMessage.MinSize)
-                    throw new MessageException("Illegal piece request received. Peer requested " +
-                                               message.RequestLength.ToString() + " byte");
+                    throw new MessageException(string.Format("Illegal piece request received. Peer requested {0} byte", message.RequestLength));
 
             var m = new PieceMessage(message.PieceIndex, message.StartOffset, message.RequestLength);
 

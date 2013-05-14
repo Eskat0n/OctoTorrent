@@ -171,7 +171,7 @@ namespace OctoTorrent
                 // Every time the state changes (Stopped -> Seeding -> Downloading -> Hashing) this is fired
                 manager.TorrentStateChanged += delegate (object o, TorrentStateChangedEventArgs e) {
                     lock (_listener)
-                        _listener.WriteLine("OldState: " + e.OldState.ToString() + " NewState: " + e.NewState.ToString());
+                        _listener.WriteLine(string.Format("OldState: {0} NewState: {1}", e.OldState, e.NewState));
                 };
 
                 // Every time the tracker's state changes, this is fired

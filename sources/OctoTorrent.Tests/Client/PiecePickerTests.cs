@@ -268,10 +268,11 @@ namespace OctoTorrent.Tests.Client
         {
             peer.IsChoking = false;
             peer.BitField.SetAll(true);
-            for (int i = 0; i < 1000; i++)
+            for (var i = 0; i < 1000; i++)
             {
-                MessageBundle b = picker.PickPiece(peer, peers, i);
-                Assert.AreEqual(Math.Min(i, rig.TotalBlocks), b.Messages.Count);
+                var messageBundle = picker.PickPiece(peer, peers, i);
+
+                Assert.AreEqual(Math.Min(i, rig.TotalBlocks), messageBundle.Messages.Count);
                 picker.CancelRequests(peer);
             }
         }
@@ -281,16 +282,18 @@ namespace OctoTorrent.Tests.Client
         {
             peer.IsChoking = true;
             peer.SupportsFastPeer = true;
-            peer.IsAllowedFastPieces.AddRange(new int[] { 1, 2, 5, 55, 62, 235, 42624 });
+            peer.IsAllowedFastPieces.AddRange(new[] { 1, 2, 5, 55, 62, 235, 42624 });
             peer.BitField.SetAll(true);
-            for (int i = 0; i < rig.BlocksPerPiece * 3; i++)
+
+            for (var i = 0; i < rig.BlocksPerPiece * 3; i++)
             {
-                RequestMessage m = picker.PickPiece(peer, peers);
-                Assert.IsNotNull(m, "#1." + i.ToString());
-                Assert.IsTrue(m.PieceIndex == 1 || m.PieceIndex == 2 || m.PieceIndex == 5, "#2");
+                var message = picker.PickPiece(peer, peers);
+
+                Assert.IsNotNull(message, string.Format("#1.{0}", i));
+                Assert.IsTrue(message.PieceIndex == 1 || message.PieceIndex == 2 || message.PieceIndex == 5, "#2");
             }
 
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
                 Assert.IsNull(picker.PickPiece(peer, peers), "#3");
         }
 
@@ -301,7 +304,7 @@ namespace OctoTorrent.Tests.Client
             peer.IsChoking = false;
             peer.AmInterested = true;
             peer.BitField.SetAll(true);
-            RequestMessage message = picker.PickPiece(peer, peers);
+            var message = picker.PickPiece(peer, peers);
             Assert.IsTrue(picker.ValidatePiece(peer, message.PieceIndex, message.StartOffset, message.RequestLength, out piece), "#1");
             picker.CancelRequests(peer);
             for (int i = 0; i < piece.BlockCount; i++)
@@ -319,11 +322,11 @@ namespace OctoTorrent.Tests.Client
         {
             peer.IsChoking = true;
             peer.SupportsFastPeer = true;
-            peer.IsAllowedFastPieces.AddRange(new int[] { 1, 2, 3, 4 });
+            peer.IsAllowedFastPieces.AddRange(new[] { 1, 2, 3, 4 });
             peer.BitField.SetAll(true);
             picker = new StandardPicker();
             picker.Initialise(rig.Manager.Bitfield, rig.Torrent.Files, new List<Piece>());
-            MessageBundle bundle = picker.PickPiece(peer, new OctoTorrent.Common.BitField(peer.BitField.Length), peers, 1, 0, peer.BitField.Length);
+            var bundle = picker.PickPiece(peer, new OctoTorrent.Common.BitField(peer.BitField.Length), peers, 1, 0, peer.BitField.Length);
             Assert.IsNull(bundle);
         }
 
@@ -333,11 +336,11 @@ namespace OctoTorrent.Tests.Client
         {
             peer.IsChoking = false;
             peer.SupportsFastPeer = true;
-            peer.SuggestedPieces.AddRange(new int[] { 1, 2, 3, 4 });
+            peer.SuggestedPieces.AddRange(new[] { 1, 2, 3, 4 });
             peer.BitField.SetAll(true);
             picker = new StandardPicker();
             picker.Initialise(rig.Manager.Bitfield, rig.Torrent.Files, new List<Piece>());
-            MessageBundle bundle = picker.PickPiece(peer, new OctoTorrent.Common.BitField(peer.BitField.Length), peers, 1, 0, peer.BitField.Length);
+            var bundle = picker.PickPiece(peer, new OctoTorrent.Common.BitField(peer.BitField.Length), peers, 1, 0, peer.BitField.Length);
             Assert.IsNull(bundle);
         }
 
@@ -358,7 +361,7 @@ namespace OctoTorrent.Tests.Client
             peer.BitField.SetAll(true);
 
             MessageBundle bundle;
-            List<PeerMessage> messages = new List<PeerMessage>();
+            var messages = new List<PeerMessage>();
             
             while ((bundle = picker.PickPiece(peer, peers, rig.BlocksPerPiece * 5)) != null)
             {
@@ -378,7 +381,7 @@ namespace OctoTorrent.Tests.Client
                 peer.BitField[i] = true;
             
             MessageBundle bundle;
-            List<PeerMessage> messages = new List<PeerMessage>();
+            var messages = new List<PeerMessage>();
 
             while ((bundle = picker.PickPiece(peer, peers, rig.BlocksPerPiece * 5)) != null)
             {
@@ -392,7 +395,7 @@ namespace OctoTorrent.Tests.Client
         [Test]
         public void PickBundle_3()
         {
-            List<PeerMessage> messages = new List<PeerMessage>();
+            var messages = new List<PeerMessage>();
             peers[2].IsChoking = false;
             peers[2].BitField.SetAll(true);
             messages.Add(picker.PickPiece(peers[2], peers));
@@ -416,12 +419,12 @@ namespace OctoTorrent.Tests.Client
             peers[0].IsChoking = false;
             peers[0].BitField.SetAll(true);
 
-            for (int i = 0; i < rig.BlocksPerPiece; i++)
+            for (var i = 0; i < rig.BlocksPerPiece; i++)
                 picker.PickPiece(peers[0], peers[0].BitField, new List<PeerId>(), 1, 4, 4);
-            for (int i = 0; i < rig.BlocksPerPiece; i++)
+            for (var i = 0; i < rig.BlocksPerPiece; i++)
                 picker.PickPiece(peers[0], peers[0].BitField, new List<PeerId>(), 1, 6, 6);
 
-            MessageBundle b = picker.PickPiece(peers[0], new List<PeerId>(), 20 * rig.BlocksPerPiece);
+            var b = picker.PickPiece(peers[0], new List<PeerId>(), 20 * rig.BlocksPerPiece);
 
             foreach (RequestMessage m in b.Messages)
                 Assert.IsTrue(m.PieceIndex > 6);
@@ -432,7 +435,7 @@ namespace OctoTorrent.Tests.Client
         {
             rig.Manager.Bitfield.SetAll(true);
 
-            for (int i = 0; i < 20; i++)
+            for (var i = 0; i < 20; i++)
             {
                 rig.Manager.Bitfield[i % 2] = false;
                 rig.Manager.Bitfield[10 + i] = false;
@@ -441,12 +444,12 @@ namespace OctoTorrent.Tests.Client
             peers[0].IsChoking = false;
             peers[0].BitField.SetAll(true);
 
-            for (int i = 0; i < rig.BlocksPerPiece; i++)
+            for (var i = 0; i < rig.BlocksPerPiece; i++)
                 picker.PickPiece(peers[0], peers[0].BitField, new List<PeerId>(), 1, 3, 3);
-            for (int i = 0; i < rig.BlocksPerPiece; i++)
+            for (var i = 0; i < rig.BlocksPerPiece; i++)
                 picker.PickPiece(peers[0], peers[0].BitField, new List<PeerId>(), 1, 6, 6);
 
-            MessageBundle b = picker.PickPiece(peers[0], new List<PeerId>(), 20 * rig.BlocksPerPiece);
+            var b = picker.PickPiece(peers[0], new List<PeerId>(), 20 * rig.BlocksPerPiece);
             Assert.AreEqual(20 * rig.BlocksPerPiece, b.Messages.Count);
             foreach (RequestMessage m in b.Messages)
                 Assert.IsTrue(m.PieceIndex >=10 && m.PieceIndex < 30);
@@ -460,34 +463,36 @@ namespace OctoTorrent.Tests.Client
             peers[0].IsChoking = false;
             peers[0].BitField.SetAll(true);
 
-            for (int i = 0; i < rig.BlocksPerPiece; i++)
+            for (var i = 0; i < rig.BlocksPerPiece; i++)
                 picker.PickPiece(peers[0], peers[0].BitField, new List<PeerId>(), 1, 0, 0);
-            for (int i = 0; i < rig.BlocksPerPiece; i++)
+            for (var i = 0; i < rig.BlocksPerPiece; i++)
                 picker.PickPiece(peers[0], peers[0].BitField, new List<PeerId>(), 1, 1, 1);
-            for (int i = 0; i < rig.BlocksPerPiece; i++)
+            for (var i = 0; i < rig.BlocksPerPiece; i++)
                 picker.PickPiece(peers[0], peers[0].BitField, new List<PeerId>(), 1, 3, 3);
-            for (int i = 0; i < rig.BlocksPerPiece; i++)
+            for (var i = 0; i < rig.BlocksPerPiece; i++)
                 picker.PickPiece(peers[0], peers[0].BitField, new List<PeerId>(), 1, 6, 6);
 
-            MessageBundle b = picker.PickPiece(peers[0], new List<PeerId>(), 2 * rig.BlocksPerPiece);
-            Assert.AreEqual(2 * rig.BlocksPerPiece, b.Messages.Count);
-            foreach (RequestMessage m in b.Messages)
+            var messageBundle = picker.PickPiece(peers[0], new List<PeerId>(), 2 * rig.BlocksPerPiece);
+            Assert.AreEqual(2 * rig.BlocksPerPiece, messageBundle.Messages.Count);
+            foreach (RequestMessage m in messageBundle.Messages)
                 Assert.IsTrue(m.PieceIndex >= 4 && m.PieceIndex < 6);
         }
 
         [Test]
         public void FastPieceTest()
         {
-            for (int i = 0; i < 2; i++)
+            for (var i = 0; i < 2; i++)
             {
                 peers[i].BitField.SetAll(true);
                 peers[i].SupportsFastPeer = true;
                 peers[i].IsAllowedFastPieces.Add(5);
                 peers[i].IsAllowedFastPieces.Add(6);
             }
-            RequestMessage m1 = picker.PickPiece(peers[0], new List<PeerId>());
-            RequestMessage m2 = picker.PickPiece(peers[1], new List<PeerId>());
-            Assert.AreNotEqual(m1.PieceIndex, m2.PieceIndex, "#1");
+
+            var message1 = picker.PickPiece(peers[0], new List<PeerId>());
+            var message2 = picker.PickPiece(peers[1], new List<PeerId>());
+
+            Assert.AreNotEqual(message1.PieceIndex, message2.PieceIndex, "#1");
         }
     }
 }

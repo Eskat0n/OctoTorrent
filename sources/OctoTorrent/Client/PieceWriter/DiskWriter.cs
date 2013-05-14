@@ -1,9 +1,8 @@
-namespace OctoTorrent.Client.PieceWriter
+namespace OctoTorrent.Client.PieceWriters
 {
     using System;
     using Common;
     using System.IO;
-    using PieceWriters;
 
     public class DiskWriter : PieceWriter
     {

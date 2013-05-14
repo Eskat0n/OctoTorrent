@@ -37,7 +37,6 @@ namespace OctoTorrent.Client
     using System.Text;
     using BEncoding;
     using Common;
-    using PieceWriter;
     using PieceWriters;
 
     /// <summary>

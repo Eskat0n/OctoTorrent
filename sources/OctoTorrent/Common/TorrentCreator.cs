@@ -37,7 +37,6 @@ namespace OctoTorrent.Common
     using System.Threading;
     using BEncoding;
     using OctoTorrent.Client;
-    using OctoTorrent.Client.PieceWriter;
     using OctoTorrent.Client.PieceWriters;
 
     public class TorrentCreator : EditableTorrent
