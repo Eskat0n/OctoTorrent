@@ -30,20 +30,18 @@
 
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-
-using Mono.Math;
 using OctoTorrent.BEncoding;
 using System.Net;
-using OctoTorrent.Dht.Messages;
 using System.Text;
 
 namespace OctoTorrent.Dht
 {
+    using Client.Messages;
+
     internal class Node : IComparable<Node>, IEquatable<Node>
     {
-        public static readonly int MaxFailures = 4;
+        public const int MaxFailures = 4;
 
         IPEndPoint endpoint;
         NodeId id;
@@ -123,8 +121,8 @@ namespace OctoTorrent.Dht
 
         internal static BEncodedString CompactPort(IList<Node> peers)
         {
-            byte[] buffer = new byte[peers.Count * 6];
-            for (int i = 0; i < peers.Count; i++)
+            var buffer = new byte[peers.Count * 6];
+            for (var i = 0; i < peers.Count; i++)
                 peers[i].CompactPort(buffer, i * 6);
 
             return new BEncodedString(buffer);

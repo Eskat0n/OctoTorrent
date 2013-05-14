@@ -205,17 +205,19 @@ namespace OctoTorrent.Tests.Common
         }
 
         [Test]
-        public void benNumberEncoding6 ()
+        public void BenNumberEncoding6()
         {
-            BEncodedNumber a = -123;
-            BEncodedNumber b = BEncodedNumber.Decode<BEncodedNumber>(a.Encode());
-            Assert.AreEqual(a.Number, b.Number, "#1");
+            BEncodedNumber actual = -123;
+
+            var number = BEncodedValue.Decode<BEncodedNumber>(actual.Encode());
+
+            Assert.AreEqual(actual.Number, number.Number, "#1");
         }
 
         [Test]
         public void benNumberEncodingBuffered()
         {
-            byte[] data = System.Text.Encoding.UTF8.GetBytes("i12345e");
+            byte[] data = Encoding.UTF8.GetBytes("i12345e");
             BEncodedNumber number = 12345;
             byte[] result = new byte[number.LengthInBytes()];
             number.Encode(result, 0);
@@ -235,7 +237,7 @@ namespace OctoTorrent.Tests.Common
         public void corruptBenNumberDecode()
         {
             string testString = "i35212";
-            BEncodedValue.Decode(System.Text.Encoding.UTF8.GetBytes(testString));
+            BEncodedValue.Decode(Encoding.UTF8.GetBytes(testString));
         }
         #endregion
 

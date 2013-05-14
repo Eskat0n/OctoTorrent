@@ -733,9 +733,9 @@ namespace OctoTorrent.Common
 
             try
             {
-                Torrent t = Torrent.LoadCore ((BEncodedDictionary) BEncodedDictionary.Decode(stream));
-                t.torrentPath = path;
-                return t;
+                var torrent = LoadCore((BEncodedDictionary) BEncodedValue.Decode(stream));
+                torrent.torrentPath = path;
+                return torrent;
             }
             catch (BEncodingException ex)
             {
@@ -745,17 +745,17 @@ namespace OctoTorrent.Common
 
         public static Torrent Load(BEncodedDictionary torrentInformation)
         {
-            return LoadCore ((BEncodedDictionary)BEncodedValue.Decode (torrentInformation.Encode ()));
+            return LoadCore((BEncodedDictionary) BEncodedValue.Decode(torrentInformation.Encode()));
         }
 
         internal static Torrent LoadCore(BEncodedDictionary torrentInformation)
         {
             Check.TorrentInformation(torrentInformation);
 
-            Torrent t = new Torrent();
-            t.LoadInternal(torrentInformation);
+            var torrent = new Torrent();
+            torrent.LoadInternal(torrentInformation);
 
-            return t;
+            return torrent;
         }
 
         protected void LoadInternal(BEncodedDictionary torrentInformation)
