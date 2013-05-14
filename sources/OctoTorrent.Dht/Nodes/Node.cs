@@ -81,7 +81,7 @@ namespace OctoTorrent.Dht
                 if (failedCount >= MaxFailures)
                     return NodeState.Bad;
 
-                else if (lastSeen == DateTime.MinValue)
+                if (lastSeen == DateTime.MinValue)
                     return NodeState.Unknown;
 
                 return (DateTime.UtcNow - lastSeen).TotalMinutes < 15 ? NodeState.Good : NodeState.Questionable;

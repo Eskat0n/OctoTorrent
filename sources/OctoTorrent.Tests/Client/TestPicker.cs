@@ -38,13 +38,13 @@ namespace OctoTorrent.Tests.Client
     {
         private readonly List<BitField> _isInterestingBitfield = new List<BitField>();
         private readonly List<PeerId> _pickPieceId = new List<PeerId>();
-        private readonly List<BitField> _pickPieceBitfield = new List<BitField>();
         private readonly List<List<PeerId>> _pickPiecePeers = new List<List<PeerId>>();
         private readonly List<int> _pickPieceStartIndex = new List<int>();
         private readonly List<int> _pickPieceEndIndex = new List<int>();
         private readonly List<int> _pickPieceCount = new List<int>();
 
         public readonly List<int> PickedPieces = new List<int>();
+        public readonly List<BitField> PickPieceBitfield = new List<BitField>();
 
         public bool ReturnNoPiece = true;
 
@@ -58,7 +58,7 @@ namespace OctoTorrent.Tests.Client
             _pickPieceId.Add(id);
             var clone = new BitField(peerBitfield.Length);
             clone.Or(peerBitfield);
-            _pickPieceBitfield.Add(clone);
+            PickPieceBitfield.Add(clone);
             _pickPiecePeers.Add(otherPeers);
             _pickPieceStartIndex.Add(startIndex);
             _pickPieceEndIndex.Add(endIndex);

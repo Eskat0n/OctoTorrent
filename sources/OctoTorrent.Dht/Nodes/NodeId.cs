@@ -104,12 +104,14 @@ namespace OctoTorrent.Dht
             if ((object)other == null)
                 return 1;
 
-            BigInteger.Sign s = value.Compare(other.value);
-            if (s == BigInteger.Sign.Zero)
+            var sign = value.Compare(other.value);
+
+            if (sign == BigInteger.Sign.Zero)
                 return 0;
-            else if (s == BigInteger.Sign.Positive)
+            if (sign == BigInteger.Sign.Positive)
                 return 1;
-            else return -1;
+
+            return -1;
         }
 
         internal NodeId Xor(NodeId right)

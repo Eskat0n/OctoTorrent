@@ -797,10 +797,9 @@ namespace OctoTorrent.Common
                             {
                                 if (e is ArgumentOutOfRangeException)
                                     throw new BEncodingException("Argument out of range exception when adding seconds to creation date.", e);
-                                else if (e is FormatException)
+                                if (e is FormatException)
                                     throw new BEncodingException(String.Format("Could not parse {0} into a number", keypair.Value), e);
-                                else
-                                    throw;
+                                throw;
                             }
                             break;
 
@@ -895,9 +894,6 @@ namespace OctoTorrent.Common
                                     GetRightHttpSeeds.Add(str.Text);
                             }
                             break;
-
-                        default:
-                            break;
                     }
                 }
             }
@@ -905,8 +901,7 @@ namespace OctoTorrent.Common
             {
                 if (e is BEncodingException)
                     throw;
-                else
-                    throw new BEncodingException("", e);
+                throw new BEncodingException("", e);
             }
         }
 

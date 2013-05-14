@@ -26,61 +26,49 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace OctoTorrent.Client
 {
+    using System.Linq;
+
     class RateLimiterGroup : IRateLimiter
     {
-        List<IRateLimiter> limiters;
+        private readonly List<IRateLimiter> _limiters;
 
         public bool Unlimited
         {
-            get {
-                for (int i = 0; i < limiters.Count; i++)
-                    if (!limiters [i].Unlimited)
-                        return false;
-                return true;
-            }
+            get { return _limiters.All(limiter => limiter.Unlimited); }
         }
 
         public RateLimiterGroup()
         {
-            limiters = new List<IRateLimiter>();
+            _limiters = new List<IRateLimiter>();
         }
 
         public void Add(IRateLimiter limiter)
         {
             Check.Limiter(limiter);
-            limiters.Add(limiter);
+            _limiters.Add(limiter);
         }
 
         public void Remove(IRateLimiter limiter)
         {
             Check.Limiter(limiter);
-            limiters.Remove(limiter);
+            _limiters.Remove(limiter);
         }
 
         public bool TryProcess(int amount)
         {
-            for (int i = 0; i < limiters.Count; i++)
-            {
-                if (limiters[i].Unlimited)
-                    continue;
-                else if (!limiters[i].TryProcess(amount))
-                    return false;
-            }
-            return true;
+            return _limiters
+                .Where(limiter => !limiter.Unlimited)
+                .All(limiter => limiter.TryProcess(amount));
         }
 
         public void UpdateChunks (int maxRate, int actualRate)
         {
-            for (int i = 0; i < limiters.Count; i++)
-                limiters [i].UpdateChunks (maxRate, actualRate);
+            foreach (var limiter in _limiters)
+                limiter.UpdateChunks (maxRate, actualRate);
         }
     }
 }

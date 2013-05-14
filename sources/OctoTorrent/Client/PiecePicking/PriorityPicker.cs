@@ -73,10 +73,9 @@ namespace OctoTorrent.Client
 
             if (files.Count == 1)
             {
-                if (files[0].File.Priority == Priority.DoNotDownload)
-                    return null;
-                else
-                    return base.PickPiece(id, peerBitfield, otherPeers, count, startIndex, endIndex);
+                return files[0].File.Priority != Priority.DoNotDownload 
+                    ? base.PickPiece(id, peerBitfield, otherPeers, count, startIndex, endIndex) 
+                    : null;
             }
 
             files.Sort();
@@ -90,14 +89,14 @@ namespace OctoTorrent.Client
                 return base.PickPiece(id, peerBitfield, otherPeers, count, startIndex, endIndex);
 
             temp.From(files[0].Selector);
-            for (int i = 1; i < files.Count && files[i].File.Priority != Priority.DoNotDownload; i++)
+            for (var i = 1; i < files.Count && files[i].File.Priority != Priority.DoNotDownload; i++)
             {
                 if (files[i].File.Priority != files[i - 1].File.Priority)
                 {
                     temp.And(peerBitfield);
                     if (!temp.AllFalse)
                     {
-                        MessageBundle message = base.PickPiece(id, temp, otherPeers, count, startIndex, endIndex);
+                        var message = base.PickPiece(id, temp, otherPeers, count, startIndex, endIndex);
                         if (message != null)
                             return message;
                         temp.SetAll(false);
@@ -115,12 +114,12 @@ namespace OctoTorrent.Client
         public override void Initialise(BitField bitfield, TorrentFile[] files, IEnumerable<Piece> requests)
         {
             base.Initialise(bitfield, files, requests);
-            AllSamePriority = delegate(Files f) { return f.File.Priority == files[0].Priority; };
+            AllSamePriority = f => f.File.Priority == files[0].Priority;
             temp = new BitField(bitfield.Length);
 
             this.files.Clear();
-            for (int i = 0; i < files.Length; i++)
-                this.files.Add(new Files(files[i], files[i].GetSelector(bitfield.Length)));
+            foreach (var torrentFile in files)
+                this.files.Add(new Files(torrentFile, torrentFile.GetSelector(bitfield.Length)));
         }
 
         public override bool IsInteresting(BitField bitfield)

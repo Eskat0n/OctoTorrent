@@ -1,8 +1,9 @@
-namespace OctoTorrent.Client.PieceWriters
+namespace OctoTorrent.Client.PieceWriter
 {
     using System;
     using Common;
     using System.IO;
+    using PieceWriters;
 
     public class DiskWriter : PieceWriter
     {
@@ -21,7 +22,7 @@ namespace OctoTorrent.Client.PieceWriters
 
         public DiskWriter(int maxOpenFiles)
         {
-            this._streamsBuffer = new FileStreamBuffer(maxOpenFiles);
+            _streamsBuffer = new FileStreamBuffer(maxOpenFiles);
         }
 
         public override void Close(TorrentFile file)

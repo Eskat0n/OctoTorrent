@@ -173,10 +173,10 @@ namespace OctoTorrent.Dht
         {
             if (bi1 == 0)
                 return new BigInteger(bi2);
-            else if (bi2 == 0)
+            if (bi2 == 0)
                 return new BigInteger(bi1);
-            else
-                return Kernel.AddSameSign(bi1, bi2);
+
+            return Kernel.AddSameSign(bi1, bi2);
         }
 
         public static BigInteger operator -(BigInteger bi1, BigInteger bi2)
@@ -207,8 +207,8 @@ namespace OctoTorrent.Dht
         {
             if (i > 0)
                 return (int)Kernel.DwordMod(bi, (uint)i);
-            else
-                return -(int)Kernel.DwordMod(bi, (uint)-i);
+
+            return -(int)Kernel.DwordMod(bi, (uint)-i);
         }
 
         public static uint operator %(BigInteger bi, uint ui)
@@ -893,7 +893,7 @@ namespace OctoTorrent.Dht
                 // bi1 len < bi2 len
                 if (l1 < l2) return Sign.Negative;
                 // bi1 len > bi2 len
-                else if (l1 > l2) return Sign.Positive;
+                if (l1 > l2) return Sign.Positive;
 
                 //
                 // Step 2. Compare the bits
@@ -905,10 +905,10 @@ namespace OctoTorrent.Dht
 
                 if (bi1.data[pos] < bi2.data[pos])
                     return Sign.Negative;
-                else if (bi1.data[pos] > bi2.data[pos])
+                if (bi1.data[pos] > bi2.data[pos])
                     return Sign.Positive;
-                else
-                    return Sign.Zero;
+
+                return Sign.Zero;
             }
 
             #endregion

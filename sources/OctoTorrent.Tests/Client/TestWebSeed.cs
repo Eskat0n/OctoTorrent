@@ -43,7 +43,7 @@ namespace OctoTorrent.Tests.Client
         [SetUp]
         public void Setup()
         {
-            requestedUrl.Clear();
+            _requestedUrl.Clear();
             partialData = false;
             int i;
             for (i = 0; i < 1000; i++)
@@ -194,47 +194,47 @@ namespace OctoTorrent.Tests.Client
                     Assert.AreEqual(connection.EndSend(sendResult), amountSent);
                     break;
                 }
-                else
-                {
-                    receiveResult = connection.BeginReceive(buffer, 0, 4, null, null);
-                }
+
+                receiveResult = connection.BeginReceive(buffer, 0, 4, null, null);
             }
 
-            Uri baseUri = new Uri(this.listenerURL);
+            var baseUri = new Uri(listenerURL);
             baseUri = new Uri(baseUri, rig.Manager.Torrent.Name + "/");
-            if (rig.Manager.Torrent.Files.Length > 1)
-            {
-                Assert.AreEqual(new Uri(baseUri, rig.Manager.Torrent.Files[0].Path), requestedUrl[0]);
-                Assert.AreEqual(new Uri(baseUri, rig.Manager.Torrent.Files[1].Path), requestedUrl[1]);
-            }
+
+            if (rig.Manager.Torrent.Files.Length <= 1) 
+                return;
+
+            Assert.AreEqual(new Uri(baseUri, rig.Manager.Torrent.Files[0].Path), _requestedUrl[0]);
+            Assert.AreEqual(new Uri(baseUri, rig.Manager.Torrent.Files[1].Path), _requestedUrl[1]);
         }
 
-        private List<string> requestedUrl = new List<string>();
+        private readonly List<string> _requestedUrl = new List<string>();
+
         private void GotContext(IAsyncResult result)
         {
             try
             {
-                HttpListenerContext c = listener.EndGetContext(result);
+                var c = listener.EndGetContext(result);
                 Console.WriteLine("Got Context");
-                requestedUrl.Add(c.Request.Url.OriginalString);
+                _requestedUrl.Add(c.Request.Url.OriginalString);
                 Match match = null;
-                string range = c.Request.Headers["range"];
+
+                var range = c.Request.Headers["range"];
 
                 if (!(range != null && (match = rangeMatcher.Match(range)) != null))
                     Assert.Fail("No valid range specified");
 
-                int start = int.Parse(match.Groups[1].Captures[0].Value);
-                int end = int.Parse(match.Groups[2].Captures[0].Value);
-
+                var start = int.Parse(match.Groups[1].Captures[0].Value);
+                var end = int.Parse(match.Groups[2].Captures[0].Value);
 
                 long globalStart = 0;
-                bool exists = false;
-                string p;
-                if(rig.Manager.Torrent.Files.Length > 1)
-                    p = c.Request.RawUrl.Substring(10 + rig.Torrent.Name.Length + 1);
-                else
-                    p = c.Request.RawUrl.Substring(10);
-                foreach (TorrentFile file in rig.Manager.Torrent.Files)
+                var exists = false;
+
+                var p = rig.Manager.Torrent.Files.Length > 1
+                               ? c.Request.RawUrl.Substring(10 + rig.Torrent.Name.Length + 1)
+                               : c.Request.RawUrl.Substring(10);
+
+                foreach (var file in rig.Manager.Torrent.Files)
                 {
                     if (file.Path.Replace('\\', '/') != p)
                     {
@@ -246,7 +246,7 @@ namespace OctoTorrent.Tests.Client
                     break;
                 }
 
-                TorrentFile[] files = rig.Manager.Torrent.Files;
+                var files = rig.Manager.Torrent.Files;
                 if (files.Length == 1 && rig.Torrent.GetRightHttpSeeds[0] == c.Request.Url.OriginalString)
                 {
                     globalStart = 0;
@@ -279,23 +279,25 @@ namespace OctoTorrent.Tests.Client
         {
             rig.Dispose();
             rig = TestRig.CreateSingleFile();
-            string url = rig.Torrent.GetRightHttpSeeds[0];
-            connection = new HttpConnection(new Uri (url));
-            connection.Manager = rig.Manager;
+            var url = rig.Torrent.GetRightHttpSeeds[0];
 
-            id = new PeerId(new Peer("this is my id", connection.Uri), rig.Manager);
-            id.Connection = connection;
-            id.IsChoking = false;
-            id.AmInterested = true;
+            connection = new HttpConnection(new Uri (url)) {Manager = rig.Manager};
+
+            id = new PeerId(new Peer("this is my id", connection.Uri), rig.Manager)
+                     {
+                         Connection = connection,
+                         IsChoking = false,
+                         AmInterested = true
+                     };
             id.BitField.SetAll(true);
             id.MaxPendingRequests = numberOfPieces;
 
             requests = rig.Manager.PieceManager.Picker.PickPiece(id, new List<PeerId>(), numberOfPieces);
             RecieveFirst();
-            Assert.AreEqual(url, requestedUrl[0]);
+            Assert.AreEqual(url, _requestedUrl[0]);
         }
 
-        void Wait(WaitHandle handle)
+        static void Wait(WaitHandle handle)
         {
             Assert.IsTrue(handle.WaitOne(5000, true), "WaitHandle did not trigger");
         }

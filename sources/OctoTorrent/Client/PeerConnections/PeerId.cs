@@ -607,21 +607,17 @@ namespace OctoTorrent.Client
         ///     - divide this upload rate by the standard implementation's active set size for that rate
         /// </summary>
         /// <returns></returns>
-        internal int GetDownloadRate()
+        private int GetDownloadRate()
         {
-            if (this.lastMeasuredDownloadRate > 0)
-            {
-                return this.lastMeasuredDownloadRate;
-            }
-            else
-            {
-                // assume that his upload rate will match his estimated download rate, and 
-                // get the estimated active set size
-                int estimatedDownloadRate = this.EstimatedDownloadRate;
-                int activeSetSize = GetActiveSetSize(estimatedDownloadRate);
+            if (lastMeasuredDownloadRate > 0)
+                return lastMeasuredDownloadRate;
 
-                return estimatedDownloadRate / activeSetSize;
-            }
+            // assume that his upload rate will match his estimated download rate, and 
+            // get the estimated active set size
+            var estimatedDownloadRate = EstimatedDownloadRate;
+            var activeSetSize = GetActiveSetSize(estimatedDownloadRate);
+
+            return estimatedDownloadRate / activeSetSize;
         }
 
 
@@ -634,22 +630,20 @@ namespace OctoTorrent.Client
             // if we're still being choked, set the time of our last choking
             if (isChoking)
             {
-                this.roundsChoked++;
-
-                this.lastChokedTime = DateTime.Now;
+                roundsChoked++;
+                lastChokedTime = DateTime.Now;
             }
             else
             {
-                this.roundsUnchoked++;
+                roundsUnchoked++;
 
                 if (amInterested)
                 {
                     //if we are interested and unchoked, update last measured download rate, unless it is 0
-                    if (this.Monitor.DownloadSpeed > 0)
+                    if (Monitor.DownloadSpeed > 0)
                     {
-                        this.lastMeasuredDownloadRate = this.Monitor.DownloadSpeed;
-
-                        this.maxObservedDownloadSpeed = Math.Max(this.lastMeasuredDownloadRate, this.maxObservedDownloadSpeed);
+                        lastMeasuredDownloadRate = Monitor.DownloadSpeed;
+                        maxObservedDownloadSpeed = Math.Max(lastMeasuredDownloadRate, maxObservedDownloadSpeed);
                     }
                 }
             }
@@ -657,7 +651,7 @@ namespace OctoTorrent.Client
             // last rate wasn't sufficient to achieve reciprocation
             if (!amChoking && isChoking && isInterested) // only increase upload rate if he's interested, otherwise he won't request any pieces
             {
-                this.uploadRateForRecip = (this.uploadRateForRecip * 12) / 10;
+                uploadRateForRecip = uploadRateForRecip * 12 / 10;
             }
 
             // we've been unchoked by this guy for a while....
@@ -665,7 +659,7 @@ namespace OctoTorrent.Client
                     && (DateTime.Now - lastChokedTime).TotalSeconds > 30
                     && (DateTime.Now - lastRateReductionTime).TotalSeconds > 30)           // only do rate reduction every 30s
             {
-                this.uploadRateForRecip = (this.uploadRateForRecip * 9) / 10;
+                uploadRateForRecip = uploadRateForRecip * 9 / 10;
                 lastRateReductionTime = DateTime.Now;
             }
         }
@@ -677,7 +671,7 @@ namespace OctoTorrent.Client
         /// <returns>True if the upload rate for recip is greater than the actual upload rate</returns>
         internal bool IsUnderUploadLimit()
         {
-            return this.uploadRateForRecip > this.Monitor.UploadSpeed;
+            return uploadRateForRecip > Monitor.UploadSpeed;
         }
 
 
@@ -690,27 +684,27 @@ namespace OctoTorrent.Client
         {
             if (uploadRate < 11)
                 return 2;
-            else if (uploadRate < 35)
+            if (uploadRate < 35)
                 return 3;
-            else if (uploadRate < 80)
+            if (uploadRate < 80)
                 return 4;
-            else if (uploadRate < 200)
+            if (uploadRate < 200)
                 return 5;
-            else if (uploadRate < 350)
+            if (uploadRate < 350)
                 return 6;
-            else if (uploadRate < 600)
+            if (uploadRate < 600)
                 return 7;
-            else if (uploadRate < 900)
+            if (uploadRate < 900)
                 return 8;
-            else
-                return 9;
+
+            return 9;
         }
 
         #endregion BitTyrant
 
         internal void TryProcessAsyncReads()
         {
-            foreach (PeerMessage message in PieceReads)
+            foreach (var message in PieceReads)
                 Enqueue(message);
             PieceReads.Clear();
             return;
