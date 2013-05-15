@@ -55,8 +55,8 @@ namespace OctoTorrent.Dht.Tasks
             {
                 try
                 {
-                    Node utorrent = new Node(NodeId.Create(), new System.Net.IPEndPoint(Dns.GetHostEntry("router.bittorrent.com").AddressList[0], 6881));
-                    SendFindNode(new Node[] { utorrent });
+                    Node utorrent = new Node(NodeId.Create(), new IPEndPoint(Dns.GetHostEntry("router.bittorrent.com").AddressList[0], 6881));
+                    SendFindNode(new[] { utorrent });
                 }
                 catch
                 {
@@ -103,11 +103,11 @@ namespace OctoTorrent.Dht.Tasks
 
         private void SendFindNode(IEnumerable<Node> newNodes)
         {
-            foreach (Node node in Node.CloserNodes(engine.LocalId, nodes, newNodes, Bucket.MaxCapacity))
+            foreach (var node in Node.CloserNodes(engine.LocalId, nodes, newNodes, Bucket.MaxCapacity))
             {
                 activeRequests++;
-                FindNode request = new FindNode(engine.LocalId, engine.LocalId);
-                SendQueryTask task = new SendQueryTask(engine, request, node);
+                var request = new FindNode(engine.LocalId, engine.LocalId);
+                var task = new SendQueryTask(engine, request, node);
                 task.Completed += FindNodeComplete;
                 task.Execute();
             }

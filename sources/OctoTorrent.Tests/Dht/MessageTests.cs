@@ -163,7 +163,7 @@ namespace OctoTorrent.Tests.Dht
 
             FindNodeEncode();
             MessageFactory.RegisterSend(_message);
-            FindNodeResponse m = (FindNodeResponse)Decode(text);
+            var m = (FindNodeResponse)Decode(text);
 
             Assert.AreEqual(_id, m.Id, "#1");
             Assert.AreEqual((BEncodedString)"def456...", m.Nodes, "#2");

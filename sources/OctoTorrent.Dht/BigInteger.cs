@@ -209,12 +209,12 @@ namespace OctoTorrent.Dht
 
         public static uint operator %(BigInteger bi, uint ui)
         {
-            return Kernel.DwordMod(bi, (uint)ui);
+            return Kernel.DwordMod(bi, ui);
         }
 
         public static BigInteger operator %(BigInteger bi1, BigInteger bi2)
         {
-            return Kernel.multiByteDivide(bi1, bi2)[1];
+            return Kernel.MultiByteDivide(bi1, bi2)[1];
         }
 
         public static BigInteger operator /(BigInteger bi, int i)
@@ -227,7 +227,7 @@ namespace OctoTorrent.Dht
 
         public static BigInteger operator /(BigInteger bi1, BigInteger bi2)
         {
-            return Kernel.multiByteDivide(bi1, bi2)[0];
+            return Kernel.MultiByteDivide(bi1, bi2)[0];
         }
 
         public static BigInteger operator *(BigInteger bi1, BigInteger bi2)
@@ -988,16 +988,16 @@ namespace OctoTorrent.Dht
 
                 BigInteger rem = (uint)r;
 
-                return new BigInteger[] { ret, rem };
+                return new[] { ret, rem };
             }
 
             #endregion
 
             #region BigNum
 
-            public static BigInteger[] multiByteDivide(BigInteger bi1, BigInteger bi2)
+            public static BigInteger[] MultiByteDivide(BigInteger bi1, BigInteger bi2)
             {
-                if (Kernel.Compare(bi1, bi2) == Sign.Negative)
+                if (Compare(bi1, bi2) == Sign.Negative)
                     return new BigInteger[2] { 0, new BigInteger(bi1) };
 
                 bi1.Normalize(); bi2.Normalize();
@@ -1005,49 +1005,49 @@ namespace OctoTorrent.Dht
                 if (bi2.length == 1)
                     return DwordDivMod(bi1, bi2.data[0]);
 
-                uint remainderLen = bi1.length + 1;
-                int divisorLen = (int)bi2.length + 1;
+                var remainderLen = bi1.length + 1;
+                var divisorLen = (int)bi2.length + 1;
 
-                uint mask = 0x80000000;
-                uint val = bi2.data[bi2.length - 1];
-                int shift = 0;
-                int resultPos = (int)bi1.length - (int)bi2.length;
+                var mask = 0x80000000;
+                var val = bi2.data[bi2.length - 1];
+                var shift = 0;
+                var resultPos = (int)bi1.length - (int)bi2.length;
 
                 while (mask != 0 && (val & mask) == 0)
                 {
                     shift++; mask >>= 1;
                 }
 
-                BigInteger quot = new BigInteger(Sign.Positive, bi1.length - bi2.length + 1);
-                BigInteger rem = (bi1 << shift);
+                var quot = new BigInteger(Sign.Positive, bi1.length - bi2.length + 1);
+                var rem = (bi1 << shift);
 
                 uint[] remainder = rem.data;
 
                 bi2 = bi2 << shift;
 
-                int j = (int)(remainderLen - bi2.length);
-                int pos = (int)remainderLen - 1;
+                var j = (int)(remainderLen - bi2.length);
+                var pos = (int)remainderLen - 1;
 
-                uint firstDivisorByte = bi2.data[bi2.length - 1];
+                var firstDivisorByte = bi2.data[bi2.length - 1];
                 ulong secondDivisorByte = bi2.data[bi2.length - 2];
 
                 while (j > 0)
                 {
-                    ulong dividend = ((ulong)remainder[pos] << 32) + (ulong)remainder[pos - 1];
+                    var dividend = ((ulong)remainder[pos] << 32) + remainder[pos - 1];
 
-                    ulong q_hat = dividend / (ulong)firstDivisorByte;
-                    ulong r_hat = dividend % (ulong)firstDivisorByte;
+                    var qHat = dividend / firstDivisorByte;
+                    var rHat = dividend % firstDivisorByte;
 
                     do
                     {
 
-                        if (q_hat == 0x100000000 ||
-                            (q_hat * secondDivisorByte) > ((r_hat << 32) + remainder[pos - 2]))
+                        if (qHat == 0x100000000 ||
+                            (qHat * secondDivisorByte) > ((rHat << 32) + remainder[pos - 2]))
                         {
-                            q_hat--;
-                            r_hat += (ulong)firstDivisorByte;
+                            qHat--;
+                            rHat += firstDivisorByte;
 
-                            if (r_hat < 0x100000000)
+                            if (rHat < 0x100000000)
                                 continue;
                         }
                         break;
@@ -1060,15 +1060,14 @@ namespace OctoTorrent.Dht
                     // one from q_hat and add the divisor back.
                     //
 
-                    uint t;
                     uint dPos = 0;
-                    int nPos = pos - divisorLen + 1;
+                    var nPos = pos - divisorLen + 1;
                     ulong mc = 0;
-                    uint uint_q_hat = (uint)q_hat;
+                    var uintQHat = (uint)qHat;
                     do
                     {
-                        mc += (ulong)bi2.data[dPos] * (ulong)uint_q_hat;
-                        t = remainder[nPos];
+                        mc += bi2.data[dPos] * (ulong)uintQHat;
+                        uint t = remainder[nPos];
                         remainder[nPos] -= (uint)mc;
                         mc >>= 32;
                         if (remainder[nPos] > t) mc++;
@@ -1081,12 +1080,12 @@ namespace OctoTorrent.Dht
                     // Overestimate
                     if (mc != 0)
                     {
-                        uint_q_hat--;
+                        uintQHat--;
                         ulong sum = 0;
 
                         do
                         {
-                            sum = ((ulong)remainder[nPos]) + ((ulong)bi2.data[dPos]) + sum;
+                            sum = remainder[nPos] + ((ulong)bi2.data[dPos]) + sum;
                             remainder[nPos] = (uint)sum;
                             sum >>= 32;
                             dPos++; nPos++;
@@ -1094,7 +1093,7 @@ namespace OctoTorrent.Dht
 
                     }
 
-                    quot.data[resultPos--] = (uint)uint_q_hat;
+                    quot.data[resultPos--] = uintQHat;
 
                     pos--;
                     j--;
@@ -1102,7 +1101,7 @@ namespace OctoTorrent.Dht
 
                 quot.Normalize();
                 rem.Normalize();
-                BigInteger[] ret = new BigInteger[2] { quot, rem };
+                var ret = new[] { quot, rem };
 
                 if (shift != 0)
                     ret[1] >>= shift;
@@ -1365,7 +1364,7 @@ namespace OctoTorrent.Dht
                         p[0] = p[1]; p[1] = pval;
                     }
 
-                    BigInteger[] divret = multiByteDivide(a, b);
+                    BigInteger[] divret = MultiByteDivide(a, b);
 
                     q[0] = q[1]; q[1] = divret[0];
                     r[0] = r[1]; r[1] = divret[1];
@@ -1386,20 +1385,21 @@ namespace OctoTorrent.Dht
 
         internal BigInteger Xor(BigInteger other)
         {
-            int len = (int)Math.Min(this.data.Length, other.data.Length);
-            uint[] result = new uint[len];
+            var len = Math.Min(data.Length, other.data.Length);
+            var result = new uint[len];
 
-            for (int i = 0; i < len; i++)
-                result[i] = this.data[i] ^ other.data[i];
+            for (var i = 0; i < len; i++)
+                result[i] = data[i] ^ other.data[i];
 
             return new BigInteger(result);
         }
         
         internal static BigInteger Pow(BigInteger value, uint p)
         {
-            BigInteger b = value;
-            for (int i = 0; i < p; i++)
-                value = value * b;
+            var integer = value;
+            for (var i = 0; i < p; i++)
+                value = value * integer;
+
             return value;
         }
     }

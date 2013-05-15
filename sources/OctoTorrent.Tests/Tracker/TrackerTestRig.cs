@@ -5,7 +5,7 @@ namespace OctoTorrent.Tests.Tracker
     using System.Collections.Specialized;
     using System.Globalization;
     using System.Net;
-    using OctoTorrent.BEncoding;
+    using BEncoding;
     using OctoTorrent.Tracker;
     using OctoTorrent.Tracker.Listeners;
 
@@ -40,14 +40,16 @@ namespace OctoTorrent.Tests.Tracker
 
         public BEncodedValue Handle(PeerDetails peerDetails, ITrackable trackable)
         {
-            var c = new NameValueCollection();
-            c.Add("info_hash", trackable.InfoHash.UrlEncode());
-            c.Add("peer_id", peerDetails.PeerId);
-            c.Add("port", peerDetails.Port.ToString(CultureInfo.InvariantCulture));
-            c.Add("uploaded", peerDetails.Uploaded.ToString(CultureInfo.InvariantCulture));
-            c.Add("downloaded", peerDetails.Downloaded.ToString(CultureInfo.InvariantCulture));
-            c.Add("left", peerDetails.Remaining.ToString(CultureInfo.InvariantCulture));
-            c.Add("compact", "0");
+            var c = new NameValueCollection
+                        {
+                            {"info_hash", trackable.InfoHash.UrlEncode()},
+                            {"peer_id", peerDetails.PeerId},
+                            {"port", peerDetails.Port.ToString(CultureInfo.InvariantCulture)},
+                            {"uploaded", peerDetails.Uploaded.ToString(CultureInfo.InvariantCulture)},
+                            {"downloaded", peerDetails.Downloaded.ToString(CultureInfo.InvariantCulture)},
+                            {"left", peerDetails.Remaining.ToString(CultureInfo.InvariantCulture)},
+                            {"compact", "0"}
+                        };
 
             return base.Handle(c, peerDetails.ClientAddress, false);
         }
@@ -63,26 +65,26 @@ namespace OctoTorrent.Tests.Tracker
 
     public class Trackable : ITrackable
     {
-        private readonly InfoHash infoHash;
-        private readonly string name;
+        private readonly InfoHash _infoHash;
+        private readonly string _name;
 
 
         public Trackable(InfoHash infoHash, string name)
         {
-            this.infoHash = infoHash;
-            this.name = name;
+            _infoHash = infoHash;
+            _name = name;
         }
 
         #region ITrackable Members
 
         public InfoHash InfoHash
         {
-            get { return infoHash; }
+            get { return _infoHash; }
         }
 
         public string Name
         {
-            get { return name; }
+            get { return _name; }
         }
 
         #endregion
@@ -136,7 +138,7 @@ namespace OctoTorrent.Tests.Tracker
             {
                 var infoHash = new byte[20];
                 _random.NextBytes(infoHash);
-                Trackables.Add(new Trackable(new InfoHash(infoHash), i.ToString()));
+                Trackables.Add(new Trackable(new InfoHash(infoHash), i.ToString(CultureInfo.InvariantCulture)));
             }
         }
 

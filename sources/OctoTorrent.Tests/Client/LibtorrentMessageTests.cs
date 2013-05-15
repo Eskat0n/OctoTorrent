@@ -38,9 +38,9 @@ namespace OctoTorrent.Tests.Client
             var encoded = message.Encode();
 
             Assert.AreEqual(message.ByteLength, encoded.Length, "#1");
-            Assert.IsTrue(message.Supports.Exists(delegate(ExtensionSupport s) { return s.Name.Equals(PeerExchangeMessage.Support.Name); }), "#2");
-            Assert.IsTrue(message.Supports.Exists(delegate(ExtensionSupport s) { return s.Name.Equals(LTChat.Support.Name); }), "#3");
-            Assert.IsTrue(message.Supports.Exists(delegate(ExtensionSupport s) { return s.Name.Equals(LTMetadata.Support.Name); }), "#4");
+            Assert.IsTrue(message.Supports.Exists(s => s.Name.Equals(PeerExchangeMessage.Support.Name)), "#2");
+            Assert.IsTrue(message.Supports.Exists(s => s.Name.Equals(LTChat.Support.Name)), "#3");
+            Assert.IsTrue(message.Supports.Exists(s => s.Name.Equals(LTMetadata.Support.Name)), "#4");
         }
 
         [Test]
@@ -78,23 +78,14 @@ namespace OctoTorrent.Tests.Client
             var peer = new byte[] { 192, 168, 0, 1, 100, 0 };
             var supports = new[] { (byte)(1 | 2) }; // 1 == encryption, 2 == seeder
 
-            byte id = PeerExchangeMessage.Support.MessageId;
+            var id = PeerExchangeMessage.Support.MessageId;
             var message = new PeerExchangeMessage(id, peer, supports, null);
 
             var buffer = message.Encode();
             var m = (PeerExchangeMessage)PeerMessage.DecodeMessage(buffer, 0, buffer.Length, _rig.Manager);
+
             Assert.IsTrue(Toolbox.ByteMatch(peer, m.Added), "#1");
             Assert.IsTrue(Toolbox.ByteMatch(supports, m.AddedDotF), "#1");
         }
-
-        /*public static void Main(string[] args)
-        {
-            LibtorrentMessageTests t = new LibtorrentMessageTests();
-            t.GlobalSetup();
-            t.Setup();
-            t.HandshakeDecodeTest();
-            t.LTChatDecodeTest();
-            t.GlobalTeardown();
-        }*/
     }
 }

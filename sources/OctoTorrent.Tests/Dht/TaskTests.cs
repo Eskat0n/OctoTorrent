@@ -8,19 +8,12 @@ namespace OctoTorrent.Tests.Dht
     using OctoTorrent.Dht;
     using OctoTorrent.Dht.Tasks;
     using OctoTorrent.Dht.Messages;
-    using OctoTorrent.BEncoding;
+    using BEncoding;
     using System.Threading;
 
     [TestFixture]
     public class TaskTests
     {
-        //static void Main(string[] args)
-        //{
-        //    TaskTests t = new TaskTests();
-        //    t.Setup();
-        //    t.ReplaceNodeTest();
-        //}
-
         private DhtEngine _engine;
         private TestListener _listener;
         private Node _node;
@@ -149,36 +142,41 @@ namespace OctoTorrent.Tests.Dht
             _engine.BucketRefreshTimeout = TimeSpan.FromMilliseconds(75);
             _engine.MessageLoop.QuerySent += delegate(object o, SendQueryEventArgs e)
             {
-                DhtEngine.MainLoop.Queue(delegate
-                {
-                    if (!e.TimedOut)
-                        return;
+                DhtEngine.MainLoop.Queue(() =>
+                                             {
+                                                 if (!e.TimedOut)
+                                                     return;
 
-                    var current = nodes.Find(n => n.EndPoint.Port.Equals(e.EndPoint.Port));
-                    if (current == null)
-                        return;
+                                                 var current = nodes.Find(n => n.EndPoint.Port.Equals(e.EndPoint.Port));
+                                                 if (current == null)
+                                                     return;
 
-                    if (e.Query is Ping)
-                    {
-                        var r = new PingResponse(current.Id, e.Query.TransactionId);
-                        _listener.RaiseMessageReceived(r, current.EndPoint);
-                    }
-                    else if (e.Query is FindNode)
-                    {
-                        var response = new FindNodeResponse(current.Id, e.Query.TransactionId) {Nodes = ""};
-                        _listener.RaiseMessageReceived(response, current.EndPoint);
-                    }
-                });
+                                                 if (e.Query is Ping)
+                                                 {
+                                                     var r = new PingResponse(current.Id, e.Query.TransactionId);
+                                                     _listener.RaiseMessageReceived(r, current.EndPoint);
+                                                 }
+                                                 else if (e.Query is FindNode)
+                                                 {
+                                                     var response = new FindNodeResponse(current.Id,
+                                                                                         e.Query.TransactionId)
+                                                                        { 
+                                                                            Nodes = string.Empty
+                                                                        };
+                                                     _listener.RaiseMessageReceived(response, current.EndPoint);
+                                                 }
+                                             });
             };
 
             _engine.Add(nodes);
             _engine.Start();
 
             Thread.Sleep(500);
-            foreach (var b in _engine.RoutingTable.Buckets)
+
+            foreach (var bucket in _engine.RoutingTable.Buckets)
             {
-                Assert.IsTrue(b.LastChanged > DateTime.UtcNow.AddSeconds(-2));
-                Assert.IsTrue(b.Nodes.Exists(n => n.LastSeen > DateTime.UtcNow.AddMilliseconds(-900)));
+                Assert.IsTrue(bucket.LastChanged > DateTime.UtcNow.AddSeconds(-2));
+                Assert.IsTrue(bucket.Nodes.Exists(n => n.LastSeen > DateTime.UtcNow.AddMilliseconds(-900)));
             }
         }
 

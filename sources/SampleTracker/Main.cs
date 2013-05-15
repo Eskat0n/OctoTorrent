@@ -93,34 +93,33 @@ namespace SampleTracker
 
     class MySimpleTracker
     {
-        Tracker tracker;
-        TorrentFolderWatcher watcher;
-        const string TORRENT_DIR = "Torrents";
+        private const string TorrentDir = "Torrents";
+
+        private readonly Tracker _tracker;
+        private TorrentFolderWatcher _watcher;
 
         ///<summary>Start the Tracker. Start Watching the TORRENT_DIR Directory for new Torrents.</summary>
         public MySimpleTracker()
         {
-            System.Net.IPEndPoint listenpoint = new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 10000);
+            var listenpoint = new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 10000);
             Console.WriteLine("Listening at: {0}", listenpoint);
-            ListenerBase listener = new HttpListener(listenpoint);
-            tracker = new Tracker();
-            tracker.AllowUnregisteredTorrents = true;
-            tracker.RegisterListener(listener);
+
+            var listener = new HttpListener(listenpoint);
+
+            _tracker = new Tracker {AllowUnregisteredTorrents = true};
+            _tracker.RegisterListener(listener);
             listener.Start();
 
             SetupTorrentWatcher();
 
-
             while (true)
-            {
-                System.Threading.Thread.Sleep(10000);
-            }
+                Thread.Sleep(10000);
         }
 
         private void SetupTorrentWatcher()
         {
-            watcher = new TorrentFolderWatcher(Path.GetFullPath(TORRENT_DIR), "*.torrent");
-            watcher.TorrentFound += delegate(object sender, TorrentWatcherEventArgs e)
+            _watcher = new TorrentFolderWatcher(Path.GetFullPath(TorrentDir), "*.torrent");
+            _watcher.TorrentFound += delegate(object sender, TorrentWatcherEventArgs e)
             {
                 try
                 {
@@ -130,21 +129,21 @@ namespace SampleTracker
                     // The best way to handle this depends on the actual application. 
                     // Generally the solution is: Wait a few hundred milliseconds
                     // then try load the file.
-                    System.Threading.Thread.Sleep(500);
+                    Thread.Sleep(500);
 					
-                    Torrent t = Torrent.Load(e.TorrentPath);
+                    var t = Torrent.Load(e.TorrentPath);
 					
                     // There is also a predefined 'InfoHashTrackable' MonoTorrent.Tracker which
                     // just stores the infohash and name of the torrent. This is all that the tracker
                     // needs to run. So if you want an ITrackable that "just works", then use InfoHashTrackable.
 					
                     // ITrackable trackable = new InfoHashTrackable(t);
-                    ITrackable trackable = new CustomITrackable(t);
+                    var trackable = new CustomITrackable(t);
 
                     // The lock is here because the TorrentFound event is asyncronous and I have
                     // to ensure that only 1 thread access the tracker at the same time.
-                    lock (tracker)
-                        tracker.Add(trackable);
+                    lock (_tracker)
+                        _tracker.Add(trackable);
                 }
                 catch (Exception ex)
                 {
@@ -153,8 +152,8 @@ namespace SampleTracker
                 }
             };
 
-            watcher.Start();
-            watcher.ForceScan();
+            _watcher.Start();
+            _watcher.ForceScan();
         }
 
         public void OnProcessExit(object sender, EventArgs e)
@@ -205,7 +204,7 @@ namespace SampleTracker
                 Console.WriteLine("Measured announces/sec:  {0}", test.RequestRate);
                 Console.WriteLine("Total announces: {0}", test.TotalTrackerRequests);
                 Console.WriteLine(Environment.NewLine);
-                System.Threading.Thread.Sleep(1000);
+                Thread.Sleep(1000);
             }
         }
 

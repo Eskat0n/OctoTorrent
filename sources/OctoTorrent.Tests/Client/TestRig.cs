@@ -5,12 +5,11 @@ namespace OctoTorrent.Tests.Client
     using System.Text;
     using OctoTorrent.Client;
     using OctoTorrent.Client.Connections;
-    using OctoTorrent.BEncoding;
+    using BEncoding;
     using OctoTorrent.Client.Tracker;
     using OctoTorrent.Client.PieceWriters;
     using System.Net.Sockets;
     using System.Net;
-    using OctoTorrent.Client.Encryption;
     using System.Threading;
     using NUnit.Framework;
     using OctoTorrent.Common;
@@ -32,7 +31,7 @@ namespace OctoTorrent.Tests.Client
                 _paths.Add(file.FullPath);
 
             if (!DontWrite)
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++)
                     buffer[bufferOffset + i] = (byte)(bufferOffset + i);
             return count;
         }
@@ -314,20 +313,20 @@ namespace OctoTorrent.Tests.Client
     {
         static readonly Random Random = new Random(1000);
         static int _port = 10000;
-        private BEncodedDictionary torrentDict;
-        private ClientEngine engine;
-        private CustomListener listener;
-        private TorrentManager manager;
-        private Torrent torrent;
+        private BEncodedDictionary _torrentDict;
+        private readonly ClientEngine _engine;
+        private readonly CustomListener _listener;
+        private TorrentManager _manager;
+        private Torrent _torrent;
 
         public int BlocksPerPiece
         {
-            get { return torrent.PieceLength / (16 * 1024); }
+            get { return _torrent.PieceLength / (16 * 1024); }
         }
 
         public int Pieces
         {
-            get { return torrent.Pieces.Count; }
+            get { return _torrent.Pieces.Count; }
         }
 
         public int TotalBlocks
@@ -335,7 +334,7 @@ namespace OctoTorrent.Tests.Client
             get
             {
                 int count = 0;
-                long size = torrent.Size;
+                long size = _torrent.Size;
                 while (size > 0)
                 {
                     count++;
@@ -351,52 +350,50 @@ namespace OctoTorrent.Tests.Client
 
         public ClientEngine Engine
         {
-            get { return engine; }
+            get { return _engine; }
         }
 
         public CustomListener Listener
         {
-            get { return listener; }
+            get { return _listener; }
         }
 
         public TorrentManager Manager
         {
-            get { return manager; }
+            get { return _manager; }
         }
 
-        public bool MetadataMode {
-            get; private set;
-        }
+        public bool MetadataMode { get; private set; }
 
-        public string MetadataPath {
-            get; set;
-        }
+        public string MetadataPath { get; set; }
 
         public Torrent Torrent
         {
-            get { return torrent; }
+            get { return _torrent; }
         }
 
         public BEncodedDictionary TorrentDict
         {
-            get { return torrentDict; }
+            get { return _torrentDict; }
         }
 
         public CustomTracker Tracker
         {
-            get { return (CustomTracker)this.manager.TrackerManager.CurrentTracker; }
+            get { return (CustomTracker)_manager.TrackerManager.CurrentTracker; }
         }
 
-
-        string savePath; int piecelength; string[][] tier;
+        private readonly string _savePath;
+        private readonly int _piecelength;
+        private readonly string[][] _tier;
 
         public void AddConnection(IConnection connection)
         {
-            if (connection.IsIncoming)
-                listener.Add(null, connection);
-            else
-                listener.Add(manager, connection);
+            _listener.Add(connection.IsIncoming
+                              ? null
+                              : _manager,
+                          connection);
         }
+
         public PeerId CreatePeer(bool processingQueue)
         {
             return CreatePeer(processingQueue, true);
@@ -404,41 +401,46 @@ namespace OctoTorrent.Tests.Client
 
         public PeerId CreatePeer(bool processingQueue, bool supportsFastPeer)
         {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 20; i++)
-                sb.Append((char)Random.Next((int)'a', (int)'z'));
-            Peer peer = new Peer(sb.ToString(), new Uri("tcp://127.0.0.1:" + (_port++)));
-            PeerId id = new PeerId(peer, Manager);
-            id.SupportsFastPeer = supportsFastPeer;
-            id.ProcessingQueue = processingQueue;
+            var sb = new StringBuilder();
+
+            for (var i = 0; i < 20; i++)
+                sb.Append((char) Random.Next('a', 'z'));
+
+            var peer = new Peer(sb.ToString(), new Uri("tcp://127.0.0.1:" + (_port++)));
+            var id = new PeerId(peer, Manager)
+                         {
+                             SupportsFastPeer = supportsFastPeer, 
+                             ProcessingQueue = processingQueue
+                         };
+
             return id;
         }
 
         public void Dispose()
         {
-            engine.Dispose();
+            _engine.Dispose();
         }
 
         public void RecreateManager()
         {
-            if (manager != null)
+            if (_manager != null)
             {
-                manager.Dispose();
-                if (engine.Contains(manager))
-                    engine.Unregister(manager);
+                _manager.Dispose();
+                if (_engine.Contains(_manager))
+                    _engine.Unregister(_manager);
             }
-            torrentDict = CreateTorrent(piecelength, files, tier);
-            torrent = Torrent.Load(torrentDict);
-            if (MetadataMode)
-                manager = new TorrentManager(torrent.infoHash, savePath, new TorrentSettings(), MetadataPath, new RawTrackerTiers ());
-            else
-                manager = new TorrentManager(torrent, savePath, new TorrentSettings());
-            engine.Register(manager);
+            _torrentDict = CreateTorrent(_piecelength, _files, _tier);
+            _torrent = Torrent.Load(_torrentDict);
+            _manager = MetadataMode
+                           ? new TorrentManager(_torrent.infoHash, _savePath, new TorrentSettings(), MetadataPath, new RawTrackerTiers())
+                           : new TorrentManager(_torrent, _savePath, new TorrentSettings());
+            _engine.Register(_manager);
         }
 
         #region Rig Creation
 
-        TorrentFile[] files;
+        private readonly TorrentFile[] _files;
+
         TestRig(string savePath, int piecelength, TestWriter writer, string[][] trackers, TorrentFile[] files)
             : this (savePath, piecelength, writer, trackers, files, false)
         {
@@ -447,14 +449,14 @@ namespace OctoTorrent.Tests.Client
 
         TestRig(string savePath, int piecelength, TestWriter writer, string[][] trackers, TorrentFile[] files, bool metadataMode)
         {
-            this.files = files;
-            this.savePath = savePath;
-            this.piecelength = piecelength;
-            this.tier = trackers;
+            _files = files;
+            _savePath = savePath;
+            _piecelength = piecelength;
+            _tier = trackers;
             MetadataMode = metadataMode;
             MetadataPath = "metadataSave.torrent";
-            listener = new CustomListener();
-            engine = new ClientEngine(new EngineSettings(), listener, writer);
+            _listener = new CustomListener();
+            _engine = new ClientEngine(new EngineSettings(), _listener, writer);
             Writer = writer;
 
             RecreateManager();
@@ -467,10 +469,10 @@ namespace OctoTorrent.Tests.Client
 
         private static void AddAnnounces(BEncodedDictionary dict, string[][] tiers)
         {
-            BEncodedList announces = new BEncodedList();
+            var announces = new BEncodedList();
             foreach (string[] tier in tiers)
             {
-                BEncodedList bTier = new BEncodedList();
+                var bTier = new BEncodedList();
                 announces.Add(bTier);
                 foreach (string s in tier)
                     bTier.Add((BEncodedString)s);
@@ -481,7 +483,7 @@ namespace OctoTorrent.Tests.Client
 
         BEncodedDictionary CreateTorrent(int pieceLength, TorrentFile[] files, string[][] tier)
         {
-            BEncodedDictionary dict = new BEncodedDictionary();
+            var dict = new BEncodedDictionary();
             BEncodedDictionary infoDict = new BEncodedDictionary();
 
             AddAnnounces(dict, tier);
@@ -499,7 +501,7 @@ namespace OctoTorrent.Tests.Client
 
         void AddFiles(BEncodedDictionary dict, IEnumerable<TorrentFile> torrentFiles)
         {
-            long totalSize = piecelength - 1;
+            long totalSize = _piecelength - 1;
             var bFiles = new BEncodedList();
             foreach (var torrentFile in torrentFiles)
             {
@@ -517,8 +519,8 @@ namespace OctoTorrent.Tests.Client
 
             dict[new BEncodedString("torrentFiles")] = bFiles;
             dict[new BEncodedString("name")] = new BEncodedString("test.torrentFiles");
-            dict[new BEncodedString("piece length")] = new BEncodedNumber(piecelength);
-            dict[new BEncodedString("pieces")] = new BEncodedString(new byte[20 * (totalSize / piecelength)]);
+            dict[new BEncodedString("piece length")] = new BEncodedNumber(_piecelength);
+            dict[new BEncodedString("pieces")] = new BEncodedString(new byte[20 * (totalSize / _piecelength)]);
         }
 
         public static TestRig CreateSingleFile()

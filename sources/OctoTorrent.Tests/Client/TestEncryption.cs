@@ -1,6 +1,7 @@
 namespace OctoTorrent.Tests.Client
 {
     using System;
+    using System.Linq;
     using NUnit.Framework;
     using System.Threading;
     using OctoTorrent.Client.Messages.Standard;
@@ -49,18 +50,18 @@ namespace OctoTorrent.Tests.Client
             conn.Dispose();
             rig.Engine.StopAll();
 
-            for (int i = 0; i < 1000; i++)
+            for (var i = 0; i < 1000; i++)
             {
-                System.Threading.Thread.Sleep(4);
-                bool result = true;
-                foreach (var torrent in rig.Engine.Torrents)
-                    result &= torrent.State == TorrentState.Stopped;
+                Thread.Sleep(4);
+
+                var result = rig.Engine.Torrents
+                    .Aggregate(true, (current, torrent) => current & torrent.State == TorrentState.Stopped);
 
                 if (result)
                     return;
             }
 
-            Assert.Fail ("Timed out waiting for handle");
+            Assert.Fail("Timed out waiting for handle");
         }
 
         [TestFixtureTearDown]
@@ -146,8 +147,8 @@ namespace OctoTorrent.Tests.Client
 
             rig.AddConnection(conn.Incoming);
 
-            HandshakeMessage message = new HandshakeMessage(rig.Manager.InfoHash, "ABC123ABC123ABC123AB", VersionInfo.ProtocolStringV100);
-            byte[] buffer = message.Encode();
+            var message = new HandshakeMessage(rig.Manager.InfoHash, "ABC123ABC123ABC123AB", VersionInfo.ProtocolStringV100);
+            var buffer = message.Encode();
 
             conn.Outgoing.EndSend(conn.Outgoing.BeginSend(buffer, 0, buffer.Length, null, null));
             conn.Outgoing.EndReceive(conn.Outgoing.BeginReceive(buffer, 0, buffer.Length, null, null));
@@ -175,14 +176,14 @@ namespace OctoTorrent.Tests.Client
             rig.Engine.Settings.AllowedEncryption = encryption;
             rig.Engine.StartAll();
 
-            HandshakeMessage message = new HandshakeMessage(rig.Manager.InfoHash, "ABC123ABC123ABC123AB", VersionInfo.ProtocolStringV100);
-            byte[] buffer = message.Encode();
-            PeerAEncryption a = new PeerAEncryption(rig.Manager.InfoHash, encryption);
+            var message = new HandshakeMessage(rig.Manager.InfoHash, "ABC123ABC123ABC123AB", VersionInfo.ProtocolStringV100);
+            var buffer = message.Encode();
+            var a = new PeerAEncryption(rig.Manager.InfoHash, encryption);
             if (addInitial)
                 a.AddPayload(buffer);
 
             rig.AddConnection(conn.Incoming);
-            IAsyncResult result = a.BeginHandshake(conn.Outgoing, null, null);
+            var result = a.BeginHandshake(conn.Outgoing, null, null);
             if (!result.AsyncWaitHandle.WaitOne(4000, true))
                 Assert.Fail("Handshake timed out");
             a.EndHandshake(result);
@@ -201,11 +202,11 @@ namespace OctoTorrent.Tests.Client
             Assert.AreEqual(VersionInfo.ProtocolStringV100, message.ProtocolString);
 
             if (encryption == EncryptionTypes.RC4Full)
-                Assert.IsTrue(a.Encryptor is RC4);
+                Assert.IsInstanceOf<RC4>(a.Encryptor);
             else if (encryption == EncryptionTypes.RC4Header)
-                Assert.IsTrue(a.Encryptor is RC4Header);
+                Assert.IsInstanceOf<RC4Header>(a.Encryptor);
             else if (encryption == EncryptionTypes.PlainText)
-                Assert.IsTrue(a.Encryptor is RC4Header);
+                Assert.IsInstanceOf<RC4Header>(a.Encryptor);
         }
 
         private void PeerBTest(EncryptionTypes encryption)
@@ -214,14 +215,14 @@ namespace OctoTorrent.Tests.Client
             rig.Engine.StartAll();
             rig.AddConnection(conn.Outgoing);
 
-            PeerBEncryption a = new PeerBEncryption(new InfoHash[] { rig.Manager.InfoHash }, EncryptionTypes.All);
-            IAsyncResult result = a.BeginHandshake(conn.Incoming, null, null);
+            var a = new PeerBEncryption(new[] { rig.Manager.InfoHash }, EncryptionTypes.All);
+            var result = a.BeginHandshake(conn.Incoming, null, null);
             if (!result.AsyncWaitHandle.WaitOne(4000, true))
                 Assert.Fail("Handshake timed out");
             a.EndHandshake(result);
 
-            HandshakeMessage message = new HandshakeMessage();
-            byte[] buffer = new byte[68];
+            var message = new HandshakeMessage();
+            var buffer = new byte[68];
 
             conn.Incoming.EndReceive(conn.Incoming.BeginReceive(buffer, 0, buffer.Length, null, null));
 
@@ -242,7 +243,7 @@ namespace OctoTorrent.Tests.Client
             bool doneA = false;
             bool doneB = false;
 
-            HandshakeMessage m = new HandshakeMessage(rig.Torrent.InfoHash, "12345123451234512345", VersionInfo.ProtocolStringV100);
+            var m = new HandshakeMessage(rig.Torrent.InfoHash, "12345123451234512345", VersionInfo.ProtocolStringV100);
             byte[] handshake = m.Encode();
 
             PeerAEncryption a = new PeerAEncryption(rig.Torrent.InfoHash, encryptionA);
