@@ -982,35 +982,35 @@ namespace Mono.Math
 
             public static BigInteger[] multiByteDivide(BigInteger bi1, BigInteger bi2)
             {
-                if (Kernel.Compare(bi1, bi2) == Sign.Negative)
-                    return new BigInteger[2] { 0, new BigInteger(bi1) };
+                if (Compare(bi1, bi2) == Sign.Negative)
+                    return new BigInteger[] { 0, new BigInteger(bi1) };
 
                 bi1.Normalize(); bi2.Normalize();
 
                 if (bi2.length == 1)
                     return DwordDivMod(bi1, bi2.data[0]);
 
-                uint remainderLen = bi1.length + 1;
-                int divisorLen = (int)bi2.length + 1;
+                var remainderLen = bi1.length + 1;
+                var divisorLen = (int)bi2.length + 1;
 
-                uint mask = 0x80000000;
-                uint val = bi2.data[bi2.length - 1];
-                int shift = 0;
-                int resultPos = (int)bi1.length - (int)bi2.length;
+                var mask = 0x80000000;
+                var val = bi2.data[bi2.length - 1];
+                var shift = 0;
+                var resultPos = (int)bi1.length - (int)bi2.length;
 
                 while (mask != 0 && (val & mask) == 0)
                 {
                     shift++; mask >>= 1;
                 }
 
-                BigInteger quot = new BigInteger(Sign.Positive, bi1.length - bi2.length + 1);
-                BigInteger rem = (bi1 << shift);
+                var quot = new BigInteger(Sign.Positive, bi1.length - bi2.length + 1);
+                var rem = (bi1 << shift);
 
-                uint[] remainder = rem.data;
+                var remainder = rem.data;
 
                 bi2 = bi2 << shift;
 
-                int j = (int)(remainderLen - bi2.length);
+                var j = (int)(remainderLen - bi2.length);
                 int pos = (int)remainderLen - 1;
 
                 uint firstDivisorByte = bi2.data[bi2.length - 1];
@@ -1018,21 +1018,21 @@ namespace Mono.Math
 
                 while (j > 0)
                 {
-                    ulong dividend = ((ulong)remainder[pos] << 32) + (ulong)remainder[pos - 1];
+                    var dividend = ((ulong)remainder[pos] << 32) + remainder[pos - 1];
 
-                    ulong q_hat = dividend / (ulong)firstDivisorByte;
-                    ulong r_hat = dividend % (ulong)firstDivisorByte;
+                    var qHat = dividend / firstDivisorByte;
+                    var rHat = dividend % firstDivisorByte;
 
                     do
                     {
 
-                        if (q_hat == 0x100000000 ||
-                            (q_hat * secondDivisorByte) > ((r_hat << 32) + remainder[pos - 2]))
+                        if (qHat == 0x100000000 ||
+                            (qHat * secondDivisorByte) > ((rHat << 32) + remainder[pos - 2]))
                         {
-                            q_hat--;
-                            r_hat += (ulong)firstDivisorByte;
+                            qHat--;
+                            rHat += firstDivisorByte;
 
-                            if (r_hat < 0x100000000)
+                            if (rHat < 0x100000000)
                                 continue;
                         }
                         break;
@@ -1049,10 +1049,10 @@ namespace Mono.Math
                     uint dPos = 0;
                     int nPos = pos - divisorLen + 1;
                     ulong mc = 0;
-                    uint uint_q_hat = (uint)q_hat;
+                    uint uint_q_hat = (uint)qHat;
                     do
                     {
-                        mc += (ulong)bi2.data[dPos] * (ulong)uint_q_hat;
+                        mc += (ulong) bi2.data[dPos] * uint_q_hat;
                         t = remainder[nPos];
                         remainder[nPos] -= (uint)mc;
                         mc >>= 32;
@@ -1071,7 +1071,7 @@ namespace Mono.Math
 
                         do
                         {
-                            sum = ((ulong)remainder[nPos]) + ((ulong)bi2.data[dPos]) + sum;
+                            sum = ((ulong)remainder[nPos]) + bi2.data[dPos] + sum;
                             remainder[nPos] = (uint)sum;
                             sum >>= 32;
                             dPos++; nPos++;
@@ -1079,7 +1079,7 @@ namespace Mono.Math
 
                     }
 
-                    quot.data[resultPos--] = (uint)uint_q_hat;
+                    quot.data[resultPos--] = uint_q_hat;
 
                     pos--;
                     j--;
@@ -1087,7 +1087,7 @@ namespace Mono.Math
 
                 quot.Normalize();
                 rem.Normalize();
-                BigInteger[] ret = new BigInteger[2] { quot, rem };
+                var ret = new[] { quot, rem };
 
                 if (shift != 0)
                     ret[1] >>= shift;
