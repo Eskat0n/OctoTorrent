@@ -115,11 +115,11 @@ namespace OctoTorrent.Client.Encryption
             }
         }
 
-        protected override void doneSynchronize()
+        protected override void DoneSynchronize()
         {
             try
             {
-                base.doneSynchronize(); // 4 B->A: ENCRYPT(VC, ...
+                base.DoneSynchronize(); // 4 B->A: ENCRYPT(VC, ...
 
                 _verifyBytes = new byte[4 + 2];
                 ReceiveMessage(_verifyBytes, _verifyBytes.Length, _gotVerificationCallback); // crypto_select, len(padD) ...

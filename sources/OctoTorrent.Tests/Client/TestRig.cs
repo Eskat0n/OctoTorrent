@@ -484,7 +484,7 @@ namespace OctoTorrent.Tests.Client
         BEncodedDictionary CreateTorrent(int pieceLength, TorrentFile[] files, string[][] tier)
         {
             var dict = new BEncodedDictionary();
-            BEncodedDictionary infoDict = new BEncodedDictionary();
+            var infoDict = new BEncodedDictionary();
 
             AddAnnounces(dict, tier);
             AddFiles(infoDict, files);

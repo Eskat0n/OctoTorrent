@@ -69,29 +69,29 @@ namespace OctoTorrent.Client
 
         #endregion Old
 
-        PiecePicker picker;
-        BitField unhashedPieces;
+        PiecePicker _picker;
+        BitField _unhashedPieces;
 
         internal PiecePicker Picker
         {
-            get { return picker; }
+            get { return _picker; }
         }
 
         internal BitField UnhashedPieces
         {
-            get { return unhashedPieces; }
+            get { return _unhashedPieces; }
         }
 
         internal PieceManager()
         {
-            picker = new NullPicker();
-            unhashedPieces = new BitField(0);
+            _picker = new NullPicker();
+            _unhashedPieces = new BitField(0);
         }
 
         public void PieceDataReceived(PeerId peer, PieceMessage message)
         {
             Piece piece;
-            if (picker.ValidatePiece(peer, message.PieceIndex, message.StartOffset, message.RequestLength, out piece))
+            if (_picker.ValidatePiece(peer, message.PieceIndex, message.StartOffset, message.RequestLength, out piece))
             {
                 PeerId id = peer;
                 TorrentManager manager = id.TorrentManager;
@@ -137,7 +137,7 @@ namespace OctoTorrent.Client
 				});
                 
                 if (piece.AllBlocksReceived)
-                    unhashedPieces[message.PieceIndex] = true;
+                    _unhashedPieces[message.PieceIndex] = true;
             }
         }
 
@@ -202,21 +202,21 @@ namespace OctoTorrent.Client
 
         internal void ChangePicker(PiecePicker picker, BitField bitfield, TorrentFile[] files)
         {
-            if (unhashedPieces.Length != bitfield.Length)
-                unhashedPieces = new BitField(bitfield.Length);
+            if (_unhashedPieces.Length != bitfield.Length)
+                _unhashedPieces = new BitField(bitfield.Length);
 
             picker = new IgnoringPicker(bitfield, picker);
-            picker = new IgnoringPicker(unhashedPieces, picker);
+            picker = new IgnoringPicker(_unhashedPieces, picker);
             IEnumerable<Piece> pieces = Picker == null ? new List<Piece>() : Picker.ExportActiveRequests();
             picker.Initialise(bitfield, files, pieces);
-            this.picker = picker;
+            this._picker = picker;
         }
 
         internal void Reset()
         {
-            this.unhashedPieces.SetAll(false);
-            if (picker != null)
-                picker.Reset();
+            this._unhashedPieces.SetAll(false);
+            if (_picker != null)
+                _picker.Reset();
         }
 
         internal int CurrentRequestCount()

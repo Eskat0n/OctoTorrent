@@ -1,7 +1,5 @@
 #if !DISABLE_DHT
 using System;
-using System.Collections.Generic;
-using System.Text;
 using OctoTorrent.Dht.Messages;
 using OctoTorrent.Client;
 
@@ -9,43 +7,44 @@ namespace OctoTorrent.Dht.Tasks
 {
     class ReplaceNodeTask : Task
     {
-        private Bucket bucket;
-        private DhtEngine engine;
-        private Node newNode;
+        private readonly Bucket _bucket;
+        private readonly DhtEngine _engine;
+        private readonly Node _newNode;
 
         public ReplaceNodeTask(DhtEngine engine, Bucket bucket, Node newNode)
         {
-            this.engine = engine;
-            this.bucket = bucket;
-            this.newNode = newNode;
+            _engine = engine;
+            _bucket = bucket;
+            _newNode = newNode;
         }
 
         public override void Execute()
         {
-            DhtEngine.MainLoop.Queue ((MainLoopTask) delegate {
-                if (bucket.Nodes.Count == 0)
-                {
-                    RaiseComplete(new TaskCompleteEventArgs(this));
-                    return;
-                }
-    
-                SendPingToOldest();
-            });
+            DhtEngine.MainLoop.Queue(() =>
+                                         {
+                                             if (_bucket.Nodes.Count == 0)
+                                             {
+                                                 RaiseComplete(new TaskCompleteEventArgs(this));
+                                                 return;
+                                             }
+
+                                             SendPingToOldest();
+                                         });
         }
 
         private void SendPingToOldest()
         {
-            bucket.LastChanged = DateTime.UtcNow;
-            bucket.SortBySeen();
+            _bucket.LastChanged = DateTime.UtcNow;
+            _bucket.SortBySeen();
 
-            if ((DateTime.UtcNow - bucket.Nodes[0].LastSeen) < TimeSpan.FromMinutes(3))
+            if ((DateTime.UtcNow - _bucket.Nodes[0].LastSeen) < TimeSpan.FromMinutes(3))
             {
                 RaiseComplete(new TaskCompleteEventArgs(this));
             }
             else
             {
-                Node oldest = bucket.Nodes[0];
-                SendQueryTask task = new SendQueryTask(engine, new Ping(engine.LocalId), oldest);
+                var oldest = _bucket.Nodes[0];
+                var task = new SendQueryTask(_engine, new Ping(_engine.LocalId), oldest);
                 task.Completed += TaskComplete;
                 task.Execute();
             }
@@ -56,21 +55,21 @@ namespace OctoTorrent.Dht.Tasks
             e.Task.Completed -= TaskComplete;
 
             // I should raise the event with some eventargs saying which node was dead
-            SendQueryEventArgs args = (SendQueryEventArgs)e;
+            var args = (SendQueryEventArgs)e;
             
             if (args.TimedOut)
             {
                 // If the node didn't respond and it's no longer in our bucket,
                 // we need to send a ping to the oldest node in the bucket
                 // Otherwise if we have a non-responder and it's still there, replace it!
-                int index = bucket.Nodes.IndexOf(((SendQueryTask)e.Task).Target);
+                var index = _bucket.Nodes.IndexOf(((SendQueryTask)e.Task).Target);
                 if (index < 0)
                 {
                     SendPingToOldest();
                 }
                 else
                 {
-                    bucket.Nodes[index] = newNode;
+                    _bucket.Nodes[index] = _newNode;
                     RaiseComplete(new TaskCompleteEventArgs(this));
                 }
             }

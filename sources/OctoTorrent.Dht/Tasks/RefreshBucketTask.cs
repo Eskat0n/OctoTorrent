@@ -1,56 +1,50 @@
 #if !DISABLE_DHT
-using System;
-using System.Collections.Generic;
-using System.Text;
-using OctoTorrent.Dht.Messages;
-using OctoTorrent.Dht.Tasks;
-
-namespace OctoTorrent.Dht
+namespace OctoTorrent.Dht.Tasks
 {
-    class RefreshBucketTask : Task
+    using System;
+    using Messages;
+
+    internal class RefreshBucketTask : Task
     {
-        private Bucket bucket;
-        private DhtEngine engine;
-        private FindNode message;
-        private Node node;
-        private SendQueryTask task;
+        private readonly Bucket _bucket;
+        private readonly DhtEngine _engine;
+        private Node _node;
+        private FindNode _message;
+        private SendQueryTask _task;
 
         public RefreshBucketTask(DhtEngine engine, Bucket bucket)
         {
-            this.engine = engine;
-            this.bucket = bucket;
+            _engine = engine;
+            _bucket = bucket;
         }
 
         public override void Execute()
         {
-            if (bucket.Nodes.Count == 0)
+            if (_bucket.Nodes.Count == 0)
             {
                 RaiseComplete(new TaskCompleteEventArgs(this));
                 return;
             }
 
-            Console.WriteLine("Choosing first from: {0}", bucket.Nodes.Count);
-            bucket.SortBySeen();
-            QueryNode(bucket.Nodes[0]);
+            Console.WriteLine("Choosing first from: {0}", _bucket.Nodes.Count);
+            _bucket.SortBySeen();
+            QueryNode(_bucket.Nodes[0]);
         }
 
-        private void TaskComplete(object o, TaskCompleteEventArgs e)
+        private void TaskComplete(object sender, TaskCompleteEventArgs eventArgs)
         {
-            task.Completed -= TaskComplete;
+            _task.Completed -= TaskComplete;
 
-            SendQueryEventArgs args = (SendQueryEventArgs)e;
-            if (args.TimedOut)
+            var sendQueryEventArgs = (SendQueryEventArgs) eventArgs;
+            if (sendQueryEventArgs.TimedOut)
             {
-                bucket.SortBySeen();
-                int index = bucket.Nodes.IndexOf(node);
-                if (index == -1 || (++index < bucket.Nodes.Count))
-                {
-                    QueryNode(bucket.Nodes[0]);
-                }
+                _bucket.SortBySeen();
+                var index = _bucket.Nodes.IndexOf(_node);
+
+                if (index == -1 || (++index < _bucket.Nodes.Count))
+                    QueryNode(_bucket.Nodes[0]);
                 else
-                {
                     RaiseComplete(new TaskCompleteEventArgs(this));
-                }
             }
             else
             {
@@ -60,12 +54,13 @@ namespace OctoTorrent.Dht
 
         private void QueryNode(Node node)
         {
-            this.node = node;
-            message = new FindNode(engine.LocalId, node.Id);
-            task = new SendQueryTask(engine, message, node);
-            task.Completed += TaskComplete;
-            task.Execute();
+            _node = node;
+            _message = new FindNode(_engine.LocalId, node.Id);
+            _task = new SendQueryTask(_engine, _message, node);
+            _task.Completed += TaskComplete;
+            _task.Execute();
         }
     }
 }
+
 #endif

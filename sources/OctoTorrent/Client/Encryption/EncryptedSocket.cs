@@ -17,8 +17,8 @@ namespace OctoTorrent.Client.Encryption
 
         public EncryptedSocket(EncryptionTypes allowedEncryption)
         {
-            random = RandomNumberGenerator.Create();
-            hasher = HashAlgoFactory.Create<SHA1>();
+            _random = RandomNumberGenerator.Create();
+            _hasher = HashAlgoFactory.Create<SHA1>();
 
             GenerateX();
             GenerateY();
@@ -26,13 +26,13 @@ namespace OctoTorrent.Client.Encryption
             InitialPayload = BufferManager.EmptyBuffer;
             RemoteInitialPayload = BufferManager.EmptyBuffer;
 
-            doneSendCallback = doneSend;
-            doneReceiveCallback = doneReceive;
-            doneReceiveYCallback = delegate { doneReceiveY(); };
-            doneSynchronizeCallback = delegate { doneSynchronize(); };
-            fillSynchronizeBytesCallback = fillSynchronizeBytes;
+            _doneSendCallback = DoneSend;
+            _doneReceiveCallback = DoneReceive;
+            _doneReceiveYCallback = delegate { doneReceiveY(); };
+            _doneSynchronizeCallback = delegate { DoneSynchronize(); };
+            _fillSynchronizeBytesCallback = fillSynchronizeBytes;
 
-            bytesReceived = 0;
+            _bytesReceived = 0;
 
             SetMinCryptoAllowed(allowedEncryption);
         }
@@ -55,7 +55,7 @@ namespace OctoTorrent.Client.Encryption
 
             try
             {
-                this.socket = socket;
+                _socket = socket;
 
                 // Either "1 A->B: Diffie Hellman Ya, PadA" or "2 B->A: Diffie Hellman Yb, PadB"
                 // These two steps will be done simultaneously to save time due to latency
@@ -92,12 +92,14 @@ namespace OctoTorrent.Client.Encryption
         /// <param name="initialBuffer">Buffer containing soome data already received from the socket</param>
         /// <param name="offset">Offset to begin reading in initialBuffer</param>
         /// <param name="count">Number of bytes to read from initialBuffer</param>
+        /// <param name="callback"></param>
+        /// <param name="state"></param>
         public virtual IAsyncResult BeginHandshake(IConnection socket, byte[] initialBuffer, int offset, int count,
                                                    AsyncCallback callback, object state)
         {
-            this.initialBuffer = initialBuffer;
-            initialBufferOffset = offset;
-            initialBufferCount = count;
+            _initialBuffer = initialBuffer;
+            _initialBufferOffset = offset;
+            _initialBufferCount = count;
             return BeginHandshake(socket, callback, state);
         }
 
@@ -105,29 +107,29 @@ namespace OctoTorrent.Client.Encryption
         /// <summary>
         ///     Encrypts some data (should only be called after onEncryptorReady)
         /// </summary>
-        /// <param name="buffer">Buffer with the data to encrypt</param>
+        /// <param name="data">Buffer with the data to encrypt</param>
         /// <param name="offset">Offset to begin encryption</param>
-        /// <param name="count">Number of bytes to encrypt</param>
+        /// <param name="length">Number of bytes to encrypt</param>
         public void Encrypt(byte[] data, int offset, int length)
         {
-            streamEncryptor.Encrypt(data, offset, data, offset, length);
+            _streamEncryptor.Encrypt(data, offset, data, offset, length);
         }
 
         /// <summary>
         ///     Decrypts some data (should only be called after onEncryptorReady)
         /// </summary>
-        /// <param name="buffer">Buffer with the data to decrypt</param>
+        /// <param name="data">Buffer with the data to decrypt</param>
         /// <param name="offset">Offset to begin decryption</param>
-        /// <param name="count">Number of bytes to decrypt</param>
+        /// <param name="length">Number of bytes to decrypt</param>
         public void Decrypt(byte[] data, int offset, int length)
         {
-            streamDecryptor.Decrypt(data, offset, data, offset, length);
+            _streamDecryptor.Decrypt(data, offset, data, offset, length);
         }
 
         private int RandomNumber(int max)
         {
             var b = new byte[4];
-            random.GetBytes(b);
+            _random.GetBytes(b);
             var val = BitConverter.ToUInt32(b, 0);
             return (int) (val%max);
         }
@@ -143,7 +145,7 @@ namespace OctoTorrent.Client.Encryption
         protected void SendY()
         {
             var toSend = new byte[96 + RandomNumber(512)];
-            random.GetBytes(toSend);
+            _random.GetBytes(toSend);
 
             Buffer.BlockCopy(Y, 0, toSend, 0, 96);
 
@@ -156,13 +158,13 @@ namespace OctoTorrent.Client.Encryption
         /// </summary>
         protected void ReceiveY()
         {
-            OtherY = new byte[96];
-            ReceiveMessage(OtherY, 96, doneReceiveYCallback);
+            _otherY = new byte[96];
+            ReceiveMessage(_otherY, 96, _doneReceiveYCallback);
         }
 
         protected virtual void doneReceiveY()
         {
-            S = ModuloCalculator.Calculate(OtherY, X);
+            S = ModuloCalculator.Calculate(_otherY, X);
         }
 
         #endregion
@@ -181,15 +183,15 @@ namespace OctoTorrent.Client.Encryption
             try
             {
                 // The strategy here is to create a window the size of the data to synchronize and just refill that until its contents match syncData
-                synchronizeData = syncData;
-                synchronizeWindow = new byte[syncData.Length];
-                this.syncStopPoint = syncStopPoint;
+                _synchronizeData = syncData;
+                _synchronizeWindow = new byte[syncData.Length];
+                _syncStopPoint = syncStopPoint;
 
-                if (bytesReceived > syncStopPoint)
+                if (_bytesReceived > syncStopPoint)
                     AsyncResult.Complete(new EncryptionException("Couldn't synchronise 1"));
                 else
-                    NetworkIO.EnqueueReceive(socket, synchronizeWindow, 0, synchronizeWindow.Length, null, null, null,
-                                             fillSynchronizeBytesCallback, 0);
+                    NetworkIO.EnqueueReceive(_socket, _synchronizeWindow, 0, _synchronizeWindow.Length, null, null, null,
+                                             _fillSynchronizeBytesCallback, 0);
             }
             catch (Exception ex)
             {
@@ -204,42 +206,42 @@ namespace OctoTorrent.Client.Encryption
                 if (!succeeded)
                     throw new MessageException("Could not fill sync. bytes");
 
-                bytesReceived += count;
+                _bytesReceived += count;
                 int filled = (int) state + count; // count of the bytes currently in synchronizeWindow
                 bool matched = true;
                 for (int i = 0; i < filled && matched; i++)
-                    matched &= synchronizeData[i] == synchronizeWindow[i];
+                    matched &= _synchronizeData[i] == _synchronizeWindow[i];
 
                 if (matched) // the match started in the beginning of the window, so it must be a full match
                 {
-                    doneSynchronizeCallback(null);
+                    _doneSynchronizeCallback(null);
                 }
                 else
                 {
-                    if (bytesReceived > syncStopPoint)
+                    if (_bytesReceived > _syncStopPoint)
                         throw new EncryptionException("Could not resyncronise the stream");
 
                     // See if the current window contains the first byte of the expected synchronize data
                     // No need to check synchronizeWindow[0] as otherwise we could loop forever receiving 0 bytes
                     int shift = -1;
-                    for (int i = 1; i < synchronizeWindow.Length && shift == -1; i++)
-                        if (synchronizeWindow[i] == synchronizeData[0])
+                    for (int i = 1; i < _synchronizeWindow.Length && shift == -1; i++)
+                        if (_synchronizeWindow[i] == _synchronizeData[0])
                             shift = i;
 
                     // The current data is all useless, so read an entire new window of data
                     if (shift == -1)
                     {
-                        NetworkIO.EnqueueReceive(socket, synchronizeWindow, 0, synchronizeWindow.Length, null, null,
-                                                 null, fillSynchronizeBytesCallback, 0);
+                        NetworkIO.EnqueueReceive(_socket, _synchronizeWindow, 0, _synchronizeWindow.Length, null, null,
+                                                 null, _fillSynchronizeBytesCallback, 0);
                     }
                     else
                     {
                         // Shuffle everything left by 'shift' (the first good byte) and fill the rest of the window
-                        Buffer.BlockCopy(synchronizeWindow, shift, synchronizeWindow, 0,
-                                         synchronizeWindow.Length - shift);
-                        NetworkIO.EnqueueReceive(socket, synchronizeWindow, synchronizeWindow.Length - shift,
-                                                 shift, null, null, null, fillSynchronizeBytesCallback,
-                                                 synchronizeWindow.Length - shift);
+                        Buffer.BlockCopy(_synchronizeWindow, shift, _synchronizeWindow, 0,
+                                         _synchronizeWindow.Length - shift);
+                        NetworkIO.EnqueueReceive(_socket, _synchronizeWindow, _synchronizeWindow.Length - shift,
+                                                 shift, null, null, null, _fillSynchronizeBytesCallback,
+                                                 _synchronizeWindow.Length - shift);
                     }
                 }
             }
@@ -249,7 +251,7 @@ namespace OctoTorrent.Client.Encryption
             }
         }
 
-        protected virtual void doneSynchronize()
+        protected virtual void DoneSynchronize()
         {
             // do nothing for now
         }
@@ -267,29 +269,29 @@ namespace OctoTorrent.Client.Encryption
                     callback(null);
                     return;
                 }
-                if (initialBuffer != null)
+                if (_initialBuffer != null)
                 {
-                    int toCopy = Math.Min(initialBufferCount, length);
-                    Array.Copy(initialBuffer, initialBufferOffset, buffer, 0, toCopy);
-                    initialBufferOffset += toCopy;
-                    initialBufferCount -= toCopy;
+                    int toCopy = Math.Min(_initialBufferCount, length);
+                    Array.Copy(_initialBuffer, _initialBufferOffset, buffer, 0, toCopy);
+                    _initialBufferOffset += toCopy;
+                    _initialBufferCount -= toCopy;
 
-                    if (toCopy == initialBufferCount)
+                    if (toCopy == _initialBufferCount)
                     {
-                        initialBufferCount = 0;
-                        initialBufferOffset = 0;
-                        initialBuffer = BufferManager.EmptyBuffer;
+                        _initialBufferCount = 0;
+                        _initialBufferOffset = 0;
+                        _initialBuffer = BufferManager.EmptyBuffer;
                     }
 
                     if (toCopy == length)
                         callback(null);
                     else
-                        NetworkIO.EnqueueReceive(socket, buffer, toCopy, length - toCopy, null, null, null,
-                                                 doneReceiveCallback, callback);
+                        NetworkIO.EnqueueReceive(_socket, buffer, toCopy, length - toCopy, null, null, null,
+                                                 _doneReceiveCallback, callback);
                 }
                 else
                 {
-                    NetworkIO.EnqueueReceive(socket, buffer, 0, length, null, null, null, doneReceiveCallback, callback);
+                    NetworkIO.EnqueueReceive(_socket, buffer, 0, length, null, null, null, _doneReceiveCallback, callback);
                 }
             }
             catch (Exception ex)
@@ -298,7 +300,7 @@ namespace OctoTorrent.Client.Encryption
             }
         }
 
-        private void doneReceive(bool succeeded, int count, object state)
+        private void DoneReceive(bool succeeded, int count, object state)
         {
             try
             {
@@ -306,7 +308,7 @@ namespace OctoTorrent.Client.Encryption
                 if (!succeeded)
                     throw new MessageException("Could not receive");
 
-                bytesReceived += count;
+                _bytesReceived += count;
                 callback(null);
             }
             catch (Exception ex)
@@ -320,7 +322,7 @@ namespace OctoTorrent.Client.Encryption
             try
             {
                 if (toSend.Length > 0)
-                    NetworkIO.EnqueueSend(socket, toSend, 0, toSend.Length, null, null, null, doneSendCallback, null);
+                    NetworkIO.EnqueueSend(_socket, toSend, 0, toSend.Length, null, null, null, _doneSendCallback, null);
             }
             catch (Exception ex)
             {
@@ -328,7 +330,7 @@ namespace OctoTorrent.Client.Encryption
             }
         }
 
-        private void doneSend(bool succeeded, int count, object state)
+        private void DoneSend(bool succeeded, int count, object state)
         {
             if (!succeeded)
                 AsyncResult.Complete(new MessageException("Could not send required data"));
@@ -345,7 +347,7 @@ namespace OctoTorrent.Client.Encryption
         {
             X = new byte[20];
 
-            random.GetBytes(X);
+            _random.GetBytes(X);
         }
 
         /// <summary>
@@ -365,8 +367,8 @@ namespace OctoTorrent.Client.Encryption
         /// <param name="decryptionSalt">The salt to calculate the decryption key with</param>
         protected void CreateCryptors(string encryptionSalt, string decryptionSalt)
         {
-            encryptor = new RC4(Hash(Encoding.ASCII.GetBytes(encryptionSalt), S, SKEY.Hash));
-            decryptor = new RC4(Hash(Encoding.ASCII.GetBytes(decryptionSalt), S, SKEY.Hash));
+            _encryptor = new RC4(Hash(Encoding.ASCII.GetBytes(encryptionSalt), S, SKEY.Hash));
+            _decryptor = new RC4(Hash(Encoding.ASCII.GetBytes(decryptionSalt), S, SKEY.Hash));
         }
 
         /// <summary>
@@ -378,25 +380,25 @@ namespace OctoTorrent.Client.Encryption
             CryptoSelect = new byte[remoteCryptoBytes.Length];
 
             // '2' corresponds to RC4Full
-            if ((remoteCryptoBytes[3] & 2) == 2 && Toolbox.HasEncryption(allowedEncryption, EncryptionTypes.RC4Full))
+            if ((remoteCryptoBytes[3] & 2) == 2 && Toolbox.HasEncryption(_allowedEncryption, EncryptionTypes.RC4Full))
             {
                 CryptoSelect[3] |= 2;
                 if (replace)
                 {
-                    streamEncryptor = encryptor;
-                    streamDecryptor = decryptor;
+                    _streamEncryptor = _encryptor;
+                    _streamDecryptor = _decryptor;
                 }
                 return 2;
             }
 
             // '1' corresponds to RC4Header
-            if ((remoteCryptoBytes[3] & 1) == 1 && Toolbox.HasEncryption(allowedEncryption, EncryptionTypes.RC4Header))
+            if ((remoteCryptoBytes[3] & 1) == 1 && Toolbox.HasEncryption(_allowedEncryption, EncryptionTypes.RC4Header))
             {
                 CryptoSelect[3] |= 1;
                 if (replace)
                 {
-                    streamEncryptor = new RC4Header();
-                    streamDecryptor = new RC4Header();
+                    _streamEncryptor = new RC4Header();
+                    _streamDecryptor = new RC4Header();
                 }
                 return 1;
             }
@@ -433,7 +435,7 @@ namespace OctoTorrent.Client.Encryption
         /// <returns>20-byte hash</returns>
         protected byte[] Hash(params byte[][] data)
         {
-            return hasher.ComputeHash(Combine(data));
+            return _hasher.ComputeHash(Combine(data));
         }
 
         /// <summary>
@@ -472,7 +474,7 @@ namespace OctoTorrent.Client.Encryption
         protected byte[] DoEncrypt(byte[] data)
         {
             var d = (byte[]) data.Clone();
-            encryptor.Encrypt(d);
+            _encryptor.Encrypt(d);
             return d;
         }
 
@@ -484,7 +486,7 @@ namespace OctoTorrent.Client.Encryption
         /// <param name="count">Number of bytes to encrypt</param>
         protected void DoEncrypt(byte[] data, int offset, int length)
         {
-            encryptor.Encrypt(data, offset, data, offset, length);
+            _encryptor.Encrypt(data, offset, data, offset, length);
         }
 
         /// <summary>
@@ -495,7 +497,7 @@ namespace OctoTorrent.Client.Encryption
         protected byte[] DoDecrypt(byte[] data)
         {
             var d = (byte[]) data.Clone();
-            decryptor.Decrypt(d);
+            _decryptor.Decrypt(d);
             return d;
         }
 
@@ -507,7 +509,7 @@ namespace OctoTorrent.Client.Encryption
         /// <param name="count">Number of bytes to decrypt</param>
         protected void DoDecrypt(byte[] data, int offset, int length)
         {
-            decryptor.Decrypt(data, offset, data, offset, length);
+            _decryptor.Decrypt(data, offset, data, offset, length);
         }
 
         /// <summary>
@@ -520,7 +522,7 @@ namespace OctoTorrent.Client.Encryption
 
         protected void SetMinCryptoAllowed(EncryptionTypes allowedEncryption)
         {
-            this.allowedEncryption = allowedEncryption;
+            _allowedEncryption = allowedEncryption;
 
             // EncryptionType is basically a bit position starting from the right.
             // This sets all bits in CryptoProvide 0 that is to the right of minCryptoAllowed.
@@ -537,12 +539,12 @@ namespace OctoTorrent.Client.Encryption
 
         public IEncryption Encryptor
         {
-            get { return streamEncryptor; }
+            get { return _streamEncryptor; }
         }
 
         public IEncryption Decryptor
         {
-            get { return streamDecryptor; }
+            get { return _streamDecryptor; }
         }
 
         public byte[] InitialData
@@ -570,53 +572,53 @@ namespace OctoTorrent.Client.Encryption
 
         #region Private members
 
-        private readonly AsyncIOCallback doneReceiveCallback;
-        private readonly AsyncCallback doneReceiveYCallback;
-        private readonly AsyncIOCallback doneSendCallback;
-        private readonly AsyncCallback doneSynchronizeCallback;
-        private readonly AsyncIOCallback fillSynchronizeBytesCallback;
-        private readonly SHA1 hasher;
-        private readonly RandomNumberGenerator random;
-        private byte[] OtherY;
+        private readonly AsyncIOCallback _doneReceiveCallback;
+        private readonly AsyncCallback _doneReceiveYCallback;
+        private readonly AsyncIOCallback _doneSendCallback;
+        private readonly AsyncCallback _doneSynchronizeCallback;
+        private readonly AsyncIOCallback _fillSynchronizeBytesCallback;
+        private readonly SHA1 _hasher;
+        private readonly RandomNumberGenerator _random;
+        private byte[] _otherY;
 
         // Cryptors for the handshaking
 
         private byte[] X; // A 160 bit random integer
         private byte[] Y; // 2^X mod P
-        private EncryptionTypes allowedEncryption;
-        private int bytesReceived;
-        private RC4 decryptor;
-        private RC4 encryptor;
+        private EncryptionTypes _allowedEncryption;
+        private int _bytesReceived;
+        private RC4 _decryptor;
+        private RC4 _encryptor;
 
         // Data to be passed to initial ReceiveMessage requests
-        private byte[] initialBuffer;
-        private int initialBufferCount;
-        private int initialBufferOffset;
-        private IConnection socket;
-        private IEncryption streamDecryptor;
-        private IEncryption streamEncryptor;
-        private int syncStopPoint;
+        private byte[] _initialBuffer;
+        private int _initialBufferCount;
+        private int _initialBufferOffset;
+        private IConnection _socket;
+        private IEncryption _streamDecryptor;
+        private IEncryption _streamEncryptor;
+        private int _syncStopPoint;
 
         // State information to be checked against abort conditions
 
         // State information for synchronization
-        private byte[] synchronizeData;
-        private byte[] synchronizeWindow;
+        private byte[] _synchronizeData;
+        private byte[] _synchronizeWindow;
 
         #endregion
 
         #region Protected members
 
-        protected byte[] CryptoProvide = new byte[] {0x00, 0x00, 0x00, 0x03};
+        protected readonly byte[] CryptoProvide = new byte[] {0x00, 0x00, 0x00, 0x03};
         protected byte[] CryptoSelect;
 
         protected byte[] InitialPayload;
-        protected byte[] PadC = null;
-        protected byte[] PadD = null;
+        protected byte[] PadC;
+        protected byte[] PadD;
         protected byte[] RemoteInitialPayload;
-        protected byte[] S = null;
-        protected InfoHash SKEY = null;
-        protected byte[] VerificationConstant = new byte[8];
+        protected byte[] S;
+        protected InfoHash SKEY;
+        protected readonly byte[] VerificationConstant = new byte[8];
 
         #endregion
     }

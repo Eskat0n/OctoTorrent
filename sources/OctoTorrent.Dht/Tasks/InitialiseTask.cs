@@ -1,18 +1,16 @@
 #if !DISABLE_DHT
 using OctoTorrent.Dht.Messages;
-using System;
 using System.Net;
-using System.Collections.Generic;
-using OctoTorrent.BEncoding;
-
 namespace OctoTorrent.Dht.Tasks
 {
+    using System.Collections.Generic;
+
     class InitialiseTask : Task
     {
-        int activeRequests = 0;
-        List<Node> initialNodes;
-        SortedList<NodeId, NodeId> nodes = new SortedList<NodeId, NodeId>();
-        DhtEngine engine;
+        private int _activeRequests;
+        private List<Node> _initialNodes;
+        private readonly SortedList<NodeId, NodeId> _nodes = new SortedList<NodeId, NodeId>();
+        private DhtEngine _engine;
             
         public InitialiseTask(DhtEngine engine)
         {
@@ -29,12 +27,12 @@ namespace OctoTorrent.Dht.Tasks
             Initialise(engine, nodes);
         }
 
-        void Initialise(DhtEngine engine, IEnumerable<Node> nodes)
+        private void Initialise(DhtEngine engine, IEnumerable<Node> nodes)
         {
-            this.engine = engine;
-            this.initialNodes = new List<Node>();
+            _engine = engine;
+            _initialNodes = new List<Node>();
             if (nodes != null)
-                initialNodes.AddRange(nodes);
+                _initialNodes.AddRange(nodes);
         }
 
         public override void Execute()
@@ -45,17 +43,17 @@ namespace OctoTorrent.Dht.Tasks
             Active = true;
 
             // If we were given a list of nodes to load at the start, use them
-            if (initialNodes.Count > 0)
+            if (_initialNodes.Count > 0)
             {
-                foreach (Node node in initialNodes)
-                    engine.Add(node);
-                SendFindNode(initialNodes);
+                foreach (var node in _initialNodes)
+                    _engine.Add(node);
+                SendFindNode(_initialNodes);
             }
             else
             {
                 try
                 {
-                    Node utorrent = new Node(NodeId.Create(), new IPEndPoint(Dns.GetHostEntry("router.bittorrent.com").AddressList[0], 6881));
+                    var utorrent = new Node(NodeId.Create(), new IPEndPoint(Dns.GetHostEntry("router.bittorrent.com").AddressList[0], 6881));
                     SendFindNode(new[] { utorrent });
                 }
                 catch
@@ -68,16 +66,16 @@ namespace OctoTorrent.Dht.Tasks
         private void FindNodeComplete(object sender, TaskCompleteEventArgs e)
         {
             e.Task.Completed -= FindNodeComplete;
-            activeRequests--;
+            _activeRequests--;
 
-            SendQueryEventArgs args = (SendQueryEventArgs)e;
+            var args = (SendQueryEventArgs)e;
             if (!args.TimedOut)
             {
-                FindNodeResponse response = (FindNodeResponse)args.Response;
+                var response = (FindNodeResponse)args.Response;
                 SendFindNode(Node.FromCompactNode(response.Nodes));
             }
 
-            if (activeRequests == 0)
+            if (_activeRequests == 0)
                 RaiseComplete(new TaskCompleteEventArgs(this));
         }
 
@@ -88,13 +86,13 @@ namespace OctoTorrent.Dht.Tasks
 
             // If we were given a list of initial nodes and they were all dead,
             // initialise again except use the utorrent router.
-            if (initialNodes.Count > 0 && engine.RoutingTable.CountNodes() < 10)
+            if (_initialNodes.Count > 0 && _engine.RoutingTable.CountNodes() < 10)
             {
-                new InitialiseTask(engine).Execute ();
+                new InitialiseTask(_engine).Execute ();
             }
             else
             {
-                engine.RaiseStateChanged(DhtState.Ready);
+                _engine.RaiseStateChanged(DhtState.Ready);
             }
 
             Active = false;
@@ -103,11 +101,11 @@ namespace OctoTorrent.Dht.Tasks
 
         private void SendFindNode(IEnumerable<Node> newNodes)
         {
-            foreach (var node in Node.CloserNodes(engine.LocalId, nodes, newNodes, Bucket.MaxCapacity))
+            foreach (var node in Node.CloserNodes(_engine.LocalId, _nodes, newNodes, Bucket.MaxCapacity))
             {
-                activeRequests++;
-                var request = new FindNode(engine.LocalId, engine.LocalId);
-                var task = new SendQueryTask(engine, request, node);
+                _activeRequests++;
+                var request = new FindNode(_engine.LocalId, _engine.LocalId);
+                var task = new SendQueryTask(_engine, request, node);
                 task.Completed += FindNodeComplete;
                 task.Execute();
             }
